@@ -32,7 +32,7 @@ export default function Header() {
             >
               {contact.github.text}
             </a>
-            | 主页：
+            &nbsp;| 主页：
             <a
               href={contact.homepage.url}
               className="text-black no-underline"

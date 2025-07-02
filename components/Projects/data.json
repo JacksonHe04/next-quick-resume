@@ -7,12 +7,44 @@
       "demo": "https://flow-flat.vercel.app",
       "techStack": "React + Vite + TypeScript + Zustand",
       "features": [
-        "整合了节点流程图、富文本编辑器、代码编辑器三大核心功能模块的集成开发平台。",
-        "使用 Zustand 进行轻量级状态管理，实现跨组件的数据共享和响应式更新。",
-        "集成 React Flow 实现可视化节点流程图编辑器，支持拖拽、连线、节点配置等交互功能。",
-        "内置富文本编辑器，支持 Markdown 语法、实时预览、格式化等功能。",
-        "集成 Monaco Editor 代码编辑器，提供语法高亮、代码补全、错误提示等开发体验。"
-      ]
+        "项目采用 Monorepo 架构，集成了自研的节点组件 npm 包和基于该组件库的 Web 应用平台。",
+        "Web 应用平台是一个节点流程图平台，将 TipTap 富文本编辑器和 Monaco 代码编辑器集成到基于 React Flow 的自研节点组件中。",
+        "基于 React Flow 自研 custom-react-flow-node 包，提供可定制内容与类型的 React Flow 节点，已发布 npm 包并提供文档和 API。",
+        "平台使用 Zustand 替代 Redux 实现轻量级状态管理，结合 immer 中间件简化状态更新操作，模块化设计白板、节点和存储状态管理。",
+        "项目采用 Vite 作为 Web 应用的构建工具，使用 Rollup 作为自研节点组件库的构建工具。"
+      ],
+      "show": true
+    },
+    {
+      "name": "LIKEN 大模型对话系统",
+      "github": "https://github.com/JacksonHe04/liken",
+      "demo": "https://liken.vercel.app",
+      "techStack": "Next.js + React + TypeScript + Shad/cn UI",
+      "features": [
+        "基于 Next.js 14 的 App Router 实现了服务端渲染(SSR)，采用 Next.js API Routes 构建后端接口。",
+        "基于 React Context 进行全局会话状态管理，实现新建会话自动在侧栏更新会话列表。",
+        "使用 IndexedDB 实现浏览器本地消息持久化，并支持对话历史记录管理。",
+        "使用 React Markdown 实时渲染回答结果，支持代码高亮显示和复制功能。",
+        "基于 SSE 实现流式对话响应，集成火山方舟大模型 API 与 OpenAI SDK 构建实时智能对话功能。"
+      ],
+      "show": true
+    },
+    {
+      "name": "东南大学 PALM 实验室研究生招生系统",
+      "github": "https://github.com/JacksonHe04/palm-ams",
+      "demo": "https://palm-ams.vercel.app",
+      "techStack": "Vue 3 + TypeScript + Vite + Pinia + Element Plus UI + Django + MySQL",
+      "features": [
+        "基于 Vue Router 实现前端路由系统，通过全局导航守卫实现后台管理权限控制，并结合动态导入实现所有路由组件的按需加载。",
+        "对 Axios 进行二次封装，集成请求拦截器、自动注入 Token、统一错误处理及 ElMessage 提示。",
+        "使用 Tailwind CSS 进行原子化 CSS 开发，实现多屏响应式布局，并通过 SCSS 预处理器定制主题。",
+        "在系统迭代中，用 TypeScript 替换 JavaScript，增强代码健壮性与可维护性。",
+        "利用 Pinia 进行全局状态管理，集中管理数据并实现响应式更新。",
+        "设计统一工具链，集成 ESLint + Prettier + CommitLint 规范，改善代码规范性。",
+        "使用 ECharts 实现招生数据多维度可视化展示，使用 XLSX.js 处理招生系统表格导入导出功能。",
+        "以 Vite 为构建工具，配置模块化开发环境，通过 Rollup 实现精细化的静态资源分包策略。"
+      ],
+      "show": true
     },
     {
       "name": "Find Yourself 基于 Vue 3 的宇宙 3D 游戏",
@@ -24,7 +56,8 @@
         "实现第一人称视角控制系统，支持鼠标和键盘操作，提供流畅的 3D 空间导航体验。",
         "集成物理引擎，实现碰撞检测、重力模拟和物体交互，增强游戏的真实感。",
         "优化渲染性能，实现 LOD 技术和视锥体剔除，确保流畅的游戏体验。"
-      ]
+      ],
+      "show": false
     },
     {
       "name": "Mini React By TypeScript",
@@ -38,7 +71,8 @@
         "设计组件生命周期管理系统，支持组件的挂载、更新和卸载过程。",
         "使用 Jest 编写完整的单元测试，确保各个模块功能的正确性和稳定性。",
         "通过 Webpack 配置构建系统，支持 TypeScript 编译和模块打包。"
-      ]
+      ],
+      "show": false
     }
   ]
 }

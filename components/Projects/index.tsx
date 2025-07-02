@@ -63,7 +63,7 @@ export default function Projects() {
       <h2 className="text-lg font-bold text-black py-1 mb-2 border-b border-black">
         {projects.title}
       </h2>
-      {projects.items.map((project, index) => (
+      {projects.items.filter(item => item.show).map((project, index) => (
         <ProjectItem key={index} project={project} />
       ))}
     </div>
