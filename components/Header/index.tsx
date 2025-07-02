@@ -19,23 +19,26 @@ export default function Header() {
             <a
               href={`mailto:${contact.email}`}
               className="text-black no-underline"
+              target="_blank"
             >
               {contact.email}
             </a>
           </p>
           <p>微信：{contact.wechat} | 年龄：{contact.age}</p>
           <p>
-            GitHub：
+            GitHub:&nbsp;
             <a
               href={contact.github.url}
-              className="text-black no-underline"
+              className="text-black underline"
+              target="_blank"
             >
               {contact.github.text}
             </a>
-            &nbsp;| 主页：
+            &nbsp;| 主页:&nbsp;
             <a
               href={contact.homepage.url}
-              className="text-black no-underline"
+              className="text-black underline"
+              target="_blank"
             >
               {contact.homepage.text}
             </a>

@@ -2,13 +2,13 @@
   "title": "项目经历",
   "items": [
     {
-      "name": "Flow Flat 集成开发平台",
+      "name": "Flow Flat 节点流程图平台",
       "github": "https://github.com/JacksonHe04/flow-flat",
       "demo": "https://flow-flat.vercel.app",
       "techStack": "React + Vite + TypeScript + Zustand",
       "features": [
         "项目采用 Monorepo 架构，集成了自研的节点组件 npm 包和基于该组件库的 Web 应用平台。",
-        "Web 应用平台是一个节点流程图平台，将 TipTap 富文本编辑器和 Monaco 代码编辑器集成到基于 React Flow 的自研节点组件中。",
+        "Web 应用是一个节点流程图平台，将 TipTap 富文本编辑器和 Monaco 代码编辑器集成到基于 React Flow 的自研节点组件中。",
         "基于 React Flow 自研 custom-react-flow-node 包，提供可定制内容与类型的 React Flow 节点，已发布 npm 包并提供文档和 API。",
         "平台使用 Zustand 替代 Redux 实现轻量级状态管理，结合 immer 中间件简化状态更新操作，模块化设计白板、节点和存储状态管理。",
         "项目采用 Vite 作为 Web 应用的构建工具，使用 Rollup 作为自研节点组件库的构建工具。"
@@ -32,10 +32,10 @@
     {
       "name": "东南大学 PALM 实验室研究生招生系统",
       "github": "https://github.com/JacksonHe04/palm-ams",
-      "demo": "https://palm-ams.vercel.app",
+      "demo": "http://139.155.248.15",
       "techStack": "Vue 3 + TypeScript + Vite + Pinia + Element Plus UI + Django + MySQL",
       "features": [
-        "基于 Vue Router 实现前端路由系统，通过全局导航守卫实现后台管理权限控制，并结合动态导入实现所有路由组件的按需加载。",
+        "基于 Vue Router 实现前端路由系统，通过全局导航守卫实现后台管理权限控制，并结合动态导入实现路由组件的按需加载。",
         "对 Axios 进行二次封装，集成请求拦截器、自动注入 Token、统一错误处理及 ElMessage 提示。",
         "使用 Tailwind CSS 进行原子化 CSS 开发，实现多屏响应式布局，并通过 SCSS 预处理器定制主题。",
         "在系统迭代中，用 TypeScript 替换 JavaScript，增强代码健壮性与可维护性。",

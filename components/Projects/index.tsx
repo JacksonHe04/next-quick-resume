@@ -18,29 +18,27 @@ interface ProjectData {
 function ProjectItem({ project }: { project: ProjectData }) {
   return (
     <div className="mb-3">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-1.5">
         <h3 className="font-bold text-base">{project.name}</h3>
-      </div>
-      <div className="flex justify-between mb-1.5 text-sm">
         <a
           href={project.github}
           target="_blank"
-          className="text-black no-underline"
+          className="text-black underline text-sm"
         >
           {project.github}
         </a>
+      </div>
+      <div className="flex justify-between mb-1.5 text-sm">
+        <p className="text-black text-sm">
+          技术栈：{project.techStack}
+        </p>
         <a
           href={project.demo}
           target="_blank"
-          className="text-black no-underline"
+          className="text-black underline"
         >
           {project.demo}
         </a>
-      </div>
-      <div className="my-1.5 text-gray-600 text-sm">
-        <p className="text-black mt-1 text-sm">
-          技术栈：{project.techStack}
-        </p>
       </div>
       <ul className="list-disc list-inside pl-2.5 ml-0 text-sm space-y-1">
         {project.features.map((feature, index) => (
