@@ -32,7 +32,7 @@
     {
       "name": "东南大学 PALM 实验室研究生招生系统",
       "github": "https://github.com/JacksonHe04/palm-ams",
-      "demo": "http://139.155.248.15",
+      "demo": "",
       "techStack": "Vue 3 + TypeScript + Vite + Pinia + Element Plus UI + Django + MySQL",
       "features": [
         "基于 Vue Router 实现前端路由系统，通过全局导航守卫实现后台管理权限控制，并结合动态导入实现路由组件的按需加载。",

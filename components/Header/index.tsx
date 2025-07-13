@@ -44,7 +44,7 @@ export default function Header() {
             </a>
           </p>
         </div>
-        <div className="text-right col-span-2">
+        <div className="text-right col-span-2 hidden">
           <p>
             <strong>目标岗位：</strong>{jobInfo.position}
           </p>
