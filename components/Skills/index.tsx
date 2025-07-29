@@ -1,22 +1,23 @@
 import skillsData from './data.json'
+import { SkillsData } from '@/types'
+import { SectionContainer, SectionTitle } from '@/components/common'
+import { LIST_STYLES } from '@/constants/styles'
 
 /**
  * 专业技能组件 - 展示技术技能列表
  * 从本地JSON数据文件中读取技能列表并循环渲染
  */
 export default function Skills() {
-  const skills = skillsData
+  const skills = skillsData as SkillsData
 
   return (
-    <div className="mb-2">
-      <h2 className="text-lg font-bold text-black py-1 mb-2 border-b border-black">
-        {skills.title}
-      </h2>
-      <ul className="list-disc list-inside pl-2.5 ml-0 text-sm space-y-1">
+    <SectionContainer>
+      <SectionTitle>{skills.title}</SectionTitle>
+      <ul className={LIST_STYLES.base}>
         {skills.items.map((skill, index) => (
           <li key={index} dangerouslySetInnerHTML={{ __html: skill }} />
         ))}
       </ul>
-    </div>
+    </SectionContainer>
   )
 }

@@ -1,58 +1,41 @@
-import projectsData from './data.json'
-
-/**
- * 项目信息接口定义
- */
-interface ProjectData {
-  name: string
-  github: string
-  demo: string
-  techStack: string
-  description: string
-  features: string[]
-}
+import projectsData from "./data.json";
+import { ProjectsData, ProjectItem as ProjectItemType } from "@/types";
+import { SectionContainer, SectionTitle, Link } from "@/components/common";
+import {
+  TITLE_STYLES,
+  TEXT_STYLES,
+  CONTAINER_STYLES,
+  COMBINED_STYLES,
+  LIST_STYLES,
+} from "@/constants/styles";
 
 /**
  * 单个项目组件 - 可复用的项目展示组件
  * @param project - 项目数据对象
  */
-function ProjectItem({ project }: { project: ProjectData }) {
+function ProjectItem({ project }: { project: ProjectItemType }) {
   return (
-    <div className="mb-3">
-      <div className="flex justify-between items-center mb-1.5">
-        <h3 className="font-bold text-base">{project.name}</h3>
-        <a
-          href={project.github}
-          target="_blank"
-          className="text-black underline text-sm"
-        >
+    <div className={CONTAINER_STYLES.project}>
+      <div className={COMBINED_STYLES.projectTitleRow}>
+        <h3 className={TITLE_STYLES.project}>{project.name}</h3>
+        <Link href={project.github} className={TEXT_STYLES.base}>
           {project.github}
-        </a>
+        </Link>
       </div>
-      <div className="flex justify-between mb-1.5 text-sm">
-        <p className="text-black text-sm">
-          技术栈：{project.techStack}
-        </p>
-        <a
-          href={project.demo}
-          target="_blank"
-          className="text-black underline"
-        >
-          {project.demo}
-        </a>
+      <div className={COMBINED_STYLES.projectInfoRow}>
+        <p className={TEXT_STYLES.techStack}>技术栈：{project.techStack}</p>
+        <Link href={project.demo}>{project.demo}</Link>
       </div>
       {project.description && (
-        <p className="text-gray-700 text-sm mb-1.5">
-          {project.description}
-        </p>
+        <p className={TEXT_STYLES.description}>{project.description}</p>
       )}
-      <ul className="list-disc list-inside pl-2.5 ml-0 text-sm space-y-1">
+      <ul className={LIST_STYLES.base}>
         {project.features.map((feature, index) => (
           <li key={index}>{feature}</li>
         ))}
       </ul>
     </div>
-  )
+  );
 }
 
 /**
@@ -60,16 +43,16 @@ function ProjectItem({ project }: { project: ProjectData }) {
  * 从本地JSON数据文件中读取项目列表并循环渲染
  */
 export default function Projects() {
-  const projects = projectsData
+  const projects = projectsData as ProjectsData;
 
   return (
-    <div className="mb-2">
-      <h2 className="text-lg font-bold text-black py-1 mb-2 border-b border-black">
-        {projects.title}
-      </h2>
-      {projects.items.filter(item => item.show).map((project, index) => (
-        <ProjectItem key={index} project={project} />
-      ))}
-    </div>
-  )
+    <SectionContainer>
+      <SectionTitle>{projects.title}</SectionTitle>
+      {projects.items
+        .filter((item) => item.show)
+        .map((project, index) => (
+          <ProjectItem key={index} project={project} />
+        ))}
+    </SectionContainer>
+  );
 }

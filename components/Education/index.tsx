@@ -1,26 +1,27 @@
 import educationData from './data.json'
+import { EducationData } from '@/types'
+import { SectionContainer, SectionTitle } from '@/components/common'
+import { LAYOUT_STYLES, TEXT_STYLES, CONTAINER_STYLES } from '@/constants/styles'
 
 /**
  * 教育经历组件 - 展示学历信息
  * 从本地JSON数据文件中读取教育经历信息进行渲染
  */
 export default function Education() {
-  const education = educationData
+  const education = educationData as EducationData
 
   return (
-    <div className="mb-2">
-      <h2 className="text-lg font-bold text-black py-1 mb-2 border-b border-black">
-        {education.title}
-      </h2>
-      <div className="mb-3">
-        <div className="flex justify-between items-center">
-          <h3>
+    <SectionContainer>
+      <SectionTitle>{education.title}</SectionTitle>
+      <div className={CONTAINER_STYLES.project}>
+        <div className={LAYOUT_STYLES.flexBetween}>
+          <h3 className={TEXT_STYLES.base}>
             <b>{education.school}</b>
           </h3>
-          <p className="text-gray-600 text-sm">{education.period}</p>
+          <p className={TEXT_STYLES.period}>{education.period}</p>
         </div>
-        <p>{education.details}</p>
+        <p className={TEXT_STYLES.base}>{education.details}</p>
       </div>
-    </div>
+    </SectionContainer>
   )
 }
