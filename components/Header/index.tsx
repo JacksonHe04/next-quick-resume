@@ -9,22 +9,15 @@ export default function Header() {
 
   return (
     <div className="mb-2">
-      <div className="text-left mb-4">
+      <div className="text-center mb-4">
         <h1 className="text-3xl font-bold m-0">{name}</h1>
+        <p className="text-lg text-gray-600 mt-2">{jobInfo.position}</p>
       </div>
-      <div className="grid grid-cols-5 gap-5">
-        <div className="text-left col-span-3">
+      <div className="grid grid-cols-2 gap-8">
+        <div className="text-right">
           <p>
-            电话：{contact.phone} | 邮箱：
-            <a
-              href={`mailto:${contact.email}`}
-              className="text-black no-underline"
-              target="_blank"
-            >
-              {contact.email}
-            </a>
+            电话/微信：{contact.phone}
           </p>
-          <p>微信：{contact.wechat} | 年龄：{contact.age}</p>
           <p>
             GitHub:&nbsp;
             <a
@@ -34,7 +27,22 @@ export default function Header() {
             >
               {contact.github.text}
             </a>
-            &nbsp;| 主页:&nbsp;
+          </p>
+        </div>
+        <div className="text-left">
+          <p>
+            邮箱：
+            <a
+              href={`mailto:${contact.email}`}
+              className="text-black no-underline"
+              target="_blank"
+            >
+              {contact.email}
+            </a>
+          </p>
+          <p>年龄：{contact.age}</p>
+          <p>
+            主页:&nbsp;
             <a
               href={contact.homepage.url}
               className="text-black underline"
@@ -42,17 +50,6 @@ export default function Header() {
             >
               {contact.homepage.text}
             </a>
-          </p>
-        </div>
-        <div className="text-right col-span-2 hidden">
-          <p>
-            <strong>目标岗位：</strong>{jobInfo.position}
-          </p>
-          <p>
-            <strong>可实习时间：</strong>{jobInfo.duration}
-          </p>
-          <p>
-            <strong>到岗时间：</strong>{jobInfo.availability}
           </p>
         </div>
       </div>

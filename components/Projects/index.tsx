@@ -8,6 +8,7 @@ interface ProjectData {
   github: string
   demo: string
   techStack: string
+  description: string
   features: string[]
 }
 
@@ -40,6 +41,11 @@ function ProjectItem({ project }: { project: ProjectData }) {
           {project.demo}
         </a>
       </div>
+      {project.description && (
+        <p className="text-gray-700 text-sm mb-1.5">
+          {project.description}
+        </p>
+      )}
       <ul className="list-disc list-inside pl-2.5 ml-0 text-sm space-y-1">
         {project.features.map((feature, index) => (
           <li key={index}>{feature}</li>

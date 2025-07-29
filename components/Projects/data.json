@@ -2,10 +2,27 @@
   "title": "项目经历",
   "items": [
     {
+      "name": "QuAIz 基于大模型的智能试卷生成与批改系统",
+      "github": "https://github.com/JacksonHe04/QuAIz",
+      "demo": "https://quaiz-ai.vercel.app",
+      "techStack": "React 19 + TypeScript + Vite + Zustand + TailwindCSS",
+      "description": "现代化的AI驱动在线出题系统，实现从智能试卷生成、在线答题到自动批改的完整闭环，具备创新的流式渲染技术和虚拟化性能优化。",
+      "features": [
+        "创新实现流式JSON解析与组件渲染系统，突破传统等待完整响应的限制，实现AI输出过程中的动态JSON解析和增量渲染，题目生成完成一道渲染一道。",
+        "基于react-window实现虚拟化渲染技术，支持1000+题目/日志无卡顿显示，DOM节点数量减少98%+，内存使用减少60-80%，初始渲染时间减少75%。",
+        "采用多层次的流式处理架构，实现智能括号匹配算法和题目级别的增量解析，支持部分题目的实时预览和完整题目的即时渲染。",
+        "基于Zustand 5的模块化状态管理，结合React.memo、useMemo、useCallback等优化策略，减少85-90%的不必要重新渲染，计算时间减少60-70%。",
+        "支持6种题型（单选、多选、填空、简答、代码输出、代码编写）的智能生成与批改，集成多种大模型API，提供完整的教育应用解决方案。",
+        "内置性能监控系统，实时跟踪渲染指标、CPU使用率、内存占用和FPS，实现60 FPS流畅滚动和<100ms响应时间的极致用户体验。"
+      ],
+      "show": true
+    },
+    {
       "name": "Flow Flat 节点流程图平台",
       "github": "https://github.com/JacksonHe04/flow-flat",
       "demo": "https://flow-flat.vercel.app",
       "techStack": "React + Vite + TypeScript + Zustand",
+      "description": "一个基于 React Flow 的可视化节点流程图平台，支持富文本编辑和代码编辑功能。",
       "features": [
         "项目采用 Monorepo 架构，集成了自研的节点组件 npm 包和基于该组件库的 Web 应用平台。",
         "Web 应用是一个节点流程图平台，将 TipTap 富文本编辑器和 Monaco 代码编辑器集成到基于 React Flow 的自研节点组件中。",
@@ -13,13 +30,14 @@
         "平台使用 Zustand 替代 Redux 实现轻量级状态管理，结合 immer 中间件简化状态更新操作，模块化设计白板、节点和存储状态管理。",
         "项目采用 Vite 作为 Web 应用的构建工具，使用 Rollup 作为自研节点组件库的构建工具。"
       ],
-      "show": true
+      "show": false
     },
     {
       "name": "LIKEN 大模型对话系统",
       "github": "https://github.com/JacksonHe04/liken",
       "demo": "https://liken.vercel.app",
       "techStack": "Next.js + React + TypeScript + Shad/cn UI",
+      "description": "基于 Next.js 构建的智能对话系统，集成大模型 API 实现流式对话体验。",
       "features": [
         "基于 Next.js 14 的 App Router 实现了服务端渲染(SSR)，采用 Next.js API Routes 构建后端接口。",
         "基于 React Context 进行全局会话状态管理，实现新建会话自动在侧栏更新会话列表。",
@@ -27,13 +45,14 @@
         "使用 React Markdown 实时渲染回答结果，支持代码高亮显示和复制功能。",
         "基于 SSE 实现流式对话响应，集成火山方舟大模型 API 与 OpenAI SDK 构建实时智能对话功能。"
       ],
-      "show": true
+      "show": false
     },
     {
       "name": "东南大学 PALM 实验室研究生招生系统",
       "github": "https://github.com/JacksonHe04/palm-ams",
       "demo": "",
       "techStack": "Vue 3 + TypeScript + Vite + Pinia + Element Plus UI + Django + MySQL",
+      "description": "为东南大学 PALM 实验室开发的研究生招生管理系统，提供完整的招生流程管理功能。",
       "features": [
         "基于 Vue Router 实现前端路由系统，通过全局导航守卫实现后台管理权限控制，并结合动态导入实现路由组件的按需加载。",
         "对 Axios 进行二次封装，集成请求拦截器、自动注入 Token、统一错误处理及 ElMessage 提示。",
@@ -44,13 +63,14 @@
         "使用 ECharts 实现招生数据多维度可视化展示，使用 XLSX.js 处理招生系统表格导入导出功能。",
         "以 Vite 为构建工具，配置模块化开发环境，通过 Rollup 实现精细化的静态资源分包策略。"
       ],
-      "show": true
+      "show": false
     },
     {
       "name": "Find Yourself 基于 Vue 3 的宇宙 3D 游戏",
       "github": "https://github.com/JacksonHe04/find-yourself",
       "demo": "https://find-yourself.vercel.app",
       "techStack": "Vue 3 + Three.js + TypeScript + Vite",
+      "description": "",
       "features": [
         "使用 Three.js 创建逼真的宇宙环境，包括星空背景、行星系统、光照效果和粒子系统。",
         "实现第一人称视角控制系统，支持鼠标和键盘操作，提供流畅的 3D 空间导航体验。",
@@ -64,6 +84,7 @@
       "github": "https://github.com/JacksonHe04/mini-react-by-ts",
       "demo": "https://mini-react-by-ts.vercel.app",
       "techStack": "TypeScript + Webpack + Jest",
+      "description": "",
       "features": [
         "使用 TypeScript 从零实现 React 的核心功能，包括虚拟 DOM、组件系统、状态管理和生命周期。",
         "实现 Fiber 架构的简化版本，构建完整的 Diff 算法，实现高效的虚拟 DOM 比较和更新。",
