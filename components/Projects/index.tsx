@@ -1,5 +1,5 @@
-import { resumeData } from "@/config/data";
-import { ResumeData, ProjectItem as ProjectItemType } from "@/types";
+import { getCurrentResumeData } from "@/config/data";
+import { ProjectItem as ProjectItemType } from "@/types";
 import { SectionContainer, SectionTitle, Link } from "@/components/common";
 import {
   TITLE_STYLES,
@@ -40,10 +40,10 @@ function ProjectItem({ project }: { project: ProjectItemType }) {
 
 /**
  * 项目经历组件 - 展示项目列表和详细信息
- * 从统一的简历数据文件中读取项目列表并循环渲染
+ * 从统一的简历数据源中读取项目列表并循环渲染
  */
 export default function Projects() {
-  const projects = (resumeData as ResumeData).projects;
+  const projects = getCurrentResumeData().projects;
 
   return (
     <SectionContainer>

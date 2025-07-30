@@ -11,3 +11,10 @@
 .image-grid {
   display: none;
 }
+
+/* 打印时隐藏简历管理按钮 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
