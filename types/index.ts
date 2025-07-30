@@ -70,6 +70,15 @@ export interface AboutData {
   content: string
 }
 
+// 统一简历数据接口
+export interface ResumeData {
+  header: HeaderData
+  about: AboutData
+  education: EducationData
+  skills: SkillsData
+  projects: ProjectsData
+}
+
 // 通用节标题组件属性接口
 export interface SectionTitleProps {
   children: React.ReactNode

@@ -1,14 +1,14 @@
-import skillsData from './data.json'
-import { SkillsData } from '@/types'
+import { resumeData } from '@/config/data'
+import { ResumeData } from '@/types'
 import { SectionContainer, SectionTitle } from '@/components/common'
 import { LIST_STYLES } from '@/constants/styles'
 
 /**
  * 专业技能组件 - 展示技术技能列表
- * 从本地JSON数据文件中读取技能列表并循环渲染
+ * 从统一的简历数据文件中读取技能列表并循环渲染
  */
 export default function Skills() {
-  const skills = skillsData as SkillsData
+  const skills = (resumeData as ResumeData).skills
 
   return (
     <SectionContainer>

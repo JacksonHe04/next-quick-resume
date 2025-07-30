@@ -1,14 +1,14 @@
-import headerData from './data.json'
-import { HeaderData } from '@/types'
+import { resumeData } from '@/config/data'
+import { ResumeData } from '@/types'
 import { SectionContainer, Link } from '@/components/common'
 import { TITLE_STYLES, LAYOUT_STYLES, CONTAINER_STYLES, TEXT_STYLES } from '@/constants/styles'
 
 /**
  * 简历头部组件 - 包含个人基本信息和联系方式
- * 从本地JSON数据文件中读取个人信息进行渲染
+ * 从统一的简历数据文件中读取个人信息进行渲染
  */
 export default function Header() {
-  const { name, contact, jobInfo } = headerData as HeaderData
+  const { name, contact, jobInfo } = (resumeData as ResumeData).header
 
   return (
     <SectionContainer className={CONTAINER_STYLES.header}>

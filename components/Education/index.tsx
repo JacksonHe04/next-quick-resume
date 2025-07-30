@@ -1,14 +1,14 @@
-import educationData from './data.json'
-import { EducationData } from '@/types'
+import { resumeData } from '@/config/data'
+import { ResumeData } from '@/types'
 import { SectionContainer, SectionTitle } from '@/components/common'
 import { LAYOUT_STYLES, TEXT_STYLES, CONTAINER_STYLES } from '@/constants/styles'
 
 /**
  * 教育经历组件 - 展示学历信息
- * 从本地JSON数据文件中读取教育经历信息进行渲染
+ * 从统一的简历数据文件中读取教育经历信息进行渲染
  */
 export default function Education() {
-  const education = educationData as EducationData
+  const education = (resumeData as ResumeData).education
 
   return (
     <SectionContainer>
