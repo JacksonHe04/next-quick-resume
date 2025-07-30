@@ -220,8 +220,6 @@ export const FileResumeList: React.FC<FileResumeListProps> = ({
   fileRecords,
   loading,
   onUse,
-  onUseResume,
-  onCreateFromTemplate,
   onCopy
 }) => {
   // 加载状态

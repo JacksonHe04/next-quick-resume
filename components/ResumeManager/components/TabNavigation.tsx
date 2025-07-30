@@ -33,12 +33,12 @@ export interface TabNavigationProps {
 const tabs = [
   {
     key: 'database' as const,
-    label: '数据库记录',
+    label: '简历数据库',
     description: '存储在浏览器本地数据库中的简历'
   },
   {
     key: 'files' as const,
-    label: '文件记录',
+    label: '静态简历目录',
     description: '从 data 目录加载的 JSON 文件'
   }
 ]
