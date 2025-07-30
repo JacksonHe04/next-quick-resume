@@ -1,145 +1,76 @@
 {
   "header": {
-    "name": "",
+    "name": "Your Name",
     "contact": {
-      "phone": "",
-      "email": "",
-      "wechat": "",
-      "age": "",
+      "phone": "Your Phone Number",
+      "email": "Your Email",
+      "wechat": "Your Wechat ID",
+      "age": "Your Age",
       "github": {
-        "text": "",
-        "url": ""
+        "text": "github.com/YourUsername",
+        "url": "https://github.com/YourUsername"
       },
       "homepage": {
-        "text": "",
-        "url": ""
+        "text": "Your Homepage",
+        "url": "https://yourhomepage.com"
       }
     },
     "jobInfo": {
-      "position": "",
-      "duration": "",
-      "availability": ""
+      "position": "你的目标岗位",
+      "duration": "你的可工作时长",
+      "availability": "你的可到岗时间"
     }
   },
-  "about": {
-    "title": "",
-    "content": ""
-  },
   "education": {
-    "title": "",
-    "school": "",
-    "period": "",
-    "details": ""
+    "title": "教育经历",
+    "school": "你的院校",
+    "period": "202x-09 ~ 202x-06",
+    "details": "你的专业"
   },
   "skills": {
-    "title": "",
+    "title": "专业技能",
     "items": [
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
+      "你的技能1",
+      "你的技能2",
+      "你的技能3",
+      "..."
     ]
   },
   "projects": {
-    "title": "",
+    "title": "项目经历",
     "items": [
       {
-        "name": "",
-        "github": "",
-        "demo": "",
-        "techStack": "",
-        "description": "",
+        "name": "项目1",
+        "github": "https://github.com/YourUsername/Project1",
+        "demo": "https://project1-demo.com",
+        "techStack": "项目1的技术栈",
+        "description": "项目1的描述",
         "features": [
-          "",
-          "",
-          "",
-          "",
-          "",
-          ""
+          "项目1的描述点1",
+          "项目1的描述点2",
+          "项目1的描述点3",
+          "..."
         ],
         "show": true
       },
       {
-        "name": "",
-        "github": "",
-        "demo": "",
-        "techStack": "",
-        "description": "",
+        "name": "项目2",
+        "github": "https://github.com/YourUsername/Project2",
+        "demo": "https://project2-demo.com",
+        "techStack": "项目2的技术栈",
+        "description": "项目2的描述",
         "features": [
-          "",
-          "",
-          "",
-          "",
-          "",
-          ""
+          "项目2的描述点1",
+          "项目2的描述点2",
+          "项目2的描述点3",
+          "..."
         ],
-        "show": false
-      },
-      {
-        "name": "",
-        "github": "",
-        "demo": "",
-        "techStack": "",
-        "description": "",
-        "features": [
-          "",
-          "",
-          "",
-          "",
-          ""
-        ],
-        "show": false
-      },
-      {
-        "name": "",
-        "github": "",
-        "demo": "",
-        "techStack": "",
-        "description": "",
-        "features": [
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          "",
-          ""
-        ],
-        "show": false
-      },
-      {
-        "name": "",
-        "github": "",
-        "demo": "",
-        "techStack": "",
-        "description": "",
-        "features": [
-          "",
-          "",
-          "",
-          ""
-        ],
-        "show": false
-      },
-      {
-        "name": "",
-        "github": "",
-        "demo": "",
-        "techStack": "",
-        "description": "",
-        "features": [
-          "",
-          "",
-          "",
-          "",
-          "",
-          ""
-        ],
-        "show": false
+        "show": true
       }
     ]
+  },
+  "about": {
+    "title": "其他",
+    "content": "一段话"
   }
 }

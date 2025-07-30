@@ -1,0 +1,145 @@
+{
+  "header": {
+    "name": "",
+    "contact": {
+      "phone": "",
+      "email": "",
+      "wechat": "",
+      "age": "",
+      "github": {
+        "text": "",
+        "url": ""
+      },
+      "homepage": {
+        "text": "",
+        "url": ""
+      }
+    },
+    "jobInfo": {
+      "position": "",
+      "duration": "",
+      "availability": ""
+    }
+  },
+  "about": {
+    "title": "",
+    "content": ""
+  },
+  "education": {
+    "title": "",
+    "school": "",
+    "period": "",
+    "details": ""
+  },
+  "skills": {
+    "title": "",
+    "items": [
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""
+    ]
+  },
+  "projects": {
+    "title": "",
+    "items": [
+      {
+        "name": "",
+        "github": "",
+        "demo": "",
+        "techStack": "",
+        "description": "",
+        "features": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "show": true
+      },
+      {
+        "name": "",
+        "github": "",
+        "demo": "",
+        "techStack": "",
+        "description": "",
+        "features": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "show": false
+      },
+      {
+        "name": "",
+        "github": "",
+        "demo": "",
+        "techStack": "",
+        "description": "",
+        "features": [
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "show": false
+      },
+      {
+        "name": "",
+        "github": "",
+        "demo": "",
+        "techStack": "",
+        "description": "",
+        "features": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "show": false
+      },
+      {
+        "name": "",
+        "github": "",
+        "demo": "",
+        "techStack": "",
+        "description": "",
+        "features": [
+          "",
+          "",
+          "",
+          ""
+        ],
+        "show": false
+      },
+      {
+        "name": "",
+        "github": "",
+        "demo": "",
+        "techStack": "",
+        "description": "",
+        "features": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "show": false
+      }
+    ]
+  }
+}
