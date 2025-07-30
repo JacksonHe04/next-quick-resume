@@ -28,28 +28,11 @@ export default function Home() {
       }} className="no-print">
         <button
           onClick={() => setShowResumeManager(true)}
-          style={{
-            backgroundColor: '#007bff',
-            color: 'white',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '12px 20px',
-            fontSize: '14px',
-            fontWeight: '500',
-            cursor: 'pointer',
-            boxShadow: '0 2px 8px rgba(0, 123, 255, 0.3)',
-            transition: 'all 0.2s ease'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.backgroundColor = '#0056b3'
-            e.currentTarget.style.transform = 'translateY(-1px)'
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.backgroundColor = '#007bff'
-            e.currentTarget.style.transform = 'translateY(0)'
-          }}
+          className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer 
+            shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 
+            border border-gray-200"
         >
-          📝 简历管理
+          简历管理
         </button>
       </div>
 

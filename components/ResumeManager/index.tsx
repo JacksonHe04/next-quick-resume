@@ -112,16 +112,16 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-[90vw] h-[80vh] max-w-6xl flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="bg-white rounded-xl w-[90vw] h-[80vh] max-w-6xl flex flex-col shadow-2xl border border-gray-200">
         {/* 头部 */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-semibold">简历管理</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <h2 className="text-2xl font-bold text-gray-800">简历管理</h2>
           <Button
             variant="secondary"
             size="sm"
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="!w-8 !h-8 !p-0 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
           >
             ×
           </Button>
@@ -130,17 +130,19 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
         {/* 主体内容 */}
         <div className="flex-1 flex overflow-hidden">
           {/* 左侧：简历列表 */}
-          <div className="w-1/2 border-r flex flex-col">
+          <div className="w-1/2 border-r border-gray-100 flex flex-col bg-gray-50">
             {/* 标签导航 */}
-            <TabNavigation
-              activeTab={activeTab}
-              onTabChange={handlers.switchTab}
-              databaseCount={resumeData.resumes?.length || 0}
-              fileCount={fileRecords.fileRecords?.length || 0}
-            />
+            <div className="bg-white border-b border-gray-100">
+              <TabNavigation
+                activeTab={activeTab}
+                onTabChange={handlers.switchTab}
+                databaseCount={resumeData.resumes?.length || 0}
+                fileCount={fileRecords.fileRecords?.length || 0}
+              />
+            </div>
 
             {/* 列表内容 */}
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-6">
               {activeTab === 'database' && (
                 <DatabaseResumeList
                   resumes={resumeData.resumes || []}

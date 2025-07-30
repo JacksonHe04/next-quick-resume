@@ -50,14 +50,15 @@ const tabs = [
  */
 const getTabClassName = (isActive: boolean): string => {
   const baseClasses = [
-    'px-4 py-2 text-sm font-medium border-b-2 transition-colors duration-200',
-    'hover:text-gray-700 focus:outline-none focus:text-gray-700'
+    'px-6 py-3 text-sm font-medium border-b-2 transition-all duration-200',
+    'hover:text-gray-700 focus:outline-none focus:text-gray-700',
+    'relative'
   ]
 
   if (isActive) {
-    baseClasses.push('border-blue-500 text-blue-600')
+    baseClasses.push('border-gray-800 text-gray-800 bg-gray-50')
   } else {
-    baseClasses.push('border-transparent text-gray-500')
+    baseClasses.push('border-transparent text-gray-500 hover:bg-gray-50')
   }
 
   return baseClasses.join(' ')
@@ -86,7 +87,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
   className
 }) => {
   return (
-    <div className={cn('flex border-b mb-4', className)}>
+    <div className={cn('flex', className)}>
       {tabs.map((tab) => (
         <button
           key={tab.key}
@@ -96,17 +97,19 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           aria-selected={activeTab === tab.key}
           role="tab"
         >
-          {tab.label}
-          {tab.key === 'database' && databaseCount > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-full">
-              {databaseCount}
-            </span>
-          )}
-          {tab.key === 'files' && fileCount > 0 && (
-            <span className="ml-1 px-1.5 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-full">
-              {fileCount}
-            </span>
-          )}
+          <span className="flex items-center gap-2">
+            {tab.label}
+            {tab.key === 'database' && databaseCount > 0 && (
+              <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full font-medium">
+                {databaseCount}
+              </span>
+            )}
+            {tab.key === 'files' && fileCount > 0 && (
+              <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full font-medium">
+                {fileCount}
+              </span>
+            )}
+          </span>
         </button>
       ))}
     </div>

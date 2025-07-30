@@ -18,42 +18,42 @@ export const buttonStyles: ButtonStyleConfig = {
     'active:transform active:scale-95'
   ].join(' '),
 
-  // 变体样式 - 不同颜色主题
+  // 变体样式 - 简洁的灰色调设计
   variants: {
     primary: [
-      'bg-blue-500 text-white border-blue-500',
-      'hover:bg-blue-600 hover:border-blue-600',
-      'focus:ring-blue-500'
-    ].join(' '),
-    
-    secondary: [
-      'bg-gray-500 text-white border-gray-500',
-      'hover:bg-gray-600 hover:border-gray-600',
+      'bg-gray-900 text-white border-gray-900',
+      'hover:bg-gray-800 hover:border-gray-800',
       'focus:ring-gray-500'
     ].join(' '),
     
+    secondary: [
+      'bg-white text-gray-700 border-gray-300',
+      'hover:bg-gray-50 hover:border-gray-400',
+      'focus:ring-gray-300'
+    ].join(' '),
+    
     success: [
-      'bg-green-500 text-white border-green-500',
-      'hover:bg-green-600 hover:border-green-600',
-      'focus:ring-green-500'
+      'bg-gray-700 text-white border-gray-700',
+      'hover:bg-gray-600 hover:border-gray-600',
+      'focus:ring-gray-400'
     ].join(' '),
     
     danger: [
-      'bg-red-500 text-white border-red-500',
-      'hover:bg-red-600 hover:border-red-600',
-      'focus:ring-red-500'
+      'bg-gray-600 text-white border-gray-600',
+      'hover:bg-gray-700 hover:border-gray-700',
+      'focus:ring-gray-400'
     ].join(' '),
     
     warning: [
-      'bg-yellow-500 text-white border-yellow-500',
-      'hover:bg-yellow-600 hover:border-yellow-600',
-      'focus:ring-yellow-500'
+      'bg-gray-500 text-white border-gray-500',
+      'hover:bg-gray-600 hover:border-gray-600',
+      'focus:ring-gray-400'
     ].join(' '),
     
     info: [
-      'bg-purple-500 text-white border-purple-500',
-      'hover:bg-purple-600 hover:border-purple-600',
-      'focus:ring-purple-500'
+      'bg-gray-400 text-white border-gray-400',
+      'hover:bg-gray-500 hover:border-gray-500',
+      'focus:ring-gray-300'
     ].join(' ')
   },
 
