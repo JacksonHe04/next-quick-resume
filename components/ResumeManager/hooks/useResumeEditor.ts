@@ -50,7 +50,7 @@ export interface UseResumeEditorReturn extends UseResumeEditorState, UseResumeEd
  */
 const getEmptyResumeTemplate = async (): Promise<ResumeData> => {
   try {
-    const response = await fetch('/data/resume-template.json')
+    const response = await fetch('/resume-template.json')
     if (response.ok) {
       return await response.json()
     }

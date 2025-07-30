@@ -11,13 +11,6 @@ export type DataSource = 'json' | 'indexeddb'
 // 当前使用的数据源类型
 export const CURRENT_DATA_SOURCE: DataSource = 'json'
 
-// 当前使用的简历数据文件路径（仅在数据源为json时使用）
-export const RESUME_DATA_PATH = '@/data/resume.json'
-
-// 可选的简历数据文件路径（示例）
-// export const RESUME_DATA_PATH = '@/data/resume-en.json'
-// export const RESUME_DATA_PATH = '@/data/resume-internship.json'
-
 // 静态导入的简历数据（用于JSON数据源）
 import staticResumeData from '@/data/resume.json'
 
