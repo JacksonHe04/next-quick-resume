@@ -2,8 +2,8 @@ import type { Metadata } from 'next'
 import '@/styles/globals.css'
 
 export const metadata: Metadata = {
-  title: 'Jincheng He\'s Personal Resume',
-  description: '何锦诚的个人简历',
+  title: 'Next Quick Resume',
+  description: 'Next Quick Resume',
 }
 
 /**
