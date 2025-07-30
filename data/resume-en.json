@@ -1,66 +1,76 @@
 {
   "header": {
-    "name": "Jackson He",
+    "name": "Your Name",
     "contact": {
-      "phone": "17712862516",
-      "email": "jacksonhe04@qq.com",
-      "wechat": "FRONTENDYUANFANG",
-      "age": "20",
+      "phone": "Your Phone Number",
+      "email": "Your Email",
+      "wechat": "Your Wechat ID",
+      "age": "Your Age",
       "github": {
-        "text": "github.com/JacksonHe04",
-        "url": "https://github.com/JacksonHe04"
+        "text": "github.com/YourUsername",
+        "url": "https://github.com/YourUsername"
       },
       "homepage": {
-        "text": "jacksonhe.notion.site",
-        "url": "https://jacksonhe.notion.site"
+        "text": "Your Homepage",
+        "url": "https://yourhomepage.com"
       }
     },
     "jobInfo": {
-      "position": "Frontend Developer (Intern)",
-      "duration": "6+ months",
-      "availability": "Available immediately in Mainland China"
+      "position": "Your Target Position",
+      "duration": "Your Available Working Hours",
+      "availability": "Your Available Start Date"
     }
   },
-  "about": {
-    "title": "About Me",
-    "content": "I am a core developer at Southeast University's Messenger Program Studio, with extensive experience in team development with studio members, having undertaken multiple on-campus and off-campus development projects. Additionally, I have full-stack developed and launched a graduate admissions management system for a renowned on-campus laboratory. In terms of open-source contributions, I have successfully submitted PRs for new feature development to open-source browser extension repositories. I constantly follow the latest developments in frontend technology and AI field dynamics, with practical experience in prompt engineering, large model fine-tuning, Agent, MCP, and other areas. I am firmly committed to frontend development direction and passionate about the internet industry and technology."
-  },
   "education": {
-    "title": "Education",
-    "school": "Southeast University (985)",
-    "period": "2022-09 ~ 2026-06",
-    "details": "School of Computer Science and Engineering | Artificial Intelligence | Bachelor"
+    "title": "Educational Background",
+    "school": "Your School/University",
+    "period": "202x-09 ~ 202x-06",
+    "details": "Your Major"
   },
   "skills": {
-    "title": "Technical Skills",
+    "title": "Professional Skills",
     "items": [
-      "Familiar with common <b>HTML</b> and <b>HTML5</b> elements, <b>CSS</b>/<b>CSS3</b> basic syntax and layout.",
-      "Familiar with <b>JavaScript</b> and <b>ES6</b> syntax features, understand <b>TypeScript</b>, understand common design patterns.",
-      "Familiar with <b>React</b> framework, proficient in using <b>React</b> with mainstream component libraries for development, understand <b>Vue3</b> framework.",
-      "Understand <b>HTTP/HTTPS</b> protocol, <b>TCP</b>/<b>IP</b> and other computer network knowledge, understand browser principles and working methods.",
-      "Master the use of frontend engineering tools such as <b>Vite</b> and <b>Webpack</b>.",
-      "Familiar with <b>Git</b> usage, have full-stack development experience."
+      "Your Skill 1",
+      "Your Skill 2",
+      "Your Skill 3",
+      "..."
     ]
   },
   "projects": {
     "title": "Project Experience",
     "items": [
       {
-        "name": "QuAIz - AI-Powered Exam Generation and Grading System",
-        "github": "https://github.com/JacksonHe04/QuAIz",
-        "demo": "https://quaiz-ai.vercel.app",
-        "techStack": "React 19 + TypeScript + Vite + Zustand + TailwindCSS",
-        "description": "An AI-driven online intelligent exam generation and grading system that implements a complete closed loop from intelligent exam generation, online answering to automatic grading for 6 question types (single choice, multiple choice, fill-in-the-blank, short answer, code output, code writing), integrating multiple large model APIs with streaming component rendering and virtualization performance optimization.",
+        "name": "Project 1",
+        "github": "https://github.com/YourUsername/Project1",
+        "demo": "https://project1-demo.com",
+        "techStack": "Tech Stack of Project 1",
+        "description": "Description of Project 1",
         "features": [
-          "Implemented synchronous JSON parsing for SSE-style output, streaming real-time rendering of question components, significantly reducing rendering wait time.",
-          "Implemented virtualization rendering technology based on react-window, solving the scrolling white screen problem of log panels, supporting 10000+ log components without lag.",
-          "Used React.memo + custom comparison functions to reduce unnecessary re-renders, optimized computation time through useMemo/useCallback caching.",
-          "Based on React.forwardRef, implemented a virtualized log list higher-order component that forwards ref to internal List components.",
-          "Developed custom Hooks for form state management and submission logic, encapsulated business logic, combined with Zustand to optimize state management.",
-          "Designed unified toolchain, integrated ESLint + Prettier + CommitLint specifications, improved code standardization."
+          "Description Point 1 of Project 1",
+          "Description Point 2 of Project 1",
+          "Description Point 3 of Project 1",
+          "..."
+        ],
+        "show": true
+      },
+      {
+        "name": "Project 2",
+        "github": "https://github.com/YourUsername/Project2",
+        "demo": "https://project2-demo.com",
+        "techStack": "Tech Stack of Project 2",
+        "description": "Description of Project 2",
+        "features": [
+          "Description Point 1 of Project 2",
+          "Description Point 2 of Project 2",
+          "Description Point 3 of Project 2",
+          "..."
         ],
         "show": true
       }
     ]
+  },
+  "about": {
+    "title": "Additional Information",
+    "content": "A paragraph of text"
   }
 }
