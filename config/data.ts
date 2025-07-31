@@ -36,8 +36,10 @@ const loadResumeData = async (): Promise<ResumeData> => {
   
   if (isPort3000) {
     try {
-      // 尝试动态导入本地数据文件
-      const localData = await import('@/data_local/this.json')
+      // 使用字符串拼接避免TypeScript编译时的模块解析
+      const basePath = '@/data_local/'
+      const fileName = 'this.json'
+      const localData = await import(basePath + fileName)
       return localData.default
     } catch (error) {
       // 如果本地文件不存在，回退到默认数据
