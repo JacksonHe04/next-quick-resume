@@ -1,7 +1,6 @@
 import { getCurrentResumeData } from '@/config/data'
 import { SectionContainer, Link } from '@/components/common'
 import { TITLE_STYLES, CONTAINER_STYLES, TEXT_STYLES } from '@/constants/styles'
-import Image from 'next/image'
 
 /**
  * 简历头部组件 - 包含个人基本信息和联系方式
@@ -58,12 +57,10 @@ export default function Header() {
         
         {/* 右侧：照片区域 */}
         <div className="flex-shrink-0">
-          <div className="w-32 h-40 overflow-hidden relative">
-            <Image 
+          <div className="w-32 h-40 overflow-hidden">
+            <img 
               src="/images/avatar.jpg" 
               alt="个人照片" 
-              width={128}
-              height={160}
               className="w-full h-full object-cover"
               onError={(e) => {
                 // 如果图片加载失败，显示占位符
