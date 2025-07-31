@@ -49,8 +49,10 @@ export const LINK_STYLES = {
 
 // 列表样式
 export const LIST_STYLES = {
-  // 基础列表
-  base: 'list-disc list-inside pl-2.5 ml-0 text-base space-y-1',
+  // 基础列表（无序列表）
+  base: 'list-disc list-inside ml-0 text-base space-y-1',
+  // 有序列表
+  ordered: 'list-decimal list-inside ml-0 text-base space-y-1',
 } as const
 
 // 布局样式

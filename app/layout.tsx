@@ -42,7 +42,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-serif leading-6 text-black max-w-4xl mx-auto p-4 m-0">
+      <body className="font-serif leading-6 text-black max-w-6xl mx-auto p-4 m-0">
         {children}
       </body>
     </html>

@@ -8,6 +8,7 @@ import {
   COMBINED_STYLES,
   LIST_STYLES,
 } from "@/constants/styles";
+import { markdownToHtml } from "@/utils/markdown";
 
 /**
  * 单个项目组件 - 可复用的项目展示组件
@@ -23,17 +24,17 @@ function ProjectItem({ project }: { project: ProjectItemType }) {
         </Link>
       </div>
       <div className={COMBINED_STYLES.projectInfoRow}>
-        <p className={TEXT_STYLES.techStack}>技术栈：{project.techStack}</p>
-        <Link href={project.demo}>{project.demo}</Link>
+        {/* <p className={TEXT_STYLES.techStack}>技术栈：{project.techStack}</p> */}
+        {/* <Link href={project.demo}>{project.demo}</Link> */}
       </div>
       {project.description && (
         <p className={TEXT_STYLES.description}>{project.description}</p>
       )}
-      <ul className={LIST_STYLES.base}>
+      <ol className={LIST_STYLES.ordered}>
         {project.features.map((feature, index) => (
-          <li key={index}>{feature}</li>
+          <li key={index} dangerouslySetInnerHTML={{ __html: markdownToHtml(feature) }} />
         ))}
-      </ul>
+      </ol>
     </div>
   );
 }
