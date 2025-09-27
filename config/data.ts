@@ -12,8 +12,8 @@ export type DataSource = 'json' | 'indexeddb'
 export const CURRENT_DATA_SOURCE: DataSource = 'json'
 
 // 静态导入的简历数据（用于JSON数据源）
-import staticResumeData from '@/data/resume.json'
-// import staticResumeData from '@/data_local/this.json'
+// import staticResumeData from '@/data/resume.json'
+import staticResumeData from '@/data_local/this.json'
 
 // 当前使用的简历数据（可以通过setCurrentResumeData动态更新）
 let currentResumeData: ResumeData = staticResumeData

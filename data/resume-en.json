@@ -36,6 +36,23 @@
       "..."
     ]
   },
+  "intern": {
+    "title": "Internship Experience",
+    "items": [
+      {
+        "company": "Internship Company Name",
+        "position": "Internship Position",
+        "period": "Month 202x ~ Month 202x",
+        "description": "Main work description during internship",
+        "responsibilities": [
+          "Responsibility 1",
+          "Project or task 2",
+          "Achievement or learning 3"
+        ],
+        "show": true
+      }
+    ]
+  },
   "projects": {
     "title": "Project Experience",
     "items": [

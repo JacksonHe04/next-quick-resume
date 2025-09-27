@@ -4,6 +4,7 @@ import { useState } from 'react'
 import Header from '@/components/Header'
 import Education from '@/components/Education'
 import Skills from '@/components/Skills'
+import Intern from '@/components/Intern'
 import Projects from '@/components/Projects'
 import About from '@/components/About'
 import ResumeManager from '@/components/ResumeManager'
@@ -41,6 +42,7 @@ export default function Home() {
         <Header />
         <Education />
         <Skills />
+        <Intern />
         <Projects />
         <About />
       </div>

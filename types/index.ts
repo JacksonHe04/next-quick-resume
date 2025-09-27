@@ -58,6 +58,22 @@ export interface ProjectItem {
   show: boolean
 }
 
+// 实习经历项目接口
+export interface InternItem {
+  company: string
+  position: string
+  period: string
+  description: string
+  responsibilities: string[]
+  show: boolean
+}
+
+// 实习经历数据接口
+export interface InternData {
+  title: string
+  items: InternItem[]
+}
+
 // 项目数据接口
 export interface ProjectsData {
   title: string
@@ -76,6 +92,7 @@ export interface ResumeData {
   about: AboutData
   education: EducationData
   skills: SkillsData
+  intern: InternData
   projects: ProjectsData
 }
 

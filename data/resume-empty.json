@@ -42,6 +42,35 @@
       ""
     ]
   },
+  "intern": {
+    "title": "",
+    "items": [
+      {
+        "company": "",
+        "position": "",
+        "period": "",
+        "description": "",
+        "responsibilities": [
+          "",
+          "",
+          ""
+        ],
+        "show": true
+      },
+      {
+        "company": "",
+        "position": "",
+        "period": "",
+        "description": "",
+        "responsibilities": [
+          "",
+          "",
+          ""
+        ],
+        "show": false
+      }
+    ]
+  },
   "projects": {
     "title": "",
     "items": [

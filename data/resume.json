@@ -36,6 +36,23 @@
       "..."
     ]
   },
+  "intern": {
+    "title": "实习经历",
+    "items": [
+      {
+        "company": "实习公司名称",
+        "position": "实习职位",
+        "period": "202x年x月 ~ 202x年x月",
+        "description": "实习期间的主要工作描述",
+        "responsibilities": [
+          "负责的工作内容1",
+          "参与的项目或任务2",
+          "取得的成果或学习3"
+        ],
+        "show": true
+      }
+    ]
+  },
   "projects": {
     "title": "项目经历",
     "items": [
