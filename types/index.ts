@@ -116,3 +116,16 @@ export interface LinkProps {
   target?: '_blank' | '_self'
   underline?: boolean
 }
+
+// AI优化相关类型定义
+export interface AiOptimizeRequest {
+  currentResume: ResumeData
+  suggestions?: string
+  jobDescription?: string
+}
+
+export interface AiOptimizeResponse {
+  success: boolean
+  data?: ResumeData
+  error?: string
+}
