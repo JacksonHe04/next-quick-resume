@@ -55,6 +55,13 @@ export default function Home() {
     setShowAiModal(true)
   }
 
+  /**
+   * 打印简历功能
+   */
+  const handlePrintResume = () => {
+    window.print()
+  }
+
   return (
     <main>
       {/* 顶部右侧按钮组 */}
@@ -80,6 +87,12 @@ export default function Home() {
             className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
           >
             AI 简历优化
+          </button>
+          <button
+            onClick={handlePrintResume}
+            className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
+          >
+            打印简历
           </button>
         </div>
       </div>
