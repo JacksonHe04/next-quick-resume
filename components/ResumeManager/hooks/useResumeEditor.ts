@@ -92,6 +92,10 @@ const getEmptyResumeTemplate = async (): Promise<ResumeData> => {
       title: "专业技能",
       items: []
     },
+    intern: {
+      title: "实习经历",
+      items: []
+    },
     projects: {
       title: "项目经历",
       items: []

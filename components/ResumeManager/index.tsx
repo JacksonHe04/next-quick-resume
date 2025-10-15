@@ -111,8 +111,20 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
   // 如果弹窗未打开，不渲染任何内容
   if (!isOpen) return null
 
+  /**
+   * 处理背景点击事件 - 点击外部区域关闭弹窗
+   */
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose()
+    }
+  }
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm">
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
+      onClick={handleBackdropClick}
+    >
       <div className="bg-white rounded-xl w-[90vw] h-[80vh] max-w-6xl flex flex-col shadow-2xl border border-gray-200">
         {/* 头部 */}
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
