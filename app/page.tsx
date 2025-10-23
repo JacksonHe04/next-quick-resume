@@ -101,8 +101,9 @@ export default function Home() {
       <div key={refreshKey}>
         <Header />
         <Education />
-        <Skills />
         <Intern />
+        <Skills />
+        
         <Projects />
         <About />
       </div>

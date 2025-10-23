@@ -63,6 +63,7 @@ export interface InternItem {
   company: string
   position: string
   period: string
+  base: string
   description: string
   responsibilities: string[]
   show: boolean

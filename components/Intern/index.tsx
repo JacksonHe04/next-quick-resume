@@ -23,9 +23,15 @@ function InternItem({ intern }: { intern: InternItemType }) {
   return (
     <div className={CONTAINER_STYLES.project}>
       <div className={COMBINED_STYLES.projectTitleRow}>
-        <h3 className={TITLE_STYLES.project}>{intern.company}</h3>
-        <span className={TEXT_STYLES.period}>{intern.position} | {intern.period}</span>
-      </div>
+          <div className="flex items-center space-x-1">
+            <h3 className={TITLE_STYLES.project}>{intern.company}</h3>
+            <span className={TEXT_STYLES.period}>｜{intern.position}</span>
+          </div>
+          <div className="flex items-center">
+            <span className={TEXT_STYLES.period}>{intern.base}</span>
+            <span className={TEXT_STYLES.period}>｜{intern.period}</span>
+          </div>
+        </div>
       {intern.description && (
         <p className={TEXT_STYLES.description}>{intern.description}</p>
       )}

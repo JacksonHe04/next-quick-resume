@@ -23,10 +23,10 @@ function ProjectItem({ project }: { project: ProjectItemType }) {
           {project.github}
         </Link>
       </div>
-      <div className={COMBINED_STYLES.projectInfoRow}>
+      {/* <div className={COMBINED_STYLES.projectInfoRow}> */}
         {/* <p className={TEXT_STYLES.techStack}>技术栈：{project.techStack}</p> */}
         {/* <Link href={project.demo}>{project.demo}</Link> */}
-      </div>
+      {/* </div> */}
       {project.description && (
         <p className={TEXT_STYLES.description}>{project.description}</p>
       )}
