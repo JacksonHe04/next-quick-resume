@@ -6,3 +6,4 @@
 export { default as SectionContainer } from './SectionContainer'
 export { default as SectionTitle } from './SectionTitle'
 export { default as Link } from './Link'
+export { default as UniversalImage } from './UniversalImage'

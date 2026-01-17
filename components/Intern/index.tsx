@@ -24,7 +24,7 @@ function InternItem({ intern }: { intern: InternItemType }) {
   return (
     <div className={CONTAINER_STYLES.project}>
       <div className={COMBINED_STYLES.projectTitleRow}>
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-2">
           {intern.image && (
             <Image 
               src={intern.image} 
@@ -35,7 +35,7 @@ function InternItem({ intern }: { intern: InternItemType }) {
             />
           )}
           <h3 className={TITLE_STYLES.project}>{intern.company}</h3>
-          <span className={TEXT_STYLES.period}>｜{intern.position}</span>
+          <span className={TEXT_STYLES.period}>{intern.position}</span>
         </div>
         <div className="flex items-center">
           <span className={TEXT_STYLES.period}>{intern.base}</span>

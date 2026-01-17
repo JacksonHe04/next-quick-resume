@@ -1,7 +1,6 @@
 import { getCurrentResumeData } from '@/config/data'
-import { SectionContainer, SectionTitle } from '@/components/common'
+import { SectionContainer, SectionTitle, UniversalImage } from '@/components/common'
 import { LAYOUT_STYLES, TEXT_STYLES, CONTAINER_STYLES, TITLE_STYLES } from '@/constants/styles'
-import Image from 'next/image'
 
 /**
  * 教育经历组件 - 展示学历信息
@@ -17,11 +16,11 @@ export default function Education() {
         <div className={LAYOUT_STYLES.flexBetween}>
           <div className="flex items-center space-x-2">
             {education.image && (
-              <Image 
+              <UniversalImage 
                 src={education.image} 
                 alt={`${education.school} logo`}
-                width={42}
-                height={42}
+                width={36}
+                height={36}
                 className="object-contain"
               />
             )}
