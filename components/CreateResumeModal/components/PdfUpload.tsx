@@ -377,6 +377,7 @@ async function mockParseApi(_text: string): Promise<ResumeData> {
           company: "ABC科技有限公司",
           position: "前端工程师",
           period: "2022.07-至今",
+          base: "深圳",
           description: "",
           responsibilities: [
             "负责公司主要产品的前端开发工作",

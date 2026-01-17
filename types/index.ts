@@ -39,6 +39,7 @@ export interface EducationData {
   school: string
   period: string
   details: string
+  image?: string
 }
 
 // 技能数据接口
@@ -67,6 +68,7 @@ export interface InternItem {
   description: string
   responsibilities: string[]
   show: boolean
+  image?: string
 }
 
 // 实习经历数据接口

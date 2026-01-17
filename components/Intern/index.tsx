@@ -6,6 +6,7 @@
 import { getCurrentResumeData } from "@/config/data";
 import { InternItem as InternItemType } from "@/types";
 import { SectionContainer, SectionTitle } from "@/components/common";
+import Image from 'next/image';
 import {
   TITLE_STYLES,
   TEXT_STYLES,
@@ -23,15 +24,24 @@ function InternItem({ intern }: { intern: InternItemType }) {
   return (
     <div className={CONTAINER_STYLES.project}>
       <div className={COMBINED_STYLES.projectTitleRow}>
-          <div className="flex items-center space-x-1">
-            <h3 className={TITLE_STYLES.project}>{intern.company}</h3>
-            <span className={TEXT_STYLES.period}>｜{intern.position}</span>
-          </div>
-          <div className="flex items-center">
-            <span className={TEXT_STYLES.period}>{intern.base}</span>
-            <span className={TEXT_STYLES.period}>｜{intern.period}</span>
-          </div>
+        <div className="flex items-center space-x-1">
+          {intern.image && (
+            <Image 
+              src={intern.image} 
+              alt={`${intern.company} logo`}
+              width={36}
+              height={36}
+              className="object-contain"
+            />
+          )}
+          <h3 className={TITLE_STYLES.project}>{intern.company}</h3>
+          <span className={TEXT_STYLES.period}>｜{intern.position}</span>
         </div>
+        <div className="flex items-center">
+          <span className={TEXT_STYLES.period}>{intern.base}</span>
+          <span className={TEXT_STYLES.period}>｜{intern.period}</span>
+        </div>
+      </div>
       {intern.description && (
         <p className={TEXT_STYLES.description}>{intern.description}</p>
       )}

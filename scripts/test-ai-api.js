@@ -47,6 +47,7 @@ const testData = {
           company: "腾讯",
           position: "前端开发实习生",
           period: "2020.06-2020.09",
+          base: "深圳",
           description: "负责微信小程序开发",
           responsibilities: ["开发微信小程序功能模块", "优化用户界面交互", "参与代码评审"],
           show: true

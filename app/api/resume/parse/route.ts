@@ -101,7 +101,8 @@ export async function POST(request: NextRequest) {
         title: "教育背景",
         school: "北京大学",
         period: "2018-2022",
-        details: "计算机科学与技术 本科"
+        details: "计算机科学与技术 本科",
+        image: ""
       },
       skills: {
         title: "技能专长",
@@ -121,6 +122,7 @@ export async function POST(request: NextRequest) {
             company: "ABC科技有限公司",
             position: "前端工程师",
             period: "2022.07-至今",
+            base: "深圳",
             description: "",
             responsibilities: [
               "负责公司主要产品的前端开发工作",

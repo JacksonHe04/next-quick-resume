@@ -46,6 +46,7 @@ const simpleTestData = {
         company: "腾讯",
         position: "前端开发实习生",
         period: "2020.06-2020.09",
+        base: "深圳",
         description: "负责微信小程序开发",
         responsibilities: ["开发微信小程序", "优化页面性能"],
         show: true

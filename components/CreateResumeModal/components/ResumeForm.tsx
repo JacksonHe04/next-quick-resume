@@ -58,6 +58,7 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
           company: "",
           position: "",
           period: "",
+          base: "",
           description: "",
           responsibilities: ["", "", ""],
           show: true
@@ -161,6 +162,7 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
           company: "",
           position: "",
           period: "",
+          base: "",
           description: "",
           responsibilities: ["", "", ""],
           show: true

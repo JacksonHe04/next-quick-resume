@@ -43,6 +43,7 @@
         "company": "Internship Company Name",
         "position": "Internship Position",
         "period": "Month 202x ~ Month 202x",
+        "base": "City",
         "description": "Main work description during internship",
         "responsibilities": [
           "Responsibility 1",

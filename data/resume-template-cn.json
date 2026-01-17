@@ -1,6 +1,6 @@
 {
   "header": {
-    "name": "Your Name",
+    "name": "Your Name首页",
     "contact": {
       "phone": "Your Phone Number",
       "email": "Your Email",
@@ -25,7 +25,8 @@
     "title": "教育经历",
     "school": "你的院校",
     "period": "202x-09 ~ 202x-06",
-    "details": "你的专业"
+    "details": "你的专业",
+    "image": "http://youke.xn--y7xa690gmna.cn/s1/2026/01/17/696b570fe35e1.webp"
   },
   "skills": {
     "title": "专业技能",
@@ -43,13 +44,29 @@
         "company": "实习公司名称",
         "position": "实习职位",
         "period": "202x年x月 ~ 202x年x月",
+        "base": "城市",
         "description": "实习期间的主要工作描述",
         "responsibilities": [
-          "负责的工作内容1",
-          "参与的项目或任务2",
-          "取得的成果或学习3"
+          "实习工作内容1",
+          "实习工作内容1",
+          "实习工作内容1"
         ],
-        "show": true
+        "show": true,
+        "image": "http://youke.xn--y7xa690gmna.cn/s1/2026/01/17/696b570fa0e93.webp"
+      },
+      {
+        "company": "实习公司名称",
+        "position": "实习职位",
+        "period": "202x年x月 ~ 202x年x月",
+        "base": "城市",
+        "description": "实习期间的主要工作描述",
+        "responsibilities": [
+          "实习工作内容1",
+          "实习工作内容1",
+          "实习工作内容1"
+        ],
+        "show": true,
+        "image": "http://youke.xn--y7xa690gmna.cn/s1/2026/01/17/696b570eb2f4f.webp"
       }
     ]
   },
@@ -66,20 +83,6 @@
           "项目1的描述点1",
           "项目1的描述点2",
           "项目1的描述点3",
-          "..."
-        ],
-        "show": true
-      },
-      {
-        "name": "项目2",
-        "github": "https://github.com/YourUsername/Project2",
-        "demo": "https://project2-demo.com",
-        "techStack": "项目2的技术栈",
-        "description": "项目2的描述",
-        "features": [
-          "项目2的描述点1",
-          "项目2的描述点2",
-          "项目2的描述点3",
           "..."
         ],
         "show": true
