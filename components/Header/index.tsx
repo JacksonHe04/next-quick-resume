@@ -13,10 +13,10 @@ export default function Header() {
 
   return (
     <SectionContainer className={CONTAINER_STYLES.header}>
-      {/* 主容器：左右布局 */}
-      <div className="flex justify-between items-start gap-8">
-        {/* 左侧：个人信息区域 */}
-        <div className="flex-1">
+      {/* 主容器：左右布局，高度一致 */}
+      <div className="flex justify-between items-stretch gap-8">
+        {/* 左侧：个人信息区域，与照片区域高度一致 */}
+        <div className="flex-1 flex flex-col">
           {/* 姓名和职位 */}
           <div className="mb-4">
             <h1 className={TITLE_STYLES.main}>{name}</h1>
@@ -24,7 +24,7 @@ export default function Header() {
           </div>
           
           {/* 联系方式信息 */}
-          <div className="space-y-2">
+          <div className="space-y-3">
             {/* 第一行：电话/微信和邮箱 */}
             <div className="flex gap-8">
               <p className={TEXT_STYLES.base}>
@@ -41,7 +41,7 @@ export default function Header() {
             {/* 第二行：GitHub和主页 */}
             <div className="flex gap-8">
               <p className={TEXT_STYLES.base}>
-                主页:&nbsp;
+                主页：
                 <Link href={contact.homepage.url}>
                   {contact.homepage.text}
                 </Link>

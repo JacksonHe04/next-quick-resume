@@ -23,10 +23,10 @@ function ProjectItem({ project }: { project: ProjectItemType }) {
           {project.github}
         </Link>
       </div>
-      {/* <div className={COMBINED_STYLES.projectInfoRow}> */}
-        {/* <p className={TEXT_STYLES.techStack}>技术栈：{project.techStack}</p> */}
-        {/* <Link href={project.demo}>{project.demo}</Link> */}
-      {/* </div> */}
+      {/* <div className={COMBINED_STYLES.projectInfoRow}>
+        <p className={TEXT_STYLES.techStack}>技术栈：{project.techStack}</p>
+        <Link href={project.demo}>{project.demo}</Link>
+      </div> */}
       {project.description && (
         <p className={TEXT_STYLES.description}>{project.description}</p>
       )}
@@ -50,7 +50,7 @@ export default function Projects() {
     <SectionContainer>
       <SectionTitle>{projects.title}</SectionTitle>
       {projects.items
-        .filter((item) => item.show)
+        .filter((item) => item.show!==false)
         .map((project, index) => (
           <ProjectItem key={index} project={project} />
         ))}

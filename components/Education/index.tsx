@@ -13,7 +13,7 @@ export default function Education() {
     <SectionContainer>
       <SectionTitle>{education.title}</SectionTitle>
       <div className={CONTAINER_STYLES.project}>
-        <div className={LAYOUT_STYLES.flexBetween}>
+        <div className={LAYOUT_STYLES.flexBetweenMb}>
           <div className="flex items-center space-x-2">
             {education.image && (
               <UniversalImage 
@@ -24,7 +24,7 @@ export default function Education() {
                 className="object-contain"
               />
             )}
-            <h3 className={TITLE_STYLES.project}>
+            <h3 className={`${TITLE_STYLES.project}`}>
               <b>{education.school}</b>
             </h3>
           </div>

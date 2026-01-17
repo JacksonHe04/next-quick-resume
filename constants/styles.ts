@@ -10,7 +10,7 @@ export const CONTAINER_STYLES = {
   // 项目容器
   project: 'mb-3',
   // 头部容器
-  header: 'mb-4',
+  header: 'mb-0',
 } as const
 
 // 标题样式
@@ -18,7 +18,7 @@ export const TITLE_STYLES = {
   // 主标题（姓名）
   main: 'text-4xl font-bold m-0',
   // 副标题（职位）
-  subtitle: 'text-xl text-gray-600 mt-2',
+  subtitle: 'text-xl text-gray-600 mt-4',
   // 节标题
   section: 'text-xl font-bold text-black py-1 mb-2 border-b border-black',
   // 项目标题
@@ -59,8 +59,6 @@ export const LIST_STYLES = {
 export const LAYOUT_STYLES = {
   // 网格布局
   grid: 'grid grid-cols-2 gap-8',
-  // 弹性布局 - 两端对齐
-  flexBetween: 'flex justify-between items-center',
   // 弹性布局 - 两端对齐（带间距）
   flexBetweenMb: 'flex justify-between items-center mb-1.5',
   // 弹性布局 - 两端对齐（小间距）

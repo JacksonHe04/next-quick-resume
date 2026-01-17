@@ -34,7 +34,7 @@ function InternItem({ intern }: { intern: InternItemType }) {
               className="object-contain"
             />
           )}
-          <h3 className={TITLE_STYLES.project}>{intern.company}</h3>
+          <h3 className={`${TITLE_STYLES.project} mt-0.5`}><b>{intern.company}</b></h3>
           <span className={TEXT_STYLES.period}>{intern.position}</span>
         </div>
         <div className="flex items-center">
@@ -64,7 +64,7 @@ export default function Intern() {
     <SectionContainer>
       <SectionTitle>{intern.title}</SectionTitle>
       {intern.items
-        .filter((item) => item.show)
+        .filter((item) => item.show!==false)
         .map((internItem, index) => (
           <InternItem key={index} intern={internItem} />
         ))}
