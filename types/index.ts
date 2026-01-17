@@ -7,8 +7,8 @@
 export interface ContactInfo {
   phone: string
   email: string
-  wechat: string
-  age: string
+  wechat?: string
+  age?: string
   github?: {
     text: string
     url: string
