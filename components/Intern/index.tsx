@@ -43,7 +43,7 @@ function InternItem({ intern }: { intern: InternItemType }) {
         </div>
       </div>
       {intern.description && (
-        <p className={TEXT_STYLES.description}>{intern.description}</p>
+        <p className={TEXT_STYLES.description} dangerouslySetInnerHTML={{ __html: markdownToHtml(intern.description) }} />
       )}
       <ol className={LIST_STYLES.ordered}>
         {intern.responsibilities.map((responsibility, index) => (

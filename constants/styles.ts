@@ -6,7 +6,7 @@
 // 容器样式
 export const CONTAINER_STYLES = {
   // 主要内容容器
-  section: 'mb-4',
+  section: 'mb-3',
   // 项目容器
   project: 'mb-3',
   // 头部容器

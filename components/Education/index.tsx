@@ -24,7 +24,7 @@ export default function Education() {
                 className="object-contain"
               />
             )}
-            <h3 className={`${TITLE_STYLES.project}`}>
+            <h3 className={`${TITLE_STYLES.project} mt-1`}>
               <b>{education.school}</b>
             </h3>
           </div>

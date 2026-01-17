@@ -10,7 +10,7 @@ import About from '@/components/About'
 import ResumeManager from '@/components/ResumeManager'
 import CreateResumeModal from '@/components/CreateResumeModal'
 import AiOptimizeModal from '@/components/AiOptimizeModal'
-import { setCurrentResumeData } from '@/config/data'
+import { setCurrentResumeData, getCurrentResumeData } from '@/config/data'
 import { ResumeData } from '@/types'
 
 /**
@@ -62,6 +62,19 @@ export default function Home() {
     window.print()
   }
 
+  // 组件映射表
+  const componentMap: Record<string, React.ComponentType> = {
+    header: Header,
+    education: Education,
+    intern: Intern,
+    projects: Projects,
+    skills: Skills,
+    about: About
+  }
+
+  // 默认组件顺序，可根据JSON中的字段存在情况动态调整
+  const defaultComponentOrder: string[] = ['header', 'education', 'intern', 'projects', 'skills', 'about']
+
   return (
     <main>
       {/* 顶部右侧按钮组 */}
@@ -97,15 +110,18 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 简历内容 */}
+      {/* 简历内容 - 根据JSON配置动态渲染组件 */}
       <div key={refreshKey}>
-        <Header />
-        <Education />
-        <Intern />
-        <Skills />
-        
-        <Projects />
-        <About />
+        {/* 根据数据中存在的字段和默认顺序渲染组件 */}
+        {(() => {
+          const currentData = getCurrentResumeData()
+          return defaultComponentOrder
+            .filter(componentKey => currentData[componentKey as keyof ResumeData])
+            .map(componentKey => {
+              const Component = componentMap[componentKey]
+              return Component ? <Component key={componentKey} /> : null
+            })
+        })()}
       </div>
 
       {/* 简历管理弹窗 */}
