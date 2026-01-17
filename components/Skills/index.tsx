@@ -10,6 +10,9 @@ import { markdownToHtml } from '@/utils/markdown'
 export default function Skills() {
   const skills = getCurrentResumeData().skills
 
+  // 如果没有技能数据，不渲染组件
+  if (!skills) return null
+
   return (
     <SectionContainer>
       <SectionTitle>{skills.title}</SectionTitle>

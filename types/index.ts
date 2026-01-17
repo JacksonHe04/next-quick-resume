@@ -9,11 +9,11 @@ export interface ContactInfo {
   email: string
   wechat: string
   age: string
-  github: {
+  github?: {
     text: string
     url: string
   }
-  homepage: {
+  homepage?: {
     text: string
     url: string
   }
@@ -21,9 +21,9 @@ export interface ContactInfo {
 
 // 工作信息接口
 export interface JobInfo {
-  position: string
-  duration: string
-  availability: string
+  position?: string
+  duration?: string
+  availability?: string
 }
 
 // 头部组件数据接口
@@ -52,11 +52,11 @@ export interface SkillsData {
 export interface ProjectItem {
   name: string
   github: string
-  demo: string
-  techStack: string
+  demo?: string
+  techStack?: string
   description: string
   features: string[]
-  show: boolean
+  show?: boolean
 }
 
 // 实习经历项目接口
@@ -67,7 +67,7 @@ export interface InternItem {
   base: string
   description: string
   responsibilities: string[]
-  show: boolean
+  show?: boolean
   image?: string
 }
 
@@ -92,11 +92,11 @@ export interface AboutData {
 // 统一简历数据接口
 export interface ResumeData {
   header: HeaderData
-  about: AboutData
+  about?: AboutData
   education: EducationData
-  skills: SkillsData
-  intern: InternData
-  projects: ProjectsData
+  skills?: SkillsData
+  intern?: InternData
+  projects?: ProjectsData
 }
 
 // 通用节标题组件属性接口

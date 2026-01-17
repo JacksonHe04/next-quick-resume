@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import Education from '@/components/Education'
 import Skills from '@/components/Skills'
@@ -10,8 +10,11 @@ import About from '@/components/About'
 import ResumeManager from '@/components/ResumeManager'
 import CreateResumeModal from '@/components/CreateResumeModal'
 import AiOptimizeModal from '@/components/AiOptimizeModal'
-import { setCurrentResumeData, getCurrentResumeData } from '@/config/data'
+import { setCurrentResumeData, getCurrentResumeData, defaultResumeData } from '@/config/data'
 import { ResumeData } from '@/types'
+
+// 本地私有未版本管理的 JSON 内容
+import localResumeData from '@/data_local/this.json'
 
 /**
  * 简历主页面组件 - 整合所有简历模块
@@ -21,6 +24,30 @@ export default function Home() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAiModal, setShowAiModal] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [localMode, setLocalMode] = useState(false)
+
+  // 从localStorage加载本地模式状态，并设置对应的简历数据
+  useEffect(() => {
+    const savedLocalMode = localStorage.getItem('localMode')
+    const isLocalMode = savedLocalMode === 'true'
+    setLocalMode(isLocalMode)
+    
+    // 根据本地模式状态设置初始简历数据
+    if (isLocalMode) {
+      setCurrentResumeData(localResumeData)
+    } else {
+      setCurrentResumeData(defaultResumeData)
+    }
+  }, [])
+
+  // 保存本地模式状态到localStorage
+  const toggleLocalMode = () => {
+    const newLocalMode = !localMode
+    setLocalMode(newLocalMode)
+    localStorage.setItem('localMode', newLocalMode.toString())
+    // 刷新页面以应用新的数据源
+    window.location.reload()
+  }
 
   /**
    * 关闭所有弹窗
@@ -106,6 +133,16 @@ export default function Home() {
             className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
           >
             打印简历
+          </button>
+          <button
+            onClick={toggleLocalMode}
+            className={`px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border rounded-lg ${
+              localMode 
+                ? 'bg-blue-500 text-white border-blue-600' 
+                : 'bg-white text-gray-800 border-gray-200'
+            }`}
+          >
+            本地模式：{localMode ? '开启' : '关闭'}
           </button>
         </div>
       </div>

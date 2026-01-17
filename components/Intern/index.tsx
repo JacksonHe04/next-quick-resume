@@ -60,6 +60,9 @@ function InternItem({ intern }: { intern: InternItemType }) {
 export default function Intern() {
   const intern = getCurrentResumeData().intern;
 
+  // 如果没有实习经历数据，不渲染组件
+  if (!intern) return null;
+
   return (
     <SectionContainer>
       <SectionTitle>{intern.title}</SectionTitle>

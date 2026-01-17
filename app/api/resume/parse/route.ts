@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
         contact: {
           phone: "138-0000-0000",
           email: "zhangsan@example.com",
-          wechat: "zhangsan123",
+          wechat: "",
           age: "",
           github: {
             text: "",

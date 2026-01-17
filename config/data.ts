@@ -11,12 +11,15 @@ export type DataSource = 'json' | 'indexeddb'
 // 当前使用的数据源类型
 export const CURRENT_DATA_SOURCE: DataSource = 'json'
 
-// 静态导入的简历数据（用于JSON数据源）
-import staticResumeData from '@/data/resume-template-cn.json'
-// import staticResumeData from '@/data_local/this.json'
+// 首页默认显示的 JSON 数据源
+// GitHub 公开的 JSON 模板
+import defaultResumeData from '@/data/resume-template-cn.json'
 
 // 当前使用的简历数据（可以通过setCurrentResumeData动态更新）
-let currentResumeData: ResumeData = staticResumeData
+let currentResumeData: ResumeData = defaultResumeData
+
+// 导出默认数据源
+export { defaultResumeData }
 
 /**
  * 获取当前简历数据
@@ -38,7 +41,7 @@ export const setCurrentResumeData = (data: ResumeData): void => {
  * 重置为默认简历数据
  */
 export const resetToDefaultResumeData = (): void => {
-  currentResumeData = staticResumeData
+  currentResumeData = defaultResumeData
 }
 
 // 导出当前简历数据（保持向后兼容）

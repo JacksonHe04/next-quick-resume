@@ -40,18 +40,22 @@ export default function Header() {
             
             {/* 第二行：GitHub和主页 */}
             <div className="flex gap-8">
-              <p className={TEXT_STYLES.base}>
-                主页：
-                <Link href={contact.homepage.url}>
-                  {contact.homepage.text}
-                </Link>
-              </p>
-              <p className={TEXT_STYLES.base}>
-                GitHub:&nbsp;
-                <Link href={contact.github.url}>
-                  {contact.github.text}
-                </Link>
-              </p>
+              {contact.homepage && (
+                <p className={TEXT_STYLES.base}>
+                  主页：
+                  <Link href={contact.homepage.url}>
+                    {contact.homepage.text}
+                  </Link>
+                </p>
+              )}
+              {contact.github && (
+                <p className={TEXT_STYLES.base}>
+                  GitHub:&nbsp;
+                  <Link href={contact.github.url}>
+                    {contact.github.text}
+                  </Link>
+                </p>
+              )}
             </div>
           </div>
         </div>

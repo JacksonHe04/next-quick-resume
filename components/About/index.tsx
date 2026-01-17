@@ -7,7 +7,8 @@ import { TEXT_STYLES } from '@/constants/styles'
  * 从统一的简历数据源中读取关于我的信息进行渲染
  */
 export default function About() {
-  const { title, content } = getCurrentResumeData().about
+  const { about } = getCurrentResumeData()
+  const { title, content } = about || {}
 
   return (
     <SectionContainer>

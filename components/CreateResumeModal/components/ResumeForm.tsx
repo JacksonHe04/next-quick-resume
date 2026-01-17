@@ -131,8 +131,8 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
     setFormData(prev => ({
       ...prev,
       skills: {
-        ...prev.skills,
-        items: [...prev.skills.items, ""]
+        title: prev.skills?.title || "技能专长",
+        items: [...(prev.skills?.items || []), ""]
       }
     }))
   }
@@ -144,8 +144,8 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
     setFormData(prev => ({
       ...prev,
       skills: {
-        ...prev.skills,
-        items: prev.skills.items.filter((_, i) => i !== index)
+        title: prev.skills?.title || "技能专长",
+        items: (prev.skills?.items || []).filter((_, i) => i !== index)
       }
     }))
   }
@@ -157,16 +157,19 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
     setFormData(prev => ({
       ...prev,
       intern: {
-        ...prev.intern,
-        items: [...prev.intern.items, {
-          company: "",
-          position: "",
-          period: "",
-          base: "",
-          description: "",
-          responsibilities: ["", "", ""],
-          show: true
-        }]
+        title: prev.intern?.title || "工作经历",
+        items: [
+          ...(prev.intern?.items || []),
+          {
+            company: "",
+            position: "",
+            period: "",
+            base: "",
+            description: "",
+            responsibilities: ["", "", ""],
+            show: true
+          }
+        ]
       }
     }))
   }
@@ -178,8 +181,8 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
     setFormData(prev => ({
       ...prev,
       intern: {
-        ...prev.intern,
-        items: prev.intern.items.filter((_, i) => i !== index)
+        title: prev.intern?.title || "工作经历",
+        items: (prev.intern?.items || []).filter((_, i) => i !== index)
       }
     }))
   }
@@ -191,16 +194,19 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
     setFormData(prev => ({
       ...prev,
       projects: {
-        ...prev.projects,
-        items: [...prev.projects.items, {
-          name: "",
-          github: "",
-          demo: "",
-          techStack: "",
-          description: "",
-          features: ["", "", "", "", "", ""],
-          show: true
-        }]
+        title: prev.projects?.title || "项目经验",
+        items: [
+          ...(prev.projects?.items || []),
+          {
+            name: "",
+            github: "",
+            demo: "",
+            techStack: "",
+            description: "",
+            features: ["", "", "", "", "", ""],
+            show: true
+          }
+        ]
       }
     }))
   }
@@ -212,8 +218,8 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
     setFormData(prev => ({
       ...prev,
       projects: {
-        ...prev.projects,
-        items: prev.projects.items.filter((_, i) => i !== index)
+        title: prev.projects?.title || "项目经验",
+        items: (prev.projects?.items || []).filter((_, i) => i !== index)
       }
     }))
   }
@@ -310,7 +316,7 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
           <label className="block text-sm font-medium text-gray-700 mb-1">GitHub</label>
           <input
             type="url"
-            value={formData.header.contact.github.url}
+            value={formData.header.contact.github?.url || ''}
             onChange={(e) => updateFormData('header', 'contact.github.url', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="GitHub链接"
@@ -321,7 +327,7 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
           <label className="block text-sm font-medium text-gray-700 mb-1">个人主页</label>
           <input
             type="url"
-            value={formData.header.contact.homepage.url}
+            value={formData.header.contact.homepage?.url || ''}
             onChange={(e) => updateFormData('header', 'contact.homepage.url', e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="个人主页链接"
@@ -339,15 +345,15 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
       <h4 className="text-lg font-medium text-gray-900">个人简介</h4>
       
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">简介内容</label>
-        <textarea
-          value={formData.about.content}
-          onChange={(e) => updateFormData('about', 'content', e.target.value)}
-          rows={4}
-          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          placeholder="请输入个人简介..."
-        />
-      </div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">简介内容</label>
+          <textarea
+            value={formData.about?.content || ''}
+            onChange={(e) => updateFormData('about', 'content', e.target.value)}
+            rows={4}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="请输入个人简介..."
+          />
+        </div>
     </div>
   )
 
@@ -408,7 +414,7 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
       </div>
       
       <div className="space-y-2">
-        {formData.skills.items.map((skill, index) => (
+        {(formData.skills?.items || []).map((skill, index) => (
           <div key={index} className="flex items-center space-x-2">
             <input
               type="text"
@@ -417,7 +423,7 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
               className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder={`技能 ${index + 1}`}
             />
-            {formData.skills.items.length > 1 && (
+            {((formData.skills?.items || []).length > 1) && (
               <Button
                 variant="danger"
                 size="sm"
@@ -444,11 +450,11 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
         </Button>
       </div>
       
-      {formData.intern.items.map((item, index) => (
+      {(formData.intern?.items || []).map((item, index) => (
         <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-4">
           <div className="flex items-center justify-between">
             <h5 className="text-md font-medium text-gray-800">工作经历 {index + 1}</h5>
-            {formData.intern.items.length > 1 && (
+            {((formData.intern?.items || []).length > 1) && (
               <Button
                 variant="danger"
                 size="sm"
@@ -528,11 +534,11 @@ export default function ResumeForm({ onSuccess, initialData }: ResumeFormProps) 
         </Button>
       </div>
       
-      {formData.projects.items.map((item, index) => (
+      {(formData.projects?.items || []).map((item, index) => (
         <div key={index} className="border border-gray-200 rounded-lg p-4 space-y-4">
           <div className="flex items-center justify-between">
-            <h5 className="text-md font-medium text-gray-800">项目 {index + 1}</h5>
-            {formData.projects.items.length > 1 && (
+            <h5 className="text-md font-medium text-gray-800">项目经验 {index + 1}</h5>
+            {((formData.projects?.items || []).length > 1) && (
               <Button
                 variant="danger"
                 size="sm"

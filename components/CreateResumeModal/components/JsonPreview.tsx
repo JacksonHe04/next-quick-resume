@@ -49,16 +49,14 @@ export default function JsonPreview({ resumeData, onConfirm, onEdit, onCancel }:
           <div><span className="font-medium">职位：</span>{resumeData.header.jobInfo.position || '未填写'}</div>
           <div><span className="font-medium">手机：</span>{resumeData.header.contact.phone || '未填写'}</div>
           <div><span className="font-medium">邮箱：</span>{resumeData.header.contact.email || '未填写'}</div>
-          <div><span className="font-medium">微信：</span>{resumeData.header.contact.wechat || '未填写'}</div>
-          <div><span className="font-medium">年龄：</span>{resumeData.header.contact.age || '未填写'}</div>
-          {resumeData.header.contact.github.url && (
+          {resumeData.header.contact.github && resumeData.header.contact.github.url && (
             <div><span className="font-medium">GitHub：</span>
               <a href={resumeData.header.contact.github.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                 {resumeData.header.contact.github.url}
               </a>
             </div>
           )}
-          {resumeData.header.contact.homepage.url && (
+          {resumeData.header.contact.homepage && resumeData.header.contact.homepage.url && (
             <div><span className="font-medium">主页：</span>
               <a href={resumeData.header.contact.homepage.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                 {resumeData.header.contact.homepage.url}
@@ -69,7 +67,7 @@ export default function JsonPreview({ resumeData, onConfirm, onEdit, onCancel }:
       </div>
 
       {/* 个人简介 */}
-      {resumeData.about.content && (
+      {resumeData.about && resumeData.about.content && (
         <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-gray-900 mb-3">{resumeData.about.title}</h4>
           <p className="text-sm text-gray-700 whitespace-pre-wrap">{resumeData.about.content}</p>
@@ -89,7 +87,7 @@ export default function JsonPreview({ resumeData, onConfirm, onEdit, onCancel }:
       )}
 
       {/* 技能专长 */}
-      {resumeData.skills.items.some(item => item.trim()) && (
+      {resumeData.skills && resumeData.skills.items.some(item => item.trim()) && (
         <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-gray-900 mb-3">{resumeData.skills.title}</h4>
           <div className="flex flex-wrap gap-2">
@@ -103,7 +101,7 @@ export default function JsonPreview({ resumeData, onConfirm, onEdit, onCancel }:
       )}
 
       {/* 工作经历 */}
-      {resumeData.intern.items.some(item => item.company || item.position) && (
+      {resumeData.intern && resumeData.intern.items.some(item => item.company || item.position) && (
         <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-gray-900 mb-3">{resumeData.intern.title}</h4>
           <div className="space-y-4">
@@ -133,7 +131,7 @@ export default function JsonPreview({ resumeData, onConfirm, onEdit, onCancel }:
       )}
 
       {/* 项目经验 */}
-      {resumeData.projects.items.some(item => item.name || item.techStack) && (
+      {resumeData.projects && resumeData.projects.items.some(item => item.name || item.techStack) && (
         <div className="bg-gray-50 rounded-lg p-4">
           <h4 className="text-lg font-semibold text-gray-900 mb-3">{resumeData.projects.title}</h4>
           <div className="space-y-4">

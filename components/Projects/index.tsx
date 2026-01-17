@@ -46,6 +46,9 @@ function ProjectItem({ project }: { project: ProjectItemType }) {
 export default function Projects() {
   const projects = getCurrentResumeData().projects;
 
+  // 如果没有项目经历数据，不渲染组件
+  if (!projects) return null;
+
   return (
     <SectionContainer>
       <SectionTitle>{projects.title}</SectionTitle>
