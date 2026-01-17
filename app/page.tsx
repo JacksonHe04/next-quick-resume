@@ -13,8 +13,8 @@ import AiOptimizeModal from '@/components/AiOptimizeModal'
 import { setCurrentResumeData, getCurrentResumeData, defaultResumeData } from '@/config/data'
 import { ResumeData } from '@/types'
 
-// 本地私有未版本管理的 JSON 内容
-import localResumeData from '@/data_local/this.json'
+// 本地私有未版本管理的 JSON 内容 - 动态导入以处理部署时可能不存在的情况
+let localResumeData: any = null
 
 /**
  * 简历主页面组件 - 整合所有简历模块
@@ -34,7 +34,20 @@ export default function Home() {
     
     // 根据本地模式状态设置初始简历数据
     if (isLocalMode) {
-      setCurrentResumeData(localResumeData)
+      // 动态导入本地数据，仅在本地模式且文件存在时使用
+      import('@/data_local/this.json')
+        .then((module) => {
+          localResumeData = module.default
+          setCurrentResumeData(localResumeData)
+        })
+        .catch((error) => {
+          // 本地文件不存在或导入失败时使用默认数据
+          console.warn('本地简历数据文件不存在或导入失败，使用默认数据:', error)
+          setCurrentResumeData(defaultResumeData)
+          // 自动切换到非本地模式
+          localStorage.setItem('localMode', 'false')
+          setLocalMode(false)
+        })
     } else {
       setCurrentResumeData(defaultResumeData)
     }
