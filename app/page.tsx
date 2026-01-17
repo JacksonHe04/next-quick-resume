@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState} from 'react'
 import Header from '@/components/Header'
 import Education from '@/components/Education'
 import Skills from '@/components/Skills'
@@ -25,42 +25,6 @@ export default function Home() {
   const [showAiModal, setShowAiModal] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [localMode, setLocalMode] = useState(false)
-
-  // 从localStorage加载本地模式状态，并设置对应的简历数据
-  useEffect(() => {
-    const savedLocalMode = localStorage.getItem('localMode')
-    const isLocalMode = savedLocalMode === 'true'
-    setLocalMode(isLocalMode)
-    
-    // 根据本地模式状态设置初始简历数据
-    if (isLocalMode) {
-      // 动态导入本地数据，仅在本地模式且文件存在时使用
-      import('@/data_local/this.json')
-        .then((module) => {
-          localResumeData = module.default
-          setCurrentResumeData(localResumeData)
-        })
-        .catch((error) => {
-          // 本地文件不存在或导入失败时使用默认数据
-          console.warn('本地简历数据文件不存在或导入失败，使用默认数据:', error)
-          setCurrentResumeData(defaultResumeData)
-          // 自动切换到非本地模式
-          localStorage.setItem('localMode', 'false')
-          setLocalMode(false)
-        })
-    } else {
-      setCurrentResumeData(defaultResumeData)
-    }
-  }, [])
-
-  // 保存本地模式状态到localStorage
-  const toggleLocalMode = () => {
-    const newLocalMode = !localMode
-    setLocalMode(newLocalMode)
-    localStorage.setItem('localMode', newLocalMode.toString())
-    // 刷新页面以应用新的数据源
-    window.location.reload()
-  }
 
   /**
    * 关闭所有弹窗
@@ -146,16 +110,6 @@ export default function Home() {
             className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
           >
             打印简历
-          </button>
-          <button
-            onClick={toggleLocalMode}
-            className={`px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border rounded-lg ${
-              localMode 
-                ? 'bg-blue-500 text-white border-blue-600' 
-                : 'bg-white text-gray-800 border-gray-200'
-            }`}
-          >
-            本地模式：{localMode ? '开启' : '关闭'}
           </button>
         </div>
       </div>
