@@ -215,7 +215,7 @@ export class OpenAIClient {
    * @param errorData - 错误数据
    * @returns string - 格式化的错误信息
    */
-  private getErrorMessage(status: number, errorData: any): string {
+  private getErrorMessage(status: number, errorData: { error?: { message?: string }; message?: string }): string {
     const statusText = {
       400: '请求参数错误',
       401: 'API密钥无效或已过期',

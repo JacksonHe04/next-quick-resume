@@ -1,53 +1,133 @@
 'use client'
 
-import { useState} from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import Header from '@/components/Header'
 import Education from '@/components/Education'
 import Skills from '@/components/Skills'
 import Intern from '@/components/Intern'
 import Projects from '@/components/Projects'
 import About from '@/components/About'
-import ResumeManager from '@/components/ResumeManager'
 import CreateResumeModal from '@/components/CreateResumeModal'
 import AiOptimizeModal from '@/components/AiOptimizeModal'
-import { setCurrentResumeData, getCurrentResumeData, defaultResumeData } from '@/config/data'
-import { ResumeData } from '@/types'
-
-// 本地私有未版本管理的 JSON 内容 - 动态导入以处理部署时可能不存在的情况
-let localResumeData: any = null
+import ResumeSidebar from '@/components/ResumeSidebar'
+import ResumeRightSidebar, { ResumeRightSidebarRef } from '@/components/ResumeRightSidebar'
+import TopBar from '@/components/TopBar'
+import {
+  setCurrentResumeData,
+  getCurrentResumeData,
+  setCurrentResumeConfig,
+  setCurrentResumeState,
+  getCurrentResumeState
+} from '@/config/data'
+import { ResumeData, ResumeDisplayConfig } from '@/types'
+import { getDefaultResumeConfig } from '@/utils/indexedDB'
 
 /**
  * 简历主页面组件 - 整合所有简历模块
+ * 
+ * 布局结构：
+ * - 顶部顶栏（固定）：模式切换、简历名称编辑、操作按钮
+ * - 主体区域（flex）：
+ *   - 左侧管理栏（可调整宽度）：模块控制/JSON编辑、保存/克隆
+ *   - 中间简历内容（自适应）：简历展示
+ *   - 右侧列表栏（可调整宽度）：简历列表、删除功能
  */
 export default function Home() {
-  const [showResumeManager, setShowResumeManager] = useState(false)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showAiModal, setShowAiModal] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
-  const [localMode, setLocalMode] = useState(false)
-  const [showExportDropdown, setShowExportDropdown] = useState(false)
   const [showCopySuccess, setShowCopySuccess] = useState(false)
+
+  // 当前简历状态和配置
+  const [currentConfig, setCurrentConfig] = useState<ResumeDisplayConfig>(getDefaultResumeConfig())
+  const [currentData, setCurrentData] = useState<ResumeData>(getCurrentResumeData())
+  const [isTemplate, setIsTemplate] = useState(true)
+  const [currentRecordId, setCurrentRecordId] = useState<string | undefined>(undefined)
+  const [currentResumeName, setCurrentResumeName] = useState<string>('')
+  
+  // 视图模式状态
+  const [viewMode, setViewMode] = useState<'preview' | 'edit'>('preview')
+
+  // 侧边栏宽度状态
+  const [leftSidebarWidth, setLeftSidebarWidth] = useState(320)
+  const [rightSidebarWidth, setRightSidebarWidth] = useState(320)
+  const [isResizingLeft, setIsResizingLeft] = useState(false)
+  const [isResizingRight, setIsResizingRight] = useState(false)
+
+  // 用于拖拽调整的 ref
+  const containerRef = useRef<HTMLDivElement>(null)
+  // 右侧边栏 ref，用于刷新简历列表
+  const rightSidebarRef = useRef<ResumeRightSidebarRef>(null)
+
+  /**
+   * 同步全局状态到本地状态
+   */
+  const syncGlobalState = useCallback(() => {
+    const state = getCurrentResumeState()
+    setCurrentData(state.data)
+    setCurrentConfig(state.config)
+    setIsTemplate(state.source === 'template')
+    setCurrentRecordId(state.recordId)
+    setCurrentResumeName(state.name || '')
+  }, [])
+
+  /**
+   * 初始化状态
+   */
+  useEffect(() => {
+    syncGlobalState()
+  }, [syncGlobalState, refreshKey])
+
+  /**
+   * 处理左侧拖拽调整
+   */
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isResizingLeft && containerRef.current) {
+        const newWidth = e.clientX
+        if (newWidth >= 200 && newWidth <= 500) {
+          setLeftSidebarWidth(newWidth)
+        }
+      }
+      if (isResizingRight && containerRef.current) {
+        const containerWidth = containerRef.current.offsetWidth
+        const newWidth = containerWidth - e.clientX
+        if (newWidth >= 200 && newWidth <= 500) {
+          setRightSidebarWidth(newWidth)
+        }
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsResizingLeft(false)
+      setIsResizingRight(false)
+    }
+
+    if (isResizingLeft || isResizingRight) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+      document.body.style.cursor = ''
+      document.body.style.userSelect = ''
+    }
+  }, [isResizingLeft, isResizingRight])
 
   /**
    * 关闭所有弹窗
    */
   const closeAllModals = () => {
-    setShowResumeManager(false)
     setShowCreateModal(false)
     setShowAiModal(false)
-    setShowExportDropdown(false)
   }
 
   /**
-   * 打开简历管理弹窗（关闭其他弹窗）
-   */
-  const openResumeManager = () => {
-    closeAllModals()
-    setShowResumeManager(true)
-  }
-
-  /**
-   * 打开创建简历弹窗（关闭其他弹窗）
+   * 打开创建简历弹窗
    */
   const openCreateModal = () => {
     closeAllModals()
@@ -55,7 +135,7 @@ export default function Home() {
   }
 
   /**
-   * 打开AI简历优化弹窗（关闭其他弹窗）
+   * 打开AI简历优化弹窗
    */
   const openAiModal = () => {
     closeAllModals()
@@ -70,61 +150,53 @@ export default function Home() {
   }
 
   /**
-   * 切换导出下拉菜单
-   */
-  const toggleExportDropdown = () => {
-    setShowExportDropdown(!showExportDropdown)
-  }
-
-  /**
    * 处理导出为PDF
    */
   const handleExportPDF = () => {
     handlePrintResume()
-    setShowExportDropdown(false)
   }
 
   /**
    * 处理导出为Markdown
    */
   const handleExportMarkdown = () => {
-    const currentData = getCurrentResumeData()
-    let markdown = `# ${currentData.header.name}\n\n`
-    
+    const data = getCurrentResumeData()
+    let markdown = `# ${data.header.name}\n\n`
+
     // 添加联系方式
     markdown += `## 联系方式\n`
-    markdown += `- 电话/微信：${currentData.header.contact.phone}\n`
-    markdown += `- 邮箱：${currentData.header.contact.email}\n`
-    if (currentData.header.contact.github) {
-      markdown += `- GitHub：[${currentData.header.contact.github.text}](${currentData.header.contact.github.url})\n`
+    markdown += `- 电话/微信：${data.header.contact.phone}\n`
+    markdown += `- 邮箱：${data.header.contact.email}\n`
+    if (data.header.contact.github) {
+      markdown += `- GitHub：[${data.header.contact.github.text}](${data.header.contact.github.url})\n`
     }
-    if (currentData.header.contact.homepage) {
-      markdown += `- 主页：[${currentData.header.contact.homepage.text}](${currentData.header.contact.homepage.url})\n`
+    if (data.header.contact.homepage) {
+      markdown += `- 主页：[${data.header.contact.homepage.text}](${data.header.contact.homepage.url})\n`
     }
     markdown += `\n`
-    
+
     // 添加教育背景
-    if (currentData.education) {
-      markdown += `## ${currentData.education.title}\n`
-      markdown += `- 学校：${currentData.education.school}\n`
-      markdown += `- 时间：${currentData.education.period}\n`
-      markdown += `- 详情：${currentData.education.details}\n`
+    if (data.education) {
+      markdown += `## ${data.education.title}\n`
+      markdown += `- 学校：${data.education.school}\n`
+      markdown += `- 时间：${data.education.period}\n`
+      markdown += `- 详情：${data.education.details}\n`
       markdown += `\n`
     }
-    
+
     // 添加技能
-    if (currentData.skills) {
-      markdown += `## ${currentData.skills.title}\n`
-      currentData.skills.items.forEach(skill => {
+    if (data.skills) {
+      markdown += `## ${data.skills.title}\n`
+      data.skills.items.forEach(skill => {
         markdown += `- ${skill}\n`
       })
       markdown += `\n`
     }
-    
+
     // 添加实习经历
-    if (currentData.intern) {
-      markdown += `## ${currentData.intern.title}\n`
-      currentData.intern.items.forEach(item => {
+    if (data.intern) {
+      markdown += `## ${data.intern.title}\n`
+      data.intern.items.forEach(item => {
         markdown += `### ${item.company} - ${item.position}\n`
         markdown += `- 时间：${item.period}\n`
         markdown += `- 地点：${item.base}\n`
@@ -138,11 +210,11 @@ export default function Home() {
         markdown += `\n`
       })
     }
-    
+
     // 添加项目经历
-    if (currentData.projects) {
-      markdown += `## ${currentData.projects.title}\n`
-      currentData.projects.items.forEach(item => {
+    if (data.projects) {
+      markdown += `## ${data.projects.title}\n`
+      data.projects.items.forEach(item => {
         markdown += `### ${item.name}\n`
         markdown += `- GitHub：${item.github}\n`
         if (item.demo) {
@@ -161,13 +233,13 @@ export default function Home() {
         markdown += `\n`
       })
     }
-    
+
     // 添加关于我
-    if (currentData.about) {
-      markdown += `## ${currentData.about.title}\n`
-      markdown += `${currentData.about.content}\n`
+    if (data.about) {
+      markdown += `## ${data.about.title}\n`
+      markdown += `${data.about.content}\n`
     }
-    
+
     // 复制到剪贴板
     navigator.clipboard.writeText(markdown).then(() => {
       setShowCopySuccess(true)
@@ -177,9 +249,60 @@ export default function Home() {
     }).catch(err => {
       console.error('无法复制内容: ', err)
     })
-    
-    setShowExportDropdown(false)
   }
+
+  /**
+   * 处理配置变更
+   */
+  const handleConfigChange = useCallback((config: ResumeDisplayConfig) => {
+    setCurrentConfig(config)
+    setCurrentResumeConfig(config)
+  }, [])
+
+  /**
+   * 处理数据变更（编辑模式）
+   */
+  const handleDataChange = useCallback((data: ResumeData) => {
+    setCurrentData(data)
+    setCurrentResumeData(data)
+    // 触发重新渲染
+    setRefreshKey(prev => prev + 1)
+  }, [])
+
+  /**
+   * 处理简历选择
+   */
+  const handleSelectResume = useCallback((resumeData: ResumeData, recordId?: string, config?: ResumeDisplayConfig, name?: string) => {
+    if (recordId) {
+      // 从数据库加载的简历
+      setCurrentResumeState({
+        data: resumeData,
+        config: config || getDefaultResumeConfig(),
+        source: 'database',
+        recordId,
+        name: name || '未命名简历'
+      })
+    } else {
+      // 模板简历或其他
+      setCurrentResumeData(resumeData)
+    }
+    closeAllModals()
+    setRefreshKey(prev => prev + 1)
+  }, [])
+
+  /**
+   * 强制刷新
+   */
+  const handleRefresh = useCallback(() => {
+    setRefreshKey(prev => prev + 1)
+  }, [])
+
+  /**
+   * 处理模式切换
+   */
+  const handleModeChange = useCallback((mode: 'preview' | 'edit') => {
+    setViewMode(mode)
+  }, [])
 
   // 组件映射表
   const componentMap: Record<string, React.ComponentType> = {
@@ -191,133 +314,124 @@ export default function Home() {
     about: About
   }
 
-  // 默认组件顺序，可根据JSON中的字段存在情况动态调整
-  const defaultComponentOrder: string[] = ['header', 'education', 'intern', 'projects', 'skills', 'about']
+  /**
+   * 获取可见且按顺序排列的组件列表
+   */
+  const getVisibleComponents = () => {
+    const visibleSections = currentConfig.sections
+      .filter(s => s.visible)
+      .map(s => s.key)
+
+    return currentConfig.sectionOrder
+      .filter(key => visibleSections.includes(key))
+      .filter(key => currentData[key as keyof ResumeData])
+      .map(key => {
+        const Component = componentMap[key]
+        return Component ? <Component key={key} /> : null
+      })
+      .filter(Boolean)
+  }
 
   return (
-    <main>
-      {/* 顶部右侧按钮组 */}
-      <div
-        style={{ position: 'fixed', top: '20px', right: '20px', zIndex: 1000 }}
-        className="no-print"
-      >
-        <div className="flex flex-col gap-2">
-          <button
-            onClick={openResumeManager}
-            className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
-          >
-            简历管理
-          </button>
-          <button
-            onClick={openCreateModal}
-            className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
-          >
-            创建简历
-          </button>
-          <button
-            onClick={openAiModal}
-            className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
-          >
-            AI 简历优化
-          </button>
-          <div className="relative">
-            <button
-              onClick={toggleExportDropdown}
-              className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200 w-full text-left"
-            >
-              导出
-            </button>
-            {showExportDropdown && (
-              <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-40 z-50">
-                <button
-                  onClick={handleExportPDF}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg"
-                >
-                  导出为 PDF
-                </button>
-                <button
-                  onClick={handleExportMarkdown}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-lg"
-                >
-                  导出为 Markdown
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="h-screen flex flex-col overflow-hidden print:h-auto print:overflow-visible rounded-2xl border border-gray-400">
+      {/* 顶部顶栏 */}
+      <TopBar
+        viewMode={viewMode}
+        onModeChange={handleModeChange}
+        onCreateResume={openCreateModal}
+        onAiOptimize={openAiModal}
+        onExportPDF={handleExportPDF}
+        onExportMarkdown={handleExportMarkdown}
+        resumeName={currentResumeName}
+        recordId={currentRecordId}
+        isTemplate={isTemplate}
+        onRefresh={handleRefresh}
+        onResumesRefresh={() => rightSidebarRef.current?.refresh()}
+      />
 
-      {/* 简历内容 - 根据JSON配置动态渲染组件 */}
-      <div key={refreshKey}>
-        {/* 根据数据中存在的字段和默认顺序渲染组件 */}
-        {(() => {
-          const currentData = getCurrentResumeData()
-          return defaultComponentOrder
-            .filter(componentKey => currentData[componentKey as keyof ResumeData])
-            .map(componentKey => {
-              const Component = componentMap[componentKey]
-              return Component ? <Component key={componentKey} /> : null
-            })
-        })()}
-      </div>
+      {/* 主体内容区域 */}
+      <main ref={containerRef} className="flex flex-1 overflow-hidden print:block print:overflow-visible" style={{ marginTop: '64px' }}>
+        {/* 左侧边栏 - 简历管理 */}
+        <aside 
+          className="flex-shrink-0 bg-white border-r border-gray-200 shadow-lg flex flex-col z-40 print:hidden"
+          style={{ width: leftSidebarWidth }}
+        >
+          <ResumeSidebar
+            resumeData={currentData}
+            config={currentConfig}
+            isTemplate={isTemplate}
+            recordId={currentRecordId}
+            viewMode={viewMode}
+            onConfigChange={handleConfigChange}
+            onDataChange={handleDataChange}
+            onRefresh={handleRefresh}
+          />
+        </aside>
 
-      {/* 简历管理弹窗 */}
-      {showResumeManager && (
-        <ResumeManager 
-          isOpen={showResumeManager}
-          onClose={closeAllModals}
-          onSelectResume={(resumeData: ResumeData) => {
-            // 当用户选择简历时，更新当前简历数据
-            setCurrentResumeData(resumeData)
-            closeAllModals()
-            // 通过更新key来强制组件重新渲染
-            setRefreshKey(prev => prev + 1)
-          }}
+        {/* 左侧调整条 */}
+        <div
+          className="w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize z-50 transition-colors print:hidden"
+          onMouseDown={() => setIsResizingLeft(true)}
+          title="拖动调整左侧边栏宽度"
         />
-      )}
 
-      {/* 创建简历弹窗 */}
-      <CreateResumeModal
-        isOpen={showCreateModal}
-        onClose={closeAllModals}
-        onResumeCreated={(resumeData: ResumeData) => {
-          // 当简历创建成功时，更新当前简历数据
-          setCurrentResumeData(resumeData)
-          closeAllModals()
-          // 通过更新key来强制组件重新渲染
-          setRefreshKey(prev => prev + 1)
-        }}
-      />
+        {/* 中间主内容区域 */}
+        <div className="flex-1 overflow-y-auto relative bg-gray-50 print:bg-white">
+          {/* 复制成功提示 */}
+          {showCopySuccess && (
+            <div className="fixed top-20 right-20 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in print:hidden">
+              Markdown 已复制到剪贴板！
+            </div>
+          )}
 
-      {/* AI 简历优化弹窗 */}
-      <AiOptimizeModal
-        isOpen={showAiModal}
-        onClose={closeAllModals}
-        onOptimized={(resumeData: ResumeData) => {
-          // 当AI优化完成时，更新当前简历数据
-          setCurrentResumeData(resumeData)
-          closeAllModals()
-          // 通过更新key来强制组件重新渲染
-          setRefreshKey(prev => prev + 1)
-        }}
-      />
-
-      {/* 复制成功提示 */}
-      {showCopySuccess && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-6 z-50">
-          <div className="text-center">
-            <div className="text-green-500 text-2xl mb-2">✓</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">复制成功</h3>
-            <p className="text-gray-600 mb-4">Markdown内容已成功复制到剪贴板</p>
-            <button
-              onClick={() => setShowCopySuccess(false)}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded transition-colors"
-            >
-              确定
-            </button>
+          {/* 简历内容 - 根据配置动态渲染组件 */}
+          <div key={refreshKey} className="p-8 print:p-0">
+            {getVisibleComponents()}
           </div>
+
+          {/* 创建简历弹窗 */}
+          <CreateResumeModal
+            isOpen={showCreateModal}
+            onClose={closeAllModals}
+            onResumeCreated={(resumeData: ResumeData) => {
+              setCurrentResumeData(resumeData)
+              closeAllModals()
+              setRefreshKey(prev => prev + 1)
+            }}
+          />
+
+          {/* AI 简历优化弹窗 */}
+          <AiOptimizeModal
+            isOpen={showAiModal}
+            onClose={closeAllModals}
+            onOptimized={(resumeData: ResumeData) => {
+              setCurrentResumeData(resumeData)
+              closeAllModals()
+              setRefreshKey(prev => prev + 1)
+            }}
+          />
         </div>
-      )}
-    </main>
+
+        {/* 右侧调整条 */}
+        <div
+          className="w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize z-50 transition-colors print:hidden"
+          onMouseDown={() => setIsResizingRight(true)}
+          title="拖动调整右侧边栏宽度"
+        />
+
+        {/* 右侧边栏 - 简历列表 */}
+        <aside
+          className="flex-shrink-0 bg-white border-l border-gray-200 shadow-lg z-40 print:hidden"
+          style={{ width: rightSidebarWidth }}
+        >
+          <ResumeRightSidebar
+            ref={rightSidebarRef}
+            onSelectResume={handleSelectResume}
+            currentRecordId={currentRecordId}
+            onRefresh={handleRefresh}
+          />
+        </aside>
+      </main>
+    </div>
   )
 }

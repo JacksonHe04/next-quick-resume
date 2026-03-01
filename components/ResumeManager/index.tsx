@@ -1,19 +1,16 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { ResumeData } from '@/types'
+import { ResumeData, ResumeDisplayConfig } from '@/types'
 import { Button } from '@/components/ui'
 import {
   useResumeData,
-  useFileRecords,
-  useResumeEditor,
-  type UnifiedRecord
+  useFileRecords
 } from './hooks'
 import {
   TabNavigation,
   DatabaseResumeList,
   FileResumeList,
-  ResumeEditor,
   type TabType
 } from './components'
 
@@ -26,7 +23,7 @@ interface ResumeManagerProps {
   /** 关闭弹窗回调 */
   onClose: () => void
   /** 选择简历回调 */
-  onSelectResume: (resumeData: ResumeData) => void
+  onSelectResume: (resumeData: ResumeData, recordId?: string, config?: ResumeDisplayConfig) => void
 }
 
 /**
@@ -38,7 +35,7 @@ interface ResumeManagerProps {
  * <ResumeManager
  *   isOpen={showManager}
  *   onClose={() => setShowManager(false)}
- *   onSelectResume={(data) => {
+ *   onSelectResume={(data, recordId, config) => {
  *     setCurrentResumeData(data)
  *     setShowManager(false)
  *   }}
@@ -52,34 +49,11 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
   // 使用自定义 hooks
   const resumeData = useResumeData()
   const fileRecords = useFileRecords()
-  const editor = useResumeEditor()
-
-
 
   /**
    * 业务逻辑处理函数
    */
   const handlers = {
-    // 编辑相关
-    startEditing: (record: UnifiedRecord | null = null) => {
-      editor.startEditing(record)
-    },
-    
-    createFromTemplate: (template: UnifiedRecord) => {
-      editor.startEditingFromTemplate(template)
-    },
-    
-    saveResume: async () => {
-      const success = await editor.saveResume(resumeData.createResume, resumeData.updateResumeComplete)
-      if (success) {
-        await resumeData.loadResumes()
-      }
-    },
-    
-    cancelEditing: () => {
-      editor.cancelEditing()
-    },
-    
     // 简历操作
     deleteResume: async (id: string) => {
       const success = await resumeData.deleteResumeById(id)
@@ -88,8 +62,8 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
       }
     },
     
-    useResume: (data: ResumeData) => {
-      onSelectResume(data)
+    useResume: (data: ResumeData, recordId?: string, config?: ResumeDisplayConfig) => {
+      onSelectResume(data, recordId, config)
       onClose()
     },
     
@@ -161,11 +135,7 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
                   loading={resumeData.loading}
                   onUse={handlers.useResume}
                   onUseResume={handlers.useResume}
-                  onCreateFromTemplate={handlers.createFromTemplate}
-                  onEdit={handlers.startEditing}
-                  onCopy={handlers.createFromTemplate}
                   onDelete={handlers.deleteResume}
-                  onNew={() => handlers.startEditing(null)}
                 />
               )}
 
@@ -175,27 +145,35 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
                   loading={fileRecords.loading}
                   onUse={handlers.useResume}
                   onUseResume={handlers.useResume}
-                  onCreateFromTemplate={handlers.createFromTemplate}
-                  onCopy={handlers.createFromTemplate}
                 />
               )}
             </div>
           </div>
 
-          {/* 右侧：编辑区域 */}
-          <div className="w-1/2 flex flex-col">
-            <ResumeEditor
-              isEditing={editor.isEditing}
-              selectedRecord={editor.selectedRecord}
-              editingName={editor.editingName}
-              editingData={editor.editingData}
-              error={editor.error}
-              loading={resumeData.loading}
-              onNameChange={editor.updateEditingName}
-              onDataChange={editor.updateEditingData}
-              onSave={handlers.saveResume}
-              onCancel={handlers.cancelEditing}
-            />
+          {/* 右侧：提示信息区域（替代原来的编辑区域） */}
+          <div className="w-1/2 flex flex-col items-center justify-center p-8 bg-gray-50">
+            <div className="text-center max-w-md">
+              <div className="mb-4">
+                <svg className="mx-auto h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-medium text-gray-800 mb-2">简历编辑已移至侧边栏</h3>
+              <p className="text-sm text-gray-500 mb-4">
+                现在您可以在主界面的左侧边栏中进行简历编辑、模块管理和配置保存。
+                选择左侧列表中的简历，然后点击&ldquo;使用&rdquo;按钮即可开始编辑。
+              </p>
+              <div className="text-xs text-gray-400 space-y-1">
+                <p>💡 提示：侧边栏提供以下功能</p>
+                <ul className="list-disc list-inside text-left inline-block">
+                  <li>模块显隐控制</li>
+                  <li>拖拽排序</li>
+                  <li>JSON 编辑</li>
+                  <li>配置保存</li>
+                  <li>简历克隆</li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </div>

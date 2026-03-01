@@ -132,3 +132,44 @@ export interface AiOptimizeResponse {
   data?: ResumeData
   error?: string
 }
+
+// 简历模块类型
+export type ResumeSectionKey = 'header' | 'education' | 'intern' | 'projects' | 'skills' | 'about'
+
+// 简历模块配置项
+export interface ResumeSectionConfig {
+  key: ResumeSectionKey
+  label: string
+  visible: boolean
+}
+
+// 简历显示配置
+export interface ResumeDisplayConfig {
+  sections: ResumeSectionConfig[]
+  sectionOrder: ResumeSectionKey[]
+}
+
+// 带配置的简历数据
+export interface ResumeDataWithConfig {
+  data: ResumeData
+  config: ResumeDisplayConfig
+}
+
+// 扩展的简历记录（带配置）
+export interface ResumeRecordWithConfig {
+  id: string
+  name: string
+  data: ResumeData
+  config: ResumeDisplayConfig
+  createdAt: Date
+  updatedAt: Date
+}
+
+// 当前简历状态
+export interface CurrentResumeState {
+  data: ResumeData
+  config: ResumeDisplayConfig
+  source: 'template' | 'database'
+  recordId?: string
+  name?: string
+}

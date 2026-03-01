@@ -5,21 +5,17 @@
 
 import React from 'react'
 import { Button } from '@/components/ui'
-import { ResumeData } from '@/types'
-import { UnifiedRecord } from '../hooks'
+import { ResumeData, ResumeDisplayConfig } from '@/types'
+import { ResumeRecord } from '@/utils/indexedDB'
 
 /**
  * 数据库记录操作按钮组件属性
  */
 export interface DatabaseRecordActionsProps {
   /** 简历记录 */
-  record: UnifiedRecord
+  record: ResumeRecord
   /** 使用简历回调 */
-  onUse: (data: ResumeData) => void
-  /** 编辑简历回调 */
-  onEdit: (record: UnifiedRecord) => void
-  /** 复制简历回调 */
-  onCopy: (record: UnifiedRecord) => void
+  onUse: (data: ResumeData, recordId?: string, config?: ResumeDisplayConfig) => void
   /** 删除简历回调 */
   onDelete: (id: string) => void
   /** 是否加载中 */
@@ -31,34 +27,23 @@ export interface DatabaseRecordActionsProps {
  */
 export interface FileRecordActionsProps {
   /** 文件记录 */
-  record: UnifiedRecord
+  record: {
+    id: string
+    name: string
+    data: ResumeData
+    source: string
+  }
   /** 使用简历回调 */
-  onUse: (data: ResumeData) => void
-  /** 复制到数据库回调 */
-  onCopyToDatabase: (record: UnifiedRecord) => void
-}
-
-/**
- * 编辑器操作按钮组件属性
- */
-export interface EditorActionsProps {
-  /** 保存回调 */
-  onSave: () => void
-  /** 取消回调 */
-  onCancel: () => void
-  /** 是否加载中 */
-  loading?: boolean
+  onUse: (data: ResumeData, recordId?: string, config?: ResumeDisplayConfig) => void
 }
 
 /**
  * 数据库记录操作按钮组件
- * 提供使用、编辑、复制、删除功能
+ * 提供使用、删除功能（编辑功能已移至侧边栏）
  */
 export const DatabaseRecordActions: React.FC<DatabaseRecordActionsProps> = ({
   record,
   onUse,
-  onEdit,
-  onCopy,
   onDelete,
   loading = false
 }) => {
@@ -71,35 +56,24 @@ export const DatabaseRecordActions: React.FC<DatabaseRecordActionsProps> = ({
     }
   }
 
+  /**
+   * 处理使用操作 - 传递配置信息
+   */
+  const handleUse = () => {
+    onUse(record.data, record.id, record.config)
+  }
+
   return (
     <div className="flex gap-2 flex-wrap">
       <Button
         variant="success"
         size="xs"
-        onClick={() => onUse(record.data)}
+        onClick={handleUse}
         disabled={loading}
       >
         使用
       </Button>
-      
-      <Button
-        variant="primary"
-        size="xs"
-        onClick={() => onEdit(record)}
-        disabled={loading}
-      >
-        编辑
-      </Button>
-      
-      <Button
-        variant="info"
-        size="xs"
-        onClick={() => onCopy(record)}
-        disabled={loading}
-      >
-        复制
-      </Button>
-      
+
       <Button
         variant="danger"
         size="xs"
@@ -114,12 +88,11 @@ export const DatabaseRecordActions: React.FC<DatabaseRecordActionsProps> = ({
 
 /**
  * 文件记录操作按钮组件
- * 提供使用、复制到数据库功能
+ * 提供使用功能
  */
 export const FileRecordActions: React.FC<FileRecordActionsProps> = ({
   record,
-  onUse,
-  onCopyToDatabase
+  onUse
 }) => {
   return (
     <div className="flex gap-2 flex-wrap">
@@ -129,45 +102,6 @@ export const FileRecordActions: React.FC<FileRecordActionsProps> = ({
         onClick={() => onUse(record.data)}
       >
         使用
-      </Button>
-      
-      <Button
-        variant="info"
-        size="xs"
-        onClick={() => onCopyToDatabase(record)}
-      >
-        复制到数据库
-      </Button>
-    </div>
-  )
-}
-
-/**
- * 编辑器操作按钮组件
- * 提供保存、取消功能
- */
-export const EditorActions: React.FC<EditorActionsProps> = ({
-  onSave,
-  onCancel,
-  loading = false
-}) => {
-  return (
-    <div className="flex gap-2">
-      <Button
-        variant="success"
-        onClick={onSave}
-        loading={loading}
-        disabled={loading}
-      >
-        {loading ? '保存中...' : '保存'}
-      </Button>
-      
-      <Button
-        variant="secondary"
-        onClick={onCancel}
-        disabled={loading}
-      >
-        取消
       </Button>
     </div>
   )

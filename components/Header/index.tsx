@@ -1,7 +1,6 @@
 import { getCurrentResumeData } from '@/config/data'
 import { SectionContainer, Link } from '@/components/common'
 import { TITLE_STYLES, CONTAINER_STYLES, TEXT_STYLES } from '@/constants/styles'
-import Image from 'next/image'
 
 /**
  * 简历头部组件 - 包含个人基本信息和联系方式
@@ -22,7 +21,7 @@ export default function Header() {
             <h1 className={TITLE_STYLES.main}>{name}</h1>
             <p className={TITLE_STYLES.subtitle}>{jobInfo.position}</p>
           </div>
-          
+
           {/* 联系方式信息 */}
           <div className="space-y-3">
             {/* 第一行：电话/微信和邮箱 */}
@@ -37,7 +36,7 @@ export default function Header() {
                 </Link>
               </p>
             </div>
-            
+
             {/* 第二行：GitHub和主页 */}
             <div className="flex gap-8">
               {contact.homepage && (
@@ -59,15 +58,14 @@ export default function Header() {
             </div>
           </div>
         </div>
-        
+
         {/* 右侧：照片区域 */}
         <div className="flex-shrink-0">
-          <div className="w-32 h-40 overflow-hidden relative">
-            <Image 
-              src="/images/avatar.jpg" 
-              alt="个人照片" 
-              fill
-              className="object-cover"
+          <div className="w-32 h-40 overflow-hidden">
+            <img
+              src="/images/avatar.jpg"
+              alt="个人照片"
+              className="w-full h-full object-cover"
               onError={() => {
                 // 如果图片加载失败，可以在这里处理
                 console.log('头像加载失败，使用默认占位符');

@@ -12,9 +12,153 @@
   display: none;
 }
 
-/* 打印时隐藏简历管理按钮 */
+/* 打印样式优化 */
 @media print {
-  .no-print {
+  @page {
+    margin: 0.5cm;
+    size: auto;
+  }
+
+  html, body {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  .no-print,
+  header.print\:hidden,
+  aside.print\:hidden,
+  div.print\:hidden {
     display: none !important;
+  }
+
+  main {
+    margin-top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+
+  .flex-1 {
+    width: 100% !important;
+    flex: none !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  .print\:bg-white {
+    background-color: white !important;
+  }
+
+  .print\:p-0 {
+    padding: 0 !important;
+  }
+
+  img {
+    display: inline-block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  section, article, .section-container {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+    break-after: avoid;
+  }
+
+  .h-screen,
+  .h-full {
+    height: auto !important;
+    min-height: auto !important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  body > div > div.flex,
+  main.flex {
+    display: block !important;
+  }
+
+  div[class*="flex justify-between"],
+  div[class*="flex gap-"],
+  div[class*="flex flex-col"],
+  div[class*="flex items-center"],
+  div[class*="flex space-x"] {
+    display: flex !important;
+  }
+
+  .flex-1 {
+    flex: 1 1 0% !important;
+  }
+
+  .flex-shrink-0 {
+    flex-shrink: 0 !important;
+  }
+
+  .flex > img,
+  .flex > div > img,
+  div[class*="flex"] img {
+    display: inline-block !important;
+  }
+
+  div[class*="max-w-"] {
+    max-width: 100% !important;
+  }
+
+  .w-32,
+  .w-40,
+  .w-48 {
+    max-width: 100% !important;
+  }
+
+  div {
+    min-height: auto !important;
+  }
+
+  *:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+
+  div:empty,
+  p:empty,
+  span:empty {
+    display: none !important;
+  }
+
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+
+  .overflow-y-auto {
+    overflow: visible !important;
+  }
+
+  .fixed {
+    position: static !important;
   }
 }

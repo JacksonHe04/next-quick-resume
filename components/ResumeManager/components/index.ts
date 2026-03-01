@@ -9,13 +9,11 @@ export type { TabNavigationProps, TabType } from './TabNavigation'
 // 操作按钮组件
 export {
   DatabaseRecordActions,
-  FileRecordActions,
-  EditorActions
+  FileRecordActions
 } from './ActionButtons'
 export type {
   DatabaseRecordActionsProps,
-  FileRecordActionsProps,
-  EditorActionsProps
+  FileRecordActionsProps
 } from './ActionButtons'
 
 // 简历列表组件
@@ -27,7 +25,3 @@ export type {
   DatabaseResumeListProps,
   FileResumeListProps
 } from './ResumeList'
-
-// 简历编辑器组件
-export { default as ResumeEditor } from './ResumeEditor'
-export type { ResumeEditorProps } from './ResumeEditor'
