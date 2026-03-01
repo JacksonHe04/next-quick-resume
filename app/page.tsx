@@ -83,6 +83,7 @@ export default function Home() {
 
   /**
    * 一键适配一页 - 智能调整字体大小和行间距
+   * 先计算最优值，再一次性更新状态避免多次重渲染
    */
   const handleFitOnePage = useCallback(() => {
     if (!resumeRef.current) return
@@ -90,29 +91,26 @@ export default function Home() {
     const A4_HEIGHT_PX = 1122 // A4 纸高度 (96dpi 下约 297mm)
     let newFontSize = config.fontSize || 16
     let newLineHeight = config.lineHeight || 1.5
+    const el = resumeRef.current
 
-    // 逐步减小字体大小和行间距直到内容适合一页
-    const tryFit = () => {
-      if (!resumeRef.current) return false
-      return resumeRef.current.scrollHeight <= A4_HEIGHT_PX
+    // 临时应用样式并测量高度，无需触发 React 重渲染
+    const measure = (fs: number, lh: number): number => {
+      el.style.fontSize = `${fs}px`
+      el.style.lineHeight = `${lh}`
+      return el.scrollHeight
     }
 
     // 先尝试减少行间距
-    while (newLineHeight > 1.0 && !tryFit()) {
+    while (newLineHeight > 1.0 && measure(newFontSize, newLineHeight) > A4_HEIGHT_PX) {
       newLineHeight = Math.round((newLineHeight - 0.1) * 10) / 10
-      const tempConfig = { ...config, lineHeight: newLineHeight, fontSize: newFontSize }
-      setConfig(tempConfig)
-      syncConfigToResumeData(tempConfig, avatarBase64)
     }
 
     // 如果行间距已到最低还不够，再减字体大小
-    while (newFontSize > 12 && !tryFit()) {
+    while (newFontSize > 12 && measure(newFontSize, newLineHeight) > A4_HEIGHT_PX) {
       newFontSize -= 1
-      const tempConfig = { ...config, lineHeight: newLineHeight, fontSize: newFontSize }
-      setConfig(tempConfig)
-      syncConfigToResumeData(tempConfig, avatarBase64)
     }
 
+    // 一次性更新状态
     const finalConfig = { ...config, lineHeight: newLineHeight, fontSize: newFontSize }
     setConfig(finalConfig)
     syncConfigToResumeData(finalConfig, avatarBase64)

@@ -5,3 +5,4 @@ docs_local
 public/images
 node_modules
 .next
+tsconfig.tsbuildinfo

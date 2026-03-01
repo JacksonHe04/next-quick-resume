@@ -30,6 +30,7 @@ export const SECTION_LABELS: Record<string, string> = {
 
 /**
  * 获取默认简历配置
+ * @returns 包含默认模块顺序、全部模块可见、serif 字体、1.5 倍行距、16px 字号的配置对象
  */
 export const getDefaultConfig = (): ResumeConfig => ({
   sectionOrder: [...DEFAULT_SECTION_ORDER],
