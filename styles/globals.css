@@ -12,9 +12,23 @@
   display: none;
 }
 
-/* 打印时隐藏简历管理按钮 */
+.resume-print-frame {
+  width: min(210mm, 100%);
+  min-height: 297mm;
+}
+
+/* 打印时隐藏操作按钮和边框 */
 @media print {
   .no-print {
     display: none !important;
+  }
+
+  .resume-print-frame {
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    width: 100% !important;
+    min-height: auto !important;
+    padding: 0 !important;
   }
 }

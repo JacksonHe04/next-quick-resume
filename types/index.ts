@@ -31,6 +31,16 @@ export interface HeaderData {
   name: string
   contact: ContactInfo
   jobInfo: JobInfo
+  photo?: string
+}
+
+export type ResumeSectionKey = 'header' | 'education' | 'intern' | 'projects' | 'skills' | 'about'
+
+export interface ResumeLayoutConfig {
+  sectionOrder?: ResumeSectionKey[]
+  sectionVisibility?: Partial<Record<ResumeSectionKey, boolean>>
+  fontFamily?: 'serif' | 'sans' | 'mono'
+  lineHeight?: number
 }
 
 // 教育经历数据接口
@@ -97,6 +107,7 @@ export interface ResumeData {
   skills?: SkillsData
   intern?: InternData
   projects?: ProjectsData
+  layoutConfig?: ResumeLayoutConfig
 }
 
 // 通用节标题组件属性接口

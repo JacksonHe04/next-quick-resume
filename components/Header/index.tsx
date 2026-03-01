@@ -9,7 +9,7 @@ import Image from 'next/image'
  * 左侧显示个人信息，右侧显示照片
  */
 export default function Header() {
-  const { name, contact, jobInfo } = getCurrentResumeData().header
+  const { name, contact, jobInfo, photo } = getCurrentResumeData().header
 
   return (
     <SectionContainer className={CONTAINER_STYLES.header}>
@@ -63,8 +63,8 @@ export default function Header() {
         {/* 右侧：照片区域 */}
         <div className="flex-shrink-0">
           <div className="w-32 h-40 overflow-hidden relative">
-            <Image 
-              src="/images/avatar.jpg" 
+            <Image
+              src={photo || '/images/avatar.jpg'}
               alt="个人照片" 
               fill
               className="object-cover"
