@@ -1,6 +1,7 @@
 /**
  * 样式常量文件
  * 统一管理所有组件的样式类名，提高复用性和一致性
+ * 包含响应式设计，优化移动端显示效果
  */
 
 // 容器样式
@@ -15,54 +16,54 @@ export const CONTAINER_STYLES = {
 
 // 标题样式
 export const TITLE_STYLES = {
-  // 主标题（姓名）
-  main: 'text-4xl font-bold m-0',
-  // 副标题（职位）
-  subtitle: 'text-xl text-gray-600 mt-4',
-  // 节标题
-  section: 'text-xl font-bold text-black py-1 mb-2 border-b border-black',
-  // 项目标题
-  project: 'font-bold text-lg',
+  // 主标题（姓名）- 响应式字体大小
+  main: 'text-2xl sm:text-3xl md:text-4xl font-bold m-0',
+  // 副标题（职位）- 响应式字体大小
+  subtitle: 'text-base sm:text-lg md:text-xl text-gray-600 mt-2 sm:mt-4',
+  // 节标题 - 响应式字体大小
+  section: 'text-lg sm:text-xl font-bold text-black py-1 mb-2 border-b border-black',
+  // 项目标题 - 响应式字体大小
+  project: 'font-bold text-base sm:text-lg',
 } as const
 
 // 文本样式
 export const TEXT_STYLES = {
-  // 基础文本
-  base: 'text-base',
-  // 描述文本
-  description: 'text-gray-700 text-base mb-1.5',
-  // 技术栈文本
-  techStack: 'text-black text-base',
-  // 时间文本
-  period: 'text-gray-600 text-base',
+  // 基础文本 - 响应式字体大小
+  base: 'text-sm sm:text-base',
+  // 描述文本 - 响应式字体大小
+  description: 'text-gray-700 text-sm sm:text-base mb-1.5',
+  // 技术栈文本 - 响应式字体大小
+  techStack: 'text-black text-sm sm:text-base',
+  // 时间文本 - 响应式字体大小
+  period: 'text-gray-600 text-sm sm:text-base',
 } as const
 
 // 链接样式
 export const LINK_STYLES = {
   // 带下划线链接
-  underlined: 'text-black underline',
+  underlined: 'text-black underline text-sm sm:text-base',
   // 无下划线链接
-  plain: 'text-black no-underline',
+  plain: 'text-black no-underline text-sm sm:text-base',
   // 小尺寸链接
-  small: 'text-black underline text-base',
+  small: 'text-black underline text-sm sm:text-base',
 } as const
 
 // 列表样式
 export const LIST_STYLES = {
-  // 基础列表（无序列表）
-  base: 'list-disc list-inside ml-0 text-base space-y-1',
-  // 有序列表
-  ordered: 'list-decimal list-inside ml-0 text-base space-y-1',
+  // 基础列表（无序列表）- 响应式字体大小
+  base: 'list-disc list-inside ml-0 text-sm sm:text-base space-y-1',
+  // 有序列表 - 响应式字体大小
+  ordered: 'list-decimal list-inside ml-0 text-sm sm:text-base space-y-1',
 } as const
 
 // 布局样式
 export const LAYOUT_STYLES = {
-  // 网格布局
-  grid: 'grid grid-cols-2 gap-8',
+  // 网格布局 - 移动端单列，桌面端双列
+  grid: 'grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-8',
   // 弹性布局 - 两端对齐（带间距）
-  flexBetweenMb: 'flex justify-between items-center mb-1.5',
+  flexBetweenMb: 'flex flex-col sm:flex-row justify-between items-start sm:items-center mb-1.5 gap-2 sm:gap-0',
   // 弹性布局 - 两端对齐（小间距）
-  flexBetweenSmall: 'flex justify-between mb-1.5 text-base',
+  flexBetweenSmall: 'flex flex-col sm:flex-row justify-between mb-1.5 text-sm sm:text-base gap-2 sm:gap-0',
   // 文本居中
   textCenter: 'text-center',
   // 文本右对齐

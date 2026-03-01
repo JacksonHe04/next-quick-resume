@@ -53,6 +53,10 @@ export default function Home() {
   const [rightSidebarWidth, setRightSidebarWidth] = useState(320)
   const [isResizingLeft, setIsResizingLeft] = useState(false)
   const [isResizingRight, setIsResizingRight] = useState(false)
+  
+  // 移动端侧边栏显示状态
+  const [showLeftSidebar, setShowLeftSidebar] = useState(false)
+  const [showRightSidebar, setShowRightSidebar] = useState(false)
 
   // 用于拖拽调整的 ref
   const containerRef = useRef<HTMLDivElement>(null)
@@ -304,6 +308,20 @@ export default function Home() {
     setViewMode(mode)
   }, [])
 
+  /**
+   * 切换左侧边栏（移动端）
+   */
+  const toggleLeftSidebar = useCallback(() => {
+    setShowLeftSidebar(prev => !prev)
+  }, [])
+
+  /**
+   * 切换右侧边栏（移动端）
+   */
+  const toggleRightSidebar = useCallback(() => {
+    setShowRightSidebar(prev => !prev)
+  }, [])
+
   // 组件映射表
   const componentMap: Record<string, React.ComponentType> = {
     header: Header,
@@ -333,7 +351,7 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden print:h-auto print:overflow-visible rounded-2xl border border-gray-400">
+    <div className="h-screen flex flex-col overflow-hidden print:h-auto print:overflow-visible print:rounded-none print:border-0">
       {/* 顶部顶栏 */}
       <TopBar
         viewMode={viewMode}
@@ -347,13 +365,39 @@ export default function Home() {
         isTemplate={isTemplate}
         onRefresh={handleRefresh}
         onResumesRefresh={() => rightSidebarRef.current?.refresh()}
+        onToggleLeftSidebar={toggleLeftSidebar}
+        onToggleRightSidebar={toggleRightSidebar}
+        showLeftSidebar={showLeftSidebar}
       />
 
       {/* 主体内容区域 */}
-      <main ref={containerRef} className="flex flex-1 overflow-hidden print:block print:overflow-visible" style={{ marginTop: '64px' }}>
+      <main ref={containerRef} className="flex flex-1 overflow-hidden print:block print:overflow-visible pt-12 print:pt-0">
+        {/* 移动端左侧边栏遮罩层 */}
+        {showLeftSidebar && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setShowLeftSidebar(false)}
+          />
+        )}
+
+        {/* 移动端右侧边栏遮罩层 */}
+        {showRightSidebar && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+            onClick={() => setShowRightSidebar(false)}
+          />
+        )}
+
         {/* 左侧边栏 - 简历管理 */}
-        <aside 
-          className="flex-shrink-0 bg-white border-r border-gray-200 shadow-lg flex flex-col z-40 print:hidden"
+        <aside
+          className={`
+            fixed lg:relative lg:top-0 inset-y-0 left-0 z-40
+            flex-shrink-0 bg-white border-r border-gray-200 shadow-lg flex flex-col
+            transform transition-transform duration-300 ease-in-out
+            ${showLeftSidebar ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+            print:hidden
+            top-16 lg:top-0 h-[calc(100%-64px)] lg:h-full
+          `}
           style={{ width: leftSidebarWidth }}
         >
           <ResumeSidebar
@@ -368,24 +412,24 @@ export default function Home() {
           />
         </aside>
 
-        {/* 左侧调整条 */}
+        {/* 左侧调整条 - 仅桌面端显示 */}
         <div
-          className="w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize z-50 transition-colors print:hidden"
+          className="hidden lg:block w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize z-50 transition-colors print:hidden"
           onMouseDown={() => setIsResizingLeft(true)}
           title="拖动调整左侧边栏宽度"
         />
 
         {/* 中间主内容区域 */}
-        <div className="flex-1 overflow-y-auto relative bg-gray-50 print:bg-white">
+        <div className="flex-1 overflow-y-auto relative bg-gray-50 print:bg-transparent">
           {/* 复制成功提示 */}
           {showCopySuccess && (
-            <div className="fixed top-20 right-20 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in print:hidden">
+            <div className="fixed top-20 right-4 sm:right-20 bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg shadow-lg z-50 animate-fade-in print:hidden">
               Markdown 已复制到剪贴板！
             </div>
           )}
 
           {/* 简历内容 - 根据配置动态渲染组件 */}
-          <div key={refreshKey} className="p-8 print:p-0">
+          <div key={refreshKey} className="p-4 sm:p-6 md:p-8 print:p-0">
             {getVisibleComponents()}
           </div>
 
@@ -412,16 +456,23 @@ export default function Home() {
           />
         </div>
 
-        {/* 右侧调整条 */}
+        {/* 右侧调整条 - 仅桌面端显示 */}
         <div
-          className="w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize z-50 transition-colors print:hidden"
+          className="hidden lg:block w-1 bg-gray-300 hover:bg-blue-500 cursor-col-resize z-50 transition-colors print:hidden"
           onMouseDown={() => setIsResizingRight(true)}
           title="拖动调整右侧边栏宽度"
         />
 
         {/* 右侧边栏 - 简历列表 */}
         <aside
-          className="flex-shrink-0 bg-white border-l border-gray-200 shadow-lg z-40 print:hidden"
+          className={`
+            fixed lg:relative lg:top-0 inset-y-0 right-0 z-40
+            flex-shrink-0 bg-white border-l border-gray-200 shadow-lg
+            transform transition-transform duration-300 ease-in-out
+            ${showRightSidebar ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+            print:hidden
+            top-16 lg:top-0 h-[calc(100%-64px)] lg:h-full
+          `}
           style={{ width: rightSidebarWidth }}
         >
           <ResumeRightSidebar

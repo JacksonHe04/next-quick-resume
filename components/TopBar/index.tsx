@@ -31,6 +31,12 @@ interface TopBarProps {
   onRefresh: () => void
   /** 简历列表刷新回调 */
   onResumesRefresh?: () => void
+  /** 切换左侧边栏（移动端） */
+  onToggleLeftSidebar?: () => void
+  /** 切换右侧边栏（移动端） */
+  onToggleRightSidebar?: () => void
+  /** 左侧边栏是否显示（移动端） */
+  showLeftSidebar?: boolean
 }
 
 /**
@@ -48,7 +54,10 @@ export default function TopBar({
   recordId,
   isTemplate,
   onRefresh,
-  onResumesRefresh
+  onResumesRefresh,
+  onToggleLeftSidebar,
+  onToggleRightSidebar,
+  showLeftSidebar = false
 }: TopBarProps) {
   const [showExportDropdown, setShowExportDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
@@ -148,17 +157,70 @@ export default function TopBar({
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm z-50 flex items-center justify-between px-4 print:hidden">
-      {/* 左侧：模式切换 + 简历名称编辑 */}
-      <div className="flex items-center gap-4">
-        {/* 模式切换 */}
-        <ModeToggle mode={viewMode} onChange={onModeChange} />
+    <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 shadow-sm z-50 flex items-center justify-between px-2 sm:px-4 print:hidden">
+      {/* 左侧：移动端菜单按钮 + 模式切换 + 简历名称编辑 */}
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+        {/* 移动端左侧边栏切换按钮 */}
+        <button
+          onClick={onToggleLeftSidebar}
+          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors flex-shrink-0"
+          title="切换左侧边栏"
+        >
+          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
         
-        {/* 分隔线 */}
-        <div className="h-8 w-px bg-gray-300" />
+        {/* 模式切换 - 移动端：左侧栏打开时显示；桌面端：始终显示 */}
+        <div className="flex-shrink-0">
+          <div className={`${showLeftSidebar ? 'block' : 'hidden'} lg:block`}>
+            <ModeToggle mode={viewMode} onChange={onModeChange} />
+          </div>
+        </div>
         
-        {/* 简历名称编辑 */}
-        <div className="flex items-center gap-2">
+        {/* 移动端导出按钮 - 左侧栏关闭时显示 */}
+        <div className="lg:hidden relative" ref={dropdownRef}>
+          {!showLeftSidebar && (
+            <button
+              onClick={() => setShowExportDropdown(!showExportDropdown)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
+              title="导出"
+            >
+              <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+              </svg>
+            </button>
+          )}
+
+          {showExportDropdown && !showLeftSidebar && (
+            <div className="absolute left-0 top-full mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+              <button
+                onClick={() => {
+                  onExportPDF()
+                  setShowExportDropdown(false)
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                导出为 PDF
+              </button>
+              <button
+                onClick={() => {
+                  onExportMarkdown()
+                  setShowExportDropdown(false)
+                }}
+                className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+              >
+                导出为 Markdown
+              </button>
+            </div>
+          )}
+        </div>
+        
+        {/* 分隔线 - 仅桌面端显示 */}
+        <div className="hidden sm:block h-8 w-px bg-gray-300" />
+        
+        {/* 简历名称编辑 - 仅桌面端显示 */}
+        <div className="hidden sm:flex items-center gap-2 min-w-0">
           {isEditingName ? (
             <div className="flex items-center gap-2">
               <input
@@ -222,23 +284,43 @@ export default function TopBar({
       </div>
 
       {/* 右侧：操作按钮 */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        {/* 移动端右侧边栏切换按钮 */}
+        <button
+          onClick={onToggleRightSidebar}
+          className="lg:hidden p-2 hover:bg-gray-100 rounded-lg transition-colors"
+          title="切换右侧边栏"
+        >
+          <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
+        {/* 创建简历按钮 - 移动端隐藏文字 */}
         <button
           onClick={onCreateResume}
-          className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm"
+          className="hidden sm:flex px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm items-center gap-2"
         >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+          </svg>
           创建简历
         </button>
         
+        {/* AI优化按钮 - 移动端简化 */}
         <button
           onClick={onAiOptimize}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm"
+          className="px-3 sm:px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm flex items-center gap-2"
         >
-          AI 简历优化
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span className="hidden sm:inline">AI 简历优化</span>
+          <span className="sm:hidden">AI</span>
         </button>
 
-        {/* 导出下拉菜单 */}
-        <div className="relative" ref={dropdownRef}>
+        {/* 导出下拉菜单 - 仅桌面端显示 */}
+        <div className="hidden md:block relative">
           <button
             onClick={() => setShowExportDropdown(!showExportDropdown)}
             className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:border-gray-400 transition-all duration-200 shadow-sm flex items-center gap-2"

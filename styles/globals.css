@@ -15,7 +15,7 @@
 /* 打印样式优化 */
 @media print {
   @page {
-    margin: 0.5cm;
+    margin: 0;
     size: auto;
   }
 
