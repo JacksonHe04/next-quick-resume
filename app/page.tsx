@@ -25,6 +25,8 @@ export default function Home() {
   const [showAiModal, setShowAiModal] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   const [localMode, setLocalMode] = useState(false)
+  const [showExportDropdown, setShowExportDropdown] = useState(false)
+  const [showCopySuccess, setShowCopySuccess] = useState(false)
 
   /**
    * 关闭所有弹窗
@@ -33,6 +35,7 @@ export default function Home() {
     setShowResumeManager(false)
     setShowCreateModal(false)
     setShowAiModal(false)
+    setShowExportDropdown(false)
   }
 
   /**
@@ -64,6 +67,118 @@ export default function Home() {
    */
   const handlePrintResume = () => {
     window.print()
+  }
+
+  /**
+   * 切换导出下拉菜单
+   */
+  const toggleExportDropdown = () => {
+    setShowExportDropdown(!showExportDropdown)
+  }
+
+  /**
+   * 处理导出为PDF
+   */
+  const handleExportPDF = () => {
+    handlePrintResume()
+    setShowExportDropdown(false)
+  }
+
+  /**
+   * 处理导出为Markdown
+   */
+  const handleExportMarkdown = () => {
+    const currentData = getCurrentResumeData()
+    let markdown = `# ${currentData.header.name}\n\n`
+    
+    // 添加联系方式
+    markdown += `## 联系方式\n`
+    markdown += `- 电话/微信：${currentData.header.contact.phone}\n`
+    markdown += `- 邮箱：${currentData.header.contact.email}\n`
+    if (currentData.header.contact.github) {
+      markdown += `- GitHub：[${currentData.header.contact.github.text}](${currentData.header.contact.github.url})\n`
+    }
+    if (currentData.header.contact.homepage) {
+      markdown += `- 主页：[${currentData.header.contact.homepage.text}](${currentData.header.contact.homepage.url})\n`
+    }
+    markdown += `\n`
+    
+    // 添加教育背景
+    if (currentData.education) {
+      markdown += `## ${currentData.education.title}\n`
+      markdown += `- 学校：${currentData.education.school}\n`
+      markdown += `- 时间：${currentData.education.period}\n`
+      markdown += `- 详情：${currentData.education.details}\n`
+      markdown += `\n`
+    }
+    
+    // 添加技能
+    if (currentData.skills) {
+      markdown += `## ${currentData.skills.title}\n`
+      currentData.skills.items.forEach(skill => {
+        markdown += `- ${skill}\n`
+      })
+      markdown += `\n`
+    }
+    
+    // 添加实习经历
+    if (currentData.intern) {
+      markdown += `## ${currentData.intern.title}\n`
+      currentData.intern.items.forEach(item => {
+        markdown += `### ${item.company} - ${item.position}\n`
+        markdown += `- 时间：${item.period}\n`
+        markdown += `- 地点：${item.base}\n`
+        markdown += `- 描述：${item.description}\n`
+        if (item.responsibilities && item.responsibilities.length > 0) {
+          markdown += `- 职责：\n`
+          item.responsibilities.forEach(responsibility => {
+            markdown += `  - ${responsibility}\n`
+          })
+        }
+        markdown += `\n`
+      })
+    }
+    
+    // 添加项目经历
+    if (currentData.projects) {
+      markdown += `## ${currentData.projects.title}\n`
+      currentData.projects.items.forEach(item => {
+        markdown += `### ${item.name}\n`
+        markdown += `- GitHub：${item.github}\n`
+        if (item.demo) {
+          markdown += `- 演示：${item.demo}\n`
+        }
+        if (item.techStack) {
+          markdown += `- 技术栈：${item.techStack}\n`
+        }
+        markdown += `- 描述：${item.description}\n`
+        if (item.features && item.features.length > 0) {
+          markdown += `- 功能：\n`
+          item.features.forEach(feature => {
+            markdown += `  - ${feature}\n`
+          })
+        }
+        markdown += `\n`
+      })
+    }
+    
+    // 添加关于我
+    if (currentData.about) {
+      markdown += `## ${currentData.about.title}\n`
+      markdown += `${currentData.about.content}\n`
+    }
+    
+    // 复制到剪贴板
+    navigator.clipboard.writeText(markdown).then(() => {
+      setShowCopySuccess(true)
+      setTimeout(() => {
+        setShowCopySuccess(false)
+      }, 3000)
+    }).catch(err => {
+      console.error('无法复制内容: ', err)
+    })
+    
+    setShowExportDropdown(false)
   }
 
   // 组件映射表
@@ -105,12 +220,30 @@ export default function Home() {
           >
             AI 简历优化
           </button>
-          <button
-            onClick={handlePrintResume}
-            className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200"
-          >
-            打印简历
-          </button>
+          <div className="relative">
+            <button
+              onClick={toggleExportDropdown}
+              className="bg-white text-gray-800 rounded-lg px-5 py-3 text-sm font-medium cursor-pointer shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 border border-gray-200 w-full text-left"
+            >
+              导出
+            </button>
+            {showExportDropdown && (
+              <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-gray-200 w-40 z-50">
+                <button
+                  onClick={handleExportPDF}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-t-lg"
+                >
+                  导出为 PDF
+                </button>
+                <button
+                  onClick={handleExportMarkdown}
+                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-b-lg"
+                >
+                  导出为 Markdown
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -168,6 +301,23 @@ export default function Home() {
           setRefreshKey(prev => prev + 1)
         }}
       />
+
+      {/* 复制成功提示 */}
+      {showCopySuccess && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg shadow-xl border border-gray-200 p-6 z-50">
+          <div className="text-center">
+            <div className="text-green-500 text-2xl mb-2">✓</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">复制成功</h3>
+            <p className="text-gray-600 mb-4">Markdown内容已成功复制到剪贴板</p>
+            <button
+              onClick={() => setShowCopySuccess(false)}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded transition-colors"
+            >
+              确定
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   )
 }
