@@ -6,12 +6,12 @@ import { ButtonHTMLAttributes, ReactNode } from 'react'
 
 // 按钮变体类型
 export type ButtonVariant = 
-  | 'primary'    // 主要按钮 (蓝色)
-  | 'secondary'  // 次要按钮 (灰色)
+  | 'primary'    // 主要按钮 (深色)
+  | 'secondary'  // 次要按钮 (浅色)
   | 'success'    // 成功按钮 (绿色)
   | 'danger'     // 危险按钮 (红色)
   | 'warning'    // 警告按钮 (黄色)
-  | 'info'       // 信息按钮 (紫色)
+  | 'info'       // 信息按钮 (蓝色)
 
 // 按钮尺寸类型
 export type ButtonSize = 

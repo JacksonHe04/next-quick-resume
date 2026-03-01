@@ -7,7 +7,7 @@ import { ResumeData } from '@/types'
 
 // 数据库配置
 const DB_NAME = 'ResumeDB'
-const DB_VERSION = 1
+const DB_VERSION = 2
 const STORE_NAME = 'resumes'
 
 // 简历记录接口

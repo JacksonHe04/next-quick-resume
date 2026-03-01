@@ -5,7 +5,6 @@
 
 import React from 'react'
 import { Button } from '@/components/ui'
-import { ResumeData } from '@/types'
 import { UnifiedRecord } from '../hooks'
 
 /**
@@ -15,7 +14,7 @@ export interface DatabaseRecordActionsProps {
   /** 简历记录 */
   record: UnifiedRecord
   /** 使用简历回调 */
-  onUse: (data: ResumeData) => void
+  onUse: (record: UnifiedRecord) => void
   /** 编辑简历回调 */
   onEdit: (record: UnifiedRecord) => void
   /** 复制简历回调 */
@@ -33,7 +32,7 @@ export interface FileRecordActionsProps {
   /** 文件记录 */
   record: UnifiedRecord
   /** 使用简历回调 */
-  onUse: (data: ResumeData) => void
+  onUse: (record: UnifiedRecord) => void
   /** 复制到数据库回调 */
   onCopyToDatabase: (record: UnifiedRecord) => void
 }
@@ -76,7 +75,7 @@ export const DatabaseRecordActions: React.FC<DatabaseRecordActionsProps> = ({
       <Button
         variant="success"
         size="xs"
-        onClick={() => onUse(record.data)}
+        onClick={() => onUse(record)}
         disabled={loading}
       >
         使用
@@ -126,7 +125,7 @@ export const FileRecordActions: React.FC<FileRecordActionsProps> = ({
       <Button
         variant="success"
         size="xs"
-        onClick={() => onUse(record.data)}
+        onClick={() => onUse(record)}
       >
         使用
       </Button>

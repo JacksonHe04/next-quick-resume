@@ -1,7 +1,6 @@
 import { getCurrentResumeData } from '@/config/data'
 import { SectionContainer, Link } from '@/components/common'
 import { TITLE_STYLES, CONTAINER_STYLES, TEXT_STYLES } from '@/constants/styles'
-import Image from 'next/image'
 
 /**
  * 简历头部组件 - 包含个人基本信息和联系方式
@@ -9,7 +8,8 @@ import Image from 'next/image'
  * 左侧显示个人信息，右侧显示照片
  */
 export default function Header() {
-  const { name, contact, jobInfo } = getCurrentResumeData().header
+  const { name, contact, jobInfo, avatar } = getCurrentResumeData().header
+  const avatarSrc = avatar || '/images/avatar.jpg'
 
   return (
     <SectionContainer className={CONTAINER_STYLES.header}>
@@ -62,15 +62,16 @@ export default function Header() {
         
         {/* 右侧：照片区域 */}
         <div className="flex-shrink-0">
-          <div className="w-32 h-40 overflow-hidden relative">
-            <Image 
-              src="/images/avatar.jpg" 
-              alt="个人照片" 
-              fill
-              className="object-cover"
-              onError={() => {
-                // 如果图片加载失败，可以在这里处理
-                console.log('头像加载失败，使用默认占位符');
+          <div className="w-32 h-40 overflow-hidden relative rounded-md border border-gray-200 bg-gray-50">
+            <img
+              src={avatarSrc}
+              alt="个人照片"
+              className="w-full h-full object-cover"
+              onError={(event) => {
+                const target = event.currentTarget
+                if (target.src !== '/images/avatar.jpg') {
+                  target.src = '/images/avatar.jpg'
+                }
               }}
             />
           </div>

@@ -71,40 +71,40 @@ export default function CreateResumeModal({ isOpen, onClose, onResumeCreated }: 
   const renderSelectMode = () => (
     <div className="space-y-6">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">选择创建方式</h3>
-        <p className="text-sm text-gray-600">请选择您希望使用的简历创建方式</p>
+        <h3 className="text-lg font-semibold text-slate-900 mb-2">选择创建方式</h3>
+        <p className="text-sm text-slate-600">请选择您希望使用的简历创建方式</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* PDF上传方式 */}
         <div 
-          className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-blue-500 hover:bg-blue-50 cursor-pointer transition-all duration-200"
+          className="border border-dashed border-slate-300 rounded-xl p-6 hover:border-slate-400 hover:bg-slate-50 cursor-pointer transition-all duration-200 shadow-sm"
           onClick={() => setCurrentStep('upload')}
         >
           <div className="text-center">
-            <div className="w-12 h-12 mx-auto mb-4 bg-blue-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 mx-auto mb-4 bg-slate-100 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
               </svg>
             </div>
-            <h4 className="text-md font-medium text-gray-900 mb-2">上传PDF简历</h4>
-            <p className="text-sm text-gray-600">上传现有的PDF简历文件，系统将自动解析内容并转换为结构化数据</p>
+            <h4 className="text-md font-medium text-slate-900 mb-2">上传PDF简历</h4>
+            <p className="text-sm text-slate-600">上传现有的PDF简历文件，系统将自动解析内容并转换为结构化数据</p>
           </div>
         </div>
 
         {/* 手动填写方式 */}
         <div 
-          className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-green-500 hover:bg-green-50 cursor-pointer transition-all duration-200"
+          className="border border-dashed border-slate-300 rounded-xl p-6 hover:border-slate-400 hover:bg-slate-50 cursor-pointer transition-all duration-200 shadow-sm"
           onClick={() => setCurrentStep('form')}
         >
           <div className="text-center">
-            <div className="w-12 h-12 mx-auto mb-4 bg-green-100 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-12 h-12 mx-auto mb-4 bg-slate-100 rounded-lg flex items-center justify-center">
+              <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
             </div>
-            <h4 className="text-md font-medium text-gray-900 mb-2">手动填写表单</h4>
-            <p className="text-sm text-gray-600">通过填写详细的表单来创建简历，可以精确控制每个字段的内容</p>
+            <h4 className="text-md font-medium text-slate-900 mb-2">手动填写表单</h4>
+            <p className="text-sm text-slate-600">通过填写详细的表单来创建简历，可以精确控制每个字段的内容</p>
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@ export default function CreateResumeModal({ isOpen, onClose, onResumeCreated }: 
   const renderUploadMode = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">PDF上传解析</h3>
+        <h3 className="text-lg font-semibold text-slate-900">PDF上传解析</h3>
         <Button 
           variant="secondary" 
           size="sm" 
@@ -141,7 +141,7 @@ export default function CreateResumeModal({ isOpen, onClose, onResumeCreated }: 
   const renderFormMode = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">手动填写简历</h3>
+        <h3 className="text-lg font-semibold text-slate-900">手动填写简历</h3>
         <Button 
           variant="secondary" 
           size="sm" 
@@ -162,7 +162,7 @@ export default function CreateResumeModal({ isOpen, onClose, onResumeCreated }: 
   const renderPreviewMode = () => (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">预览简历</h3>
+        <h3 className="text-lg font-semibold text-slate-900">预览简历</h3>
         <Button 
           variant="secondary" 
           size="sm" 
@@ -186,16 +186,19 @@ export default function CreateResumeModal({ isOpen, onClose, onResumeCreated }: 
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden border border-slate-200">
         {/* 弹窗头部 */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">创建简历</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/70">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">创建</p>
+            <h2 className="text-xl font-semibold text-slate-900 mt-1">创建简历</h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-slate-400 hover:text-slate-600 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

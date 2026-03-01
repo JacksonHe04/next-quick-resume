@@ -7,6 +7,7 @@ import { useState, useCallback } from 'react'
 import { ResumeData } from '@/types'
 import { ResumeRecord } from '@/utils/indexedDB'
 import { FileRecord } from './useFileRecords'
+import { normalizeResumeData } from '@/utils/resumeSettings'
 
 /**
  * 统一的记录类型
@@ -62,6 +63,7 @@ const getEmptyResumeTemplate = async (): Promise<ResumeData> => {
   return {
     header: {
       name: "",
+      avatar: "/images/avatar.jpg",
       contact: {
         phone: "",
         email: "",
@@ -104,6 +106,24 @@ const getEmptyResumeTemplate = async (): Promise<ResumeData> => {
       title: "关于我",
       content: ""
     },
+    settings: {
+      sectionOrder: ['header', 'education', 'intern', 'projects', 'skills', 'about'],
+      sectionVisibility: {
+        header: true,
+        education: true,
+        intern: true,
+        projects: true,
+        skills: true,
+        about: true
+      },
+      typography: {
+        fontFamily: "\"Noto Serif SC\", \"Source Han Serif SC\", \"Songti SC\", \"STSong\", serif",
+        lineHeight: 1.5
+      },
+      layout: {
+        scale: 1
+      }
+    }
   }
 }
 
@@ -216,7 +236,7 @@ export const useResumeEditor = (): UseResumeEditorReturn => {
       const data: ResumeData = JSON.parse(editingData)
       return {
         isValid: true,
-        data
+        data: normalizeResumeData(data)
       }
     } catch {
       return {

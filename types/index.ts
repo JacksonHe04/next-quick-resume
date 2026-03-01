@@ -31,6 +31,7 @@ export interface HeaderData {
   name: string
   contact: ContactInfo
   jobInfo: JobInfo
+  avatar?: string
 }
 
 // 教育经历数据接口
@@ -89,6 +90,40 @@ export interface AboutData {
   content: string
 }
 
+// 简历模块枚举类型
+export type ResumeSectionKey =
+  | 'header'
+  | 'education'
+  | 'intern'
+  | 'projects'
+  | 'skills'
+  | 'about'
+
+// 简历排版设置
+export interface ResumeTypographySettings {
+  fontFamily: string
+  lineHeight: number
+}
+
+// 简历布局设置
+export interface ResumeLayoutSettings {
+  scale: number
+}
+
+// 简历设置接口
+export interface ResumeSettings {
+  sectionOrder: ResumeSectionKey[]
+  sectionVisibility: Record<ResumeSectionKey, boolean>
+  typography: ResumeTypographySettings
+  layout: ResumeLayoutSettings
+}
+
+export interface ResumeMeta {
+  id: string
+  name: string
+  source: 'database' | 'file'
+}
+
 // 统一简历数据接口
 export interface ResumeData {
   header: HeaderData
@@ -97,6 +132,7 @@ export interface ResumeData {
   skills?: SkillsData
   intern?: InternData
   projects?: ProjectsData
+  settings?: ResumeSettings
 }
 
 // 通用节标题组件属性接口

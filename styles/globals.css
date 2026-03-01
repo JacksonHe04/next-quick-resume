@@ -5,6 +5,29 @@
   box-sizing: border-box;
 }
 
+/* 简历页面容器 */
+.resume-stage {
+  min-height: 100vh;
+  padding: 48px 0 80px;
+  background: radial-gradient(circle at top, #f8fafc 0%, #f1f5f9 45%, #e2e8f0 100%);
+}
+
+.resume-page {
+  width: min(210mm, calc(100% - 32px));
+  height: 297mm;
+  margin: 0 auto;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.12);
+  overflow: visible;
+}
+
+.resume-page-content {
+  padding: 20mm 18mm;
+  width: 100%;
+  min-height: 100%;
+}
+
 /* 隐藏不需要的元素 */
 .page-divider,
 .project-showcase,
@@ -16,5 +39,21 @@
 @media print {
   .no-print {
     display: none !important;
+  }
+
+  .resume-stage {
+    padding: 0;
+    background: white;
+  }
+
+  .resume-page {
+    width: 210mm;
+    height: 297mm;
+    border: none;
+    box-shadow: none;
+  }
+
+  .resume-page-content {
+    padding: 16mm 14mm;
   }
 }

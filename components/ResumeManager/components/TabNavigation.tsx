@@ -51,14 +51,14 @@ const tabs = [
 const getTabClassName = (isActive: boolean): string => {
   const baseClasses = [
     'px-6 py-3 text-sm font-medium border-b-2 transition-all duration-200',
-    'hover:text-gray-700 focus:outline-none focus:text-gray-700',
+    'hover:text-slate-700 focus:outline-none focus:text-slate-700',
     'relative'
   ]
 
   if (isActive) {
-    baseClasses.push('border-gray-800 text-gray-800 bg-gray-50')
+    baseClasses.push('border-slate-900 text-slate-900 bg-slate-50')
   } else {
-    baseClasses.push('border-transparent text-gray-500 hover:bg-gray-50')
+    baseClasses.push('border-transparent text-slate-500 hover:bg-slate-50')
   }
 
   return baseClasses.join(' ')
@@ -100,12 +100,12 @@ export const TabNavigation: React.FC<TabNavigationProps> = ({
           <span className="flex items-center gap-2">
             {tab.label}
             {tab.key === 'database' && databaseCount > 0 && (
-              <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full font-medium">
+              <span className="px-2 py-0.5 text-xs bg-slate-200 text-slate-700 rounded-full font-medium">
                 {databaseCount}
               </span>
             )}
             {tab.key === 'files' && fileCount > 0 && (
-              <span className="px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded-full font-medium">
+              <span className="px-2 py-0.5 text-xs bg-slate-200 text-slate-700 rounded-full font-medium">
                 {fileCount}
               </span>
             )}

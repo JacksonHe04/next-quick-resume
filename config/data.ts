@@ -4,6 +4,7 @@
  */
 
 import { ResumeData } from '@/types'
+import { normalizeResumeData } from '@/utils/resumeSettings'
 
 // 数据源类型
 export type DataSource = 'json' | 'indexeddb'
@@ -16,7 +17,7 @@ export const CURRENT_DATA_SOURCE: DataSource = 'json'
 import defaultResumeData from '@/data/resume-template-cn.json'
 
 // 当前使用的简历数据（可以通过setCurrentResumeData动态更新）
-let currentResumeData: ResumeData = defaultResumeData
+let currentResumeData: ResumeData = normalizeResumeData(defaultResumeData as ResumeData)
 
 // 导出默认数据源
 export { defaultResumeData }
@@ -34,14 +35,14 @@ export const getCurrentResumeData = (): ResumeData => {
  * @param data - 新的简历数据
  */
 export const setCurrentResumeData = (data: ResumeData): void => {
-  currentResumeData = data
+  currentResumeData = normalizeResumeData(data)
 }
 
 /**
  * 重置为默认简历数据
  */
 export const resetToDefaultResumeData = (): void => {
-  currentResumeData = defaultResumeData
+  currentResumeData = normalizeResumeData(defaultResumeData as ResumeData)
 }
 
 // 导出当前简历数据（保持向后兼容）

@@ -1,6 +1,7 @@
 {
   "header": {
     "name": "He Jincheng",
+    "avatar": "/images/avatar.jpg",
     "jobInfo": {
       "position": "Product Manager"
     },
@@ -82,5 +83,30 @@
       "**Coding Capability**: As a core member of the Messenger Program Studio of Southeast University, has a solid technical background and full-stack development experience of front-end and back-end, and has undertaken multiple software projects inside and outside the university. Meanwhile, has successfully submitted PRs for new function development to open-source browser AI plugin repositories.",
       "**Career Direction and Goal**: Keeps a close eye on the latest developments of AI large models at the model layer and application layer, firmly chooses the product direction, and is passionate about the Internet industry, AI productization and commercialization, especially the fundamental solutions of Agents in the internal enterprise environment. The goal is to become a frontier evangelist for Chinese mainland enterprises to realize the vertical business AI closed loop through **Agent + RL + Eval + Benchmark + Sandbox**."
     ]
+  },
+  "settings": {
+    "sectionOrder": [
+      "header",
+      "education",
+      "intern",
+      "projects",
+      "skills",
+      "about"
+    ],
+    "sectionVisibility": {
+      "header": true,
+      "education": true,
+      "intern": true,
+      "projects": true,
+      "skills": true,
+      "about": true
+    },
+    "typography": {
+      "fontFamily": "\"Noto Serif SC\", \"Source Han Serif SC\", \"Songti SC\", \"STSong\", serif",
+      "lineHeight": 1.5
+    },
+    "layout": {
+      "scale": 1
+    }
   }
 }

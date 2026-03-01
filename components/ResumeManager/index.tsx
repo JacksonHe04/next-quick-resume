@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { ResumeData } from '@/types'
+import { ResumeData, ResumeMeta } from '@/types'
 import { Button } from '@/components/ui'
 import {
   useResumeData,
@@ -26,7 +26,7 @@ interface ResumeManagerProps {
   /** 关闭弹窗回调 */
   onClose: () => void
   /** 选择简历回调 */
-  onSelectResume: (resumeData: ResumeData) => void
+  onSelectResume: (resumeData: ResumeData, meta?: ResumeMeta) => void
 }
 
 /**
@@ -88,8 +88,13 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
       }
     },
     
-    useResume: (data: ResumeData) => {
-      onSelectResume(data)
+    useResume: (record: UnifiedRecord) => {
+      const meta: ResumeMeta = {
+        id: record.id,
+        name: record.name,
+        source: 'type' in record ? 'file' : 'database'
+      }
+      onSelectResume(record.data, meta)
       onClose()
     },
     
@@ -122,18 +127,21 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-xl w-[90vw] h-[80vh] max-w-6xl flex flex-col shadow-2xl border border-gray-200">
+      <div className="bg-white rounded-2xl w-[90vw] h-[80vh] max-w-6xl flex flex-col shadow-2xl border border-slate-200">
         {/* 头部 */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h2 className="text-2xl font-bold text-gray-800">简历管理</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/70">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">简历库</p>
+            <h2 className="text-2xl font-bold text-slate-900 mt-1">简历管理</h2>
+          </div>
           <Button
             variant="secondary"
             size="sm"
             onClick={onClose}
-            className="!w-8 !h-8 !p-0 rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+            className="!w-8 !h-8 !p-0 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100"
           >
             ×
           </Button>
@@ -142,9 +150,9 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
         {/* 主体内容 */}
         <div className="flex-1 flex overflow-hidden">
           {/* 左侧：简历列表 */}
-          <div className="w-1/2 border-r border-gray-100 flex flex-col bg-gray-50">
+          <div className="w-1/2 border-r border-slate-100 flex flex-col bg-slate-50/60">
             {/* 标签导航 */}
-            <div className="bg-white border-b border-gray-100">
+            <div className="bg-white border-b border-slate-100">
               <TabNavigation
                 activeTab={activeTab}
                 onTabChange={handlers.switchTab}
@@ -160,7 +168,6 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
                   resumes={resumeData.resumes || []}
                   loading={resumeData.loading}
                   onUse={handlers.useResume}
-                  onUseResume={handlers.useResume}
                   onCreateFromTemplate={handlers.createFromTemplate}
                   onEdit={handlers.startEditing}
                   onCopy={handlers.createFromTemplate}
@@ -174,7 +181,6 @@ export default function ResumeManager({ isOpen, onClose, onSelectResume }: Resum
                   fileRecords={fileRecords.fileRecords || []}
                   loading={fileRecords.loading}
                   onUse={handlers.useResume}
-                  onUseResume={handlers.useResume}
                   onCreateFromTemplate={handlers.createFromTemplate}
                   onCopy={handlers.createFromTemplate}
                 />

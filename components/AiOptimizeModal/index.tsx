@@ -114,10 +114,17 @@ export default function AiOptimizeModal({ isOpen, onClose, onOptimized }: AiOpti
       setIsSaving(true)
 
       // 更新当前简历数据
-      setCurrentResumeData(parsedData)
+      const currentData = getCurrentResumeData()
+      setCurrentResumeData({
+        ...parsedData,
+        settings: parsedData.settings || currentData.settings
+      })
       
       // 通知父组件
-      onOptimized?.(parsedData)
+      onOptimized?.({
+        ...parsedData,
+        settings: parsedData.settings || currentData.settings
+      })
       
       // 关闭弹窗
       onClose()
@@ -140,16 +147,19 @@ export default function AiOptimizeModal({ isOpen, onClose, onOptimized }: AiOpti
 
   return (
     <div 
-      className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 backdrop-blur-sm"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div className="bg-white rounded-lg shadow-xl max-w-7xl w-full mx-4 max-h-[90vh] overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-7xl w-full mx-4 max-h-[90vh] overflow-hidden border border-slate-200">
         {/* 弹窗头部 */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">AI 简历优化</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-slate-50/70">
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-400">AI 助手</p>
+            <h2 className="text-xl font-semibold text-slate-900 mt-1">AI 简历优化</h2>
+          </div>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+            className="text-slate-400 hover:text-slate-600 transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -160,19 +170,19 @@ export default function AiOptimizeModal({ isOpen, onClose, onOptimized }: AiOpti
         {/* 弹窗内容 - 左右两栏布局 */}
         <div className="flex h-[calc(90vh-120px)]">
           {/* 左侧输入区域 */}
-          <div className="w-1/2 p-6 border-r border-gray-200 overflow-y-auto">
+          <div className="w-1/2 p-6 border-r border-slate-100 overflow-y-auto">
             <div className="space-y-6">
               <div>
-                <h3 className="text-lg font-medium text-gray-900 mb-4">优化输入</h3>
-                <p className="text-sm text-gray-600 mb-4">
+                <h3 className="text-lg font-medium text-slate-900 mb-4">优化输入</h3>
+                <p className="text-sm text-slate-600 mb-4">
                   请输入修改建议或目标岗位JD，AI将根据您的输入优化简历内容（至少填写一项）
                 </p>
               </div>
 
               {/* 修改建议输入框 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  修改建议 <span className="text-gray-400">(选填)</span>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  修改建议 <span className="text-slate-400">(选填)</span>
                 </label>
                 <textarea
                   value={suggestions}
@@ -182,20 +192,20 @@ export default function AiOptimizeModal({ isOpen, onClose, onOptimized }: AiOpti
 • 增强项目成果描述
 • 优化工作职责表述
 • 调整技能重点..."
-                  className="w-full h-32 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full h-32 px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent resize-none bg-white"
                 />
               </div>
 
               {/* JD输入框 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  目标岗位JD <span className="text-gray-400">(选填)</span>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  目标岗位JD <span className="text-slate-400">(选填)</span>
                 </label>
                 <textarea
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                   placeholder="请粘贴目标岗位的职位描述(JD)，AI将根据JD要求优化您的简历内容..."
-                  className="w-full h-40 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  className="w-full h-40 px-3 py-2 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent resize-none bg-white"
                 />
               </div>
 
@@ -217,7 +227,7 @@ export default function AiOptimizeModal({ isOpen, onClose, onOptimized }: AiOpti
                   )}
                 </Button>
                 {!isInputValid() && (
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-slate-500 mt-2">
                     请至少填写修改建议或目标岗位JD中的一项
                   </p>
                 )}
@@ -228,7 +238,7 @@ export default function AiOptimizeModal({ isOpen, onClose, onOptimized }: AiOpti
           {/* 右侧JSON编辑区域 */}
           <div className="w-1/2 p-6 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-medium text-gray-900">简历数据</h3>
+              <h3 className="text-lg font-medium text-slate-900">简历数据</h3>
               <div className="flex space-x-2">
                 <Button
                   onClick={handleCancel}
@@ -254,21 +264,21 @@ export default function AiOptimizeModal({ isOpen, onClose, onOptimized }: AiOpti
               <textarea
                 value={editedResumeJson}
                 onChange={(e) => handleJsonChange(e.target.value)}
-                className={`flex-1 w-full px-3 py-2 border rounded-md font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                  jsonError ? 'border-red-300 bg-red-50' : 'border-gray-300'
+                className={`flex-1 w-full px-3 py-2 border rounded-md font-mono text-sm resize-none focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-transparent ${
+                  jsonError ? 'border-rose-300 bg-rose-50' : 'border-slate-200 bg-white'
                 }`}
                 placeholder="简历JSON数据将显示在这里..."
               />
               
               {/* 错误提示 */}
               {jsonError && (
-                <div className="mt-2 text-sm text-red-600 bg-red-50 p-2 rounded">
+                <div className="mt-2 text-sm text-rose-600 bg-rose-50 p-2 rounded">
                   {jsonError}
                 </div>
               )}
               
               {/* 提示信息 */}
-              <div className="mt-2 text-xs text-gray-500">
+              <div className="mt-2 text-xs text-slate-500">
                 您可以直接编辑JSON数据，修改后点击&ldquo;保存&rdquo;按钮应用到简历
               </div>
             </div>

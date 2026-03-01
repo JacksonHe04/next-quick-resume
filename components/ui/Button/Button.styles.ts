@@ -12,7 +12,7 @@ export const buttonStyles: ButtonStyleConfig = {
   // 基础样式 - 所有按钮共享
   base: [
     'inline-flex items-center justify-center',
-    'font-medium rounded transition-all duration-200',
+    'font-medium rounded-lg transition-all duration-200',
     'border focus:outline-none focus:ring-2 focus:ring-offset-2',
     'disabled:opacity-50 disabled:cursor-not-allowed',
     'active:transform active:scale-95'
@@ -21,39 +21,39 @@ export const buttonStyles: ButtonStyleConfig = {
   // 变体样式 - 简洁的灰色调设计
   variants: {
     primary: [
-      'bg-gray-900 text-white border-gray-900',
-      'hover:bg-gray-800 hover:border-gray-800',
-      'focus:ring-gray-500'
+      'bg-slate-900 text-white border-slate-900',
+      'hover:bg-slate-800 hover:border-slate-800',
+      'focus:ring-slate-400'
     ].join(' '),
     
     secondary: [
-      'bg-white text-gray-700 border-gray-300',
-      'hover:bg-gray-50 hover:border-gray-400',
-      'focus:ring-gray-300'
+      'bg-white text-slate-700 border-slate-200',
+      'hover:bg-slate-50 hover:border-slate-300',
+      'focus:ring-slate-300'
     ].join(' '),
     
     success: [
-      'bg-gray-700 text-white border-gray-700',
-      'hover:bg-gray-600 hover:border-gray-600',
-      'focus:ring-gray-400'
+      'bg-emerald-600 text-white border-emerald-600',
+      'hover:bg-emerald-500 hover:border-emerald-500',
+      'focus:ring-emerald-300'
     ].join(' '),
     
     danger: [
-      'bg-gray-600 text-white border-gray-600',
-      'hover:bg-gray-700 hover:border-gray-700',
-      'focus:ring-gray-400'
+      'bg-rose-600 text-white border-rose-600',
+      'hover:bg-rose-500 hover:border-rose-500',
+      'focus:ring-rose-300'
     ].join(' '),
     
     warning: [
-      'bg-gray-500 text-white border-gray-500',
-      'hover:bg-gray-600 hover:border-gray-600',
-      'focus:ring-gray-400'
+      'bg-amber-500 text-white border-amber-500',
+      'hover:bg-amber-400 hover:border-amber-400',
+      'focus:ring-amber-300'
     ].join(' '),
     
     info: [
-      'bg-gray-400 text-white border-gray-400',
-      'hover:bg-gray-500 hover:border-gray-500',
-      'focus:ring-gray-300'
+      'bg-blue-600 text-white border-blue-600',
+      'hover:bg-blue-500 hover:border-blue-500',
+      'focus:ring-blue-300'
     ].join(' ')
   },
 
