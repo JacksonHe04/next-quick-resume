@@ -3,7 +3,7 @@
  * 统一管理简历数据源，支持从JSON文件或IndexedDB加载数据
  */
 
-import { ResumeData } from '@/types'
+import { ResumeData, ResumeConfig } from '@/types'
 
 // 数据源类型
 export type DataSource = 'json' | 'indexeddb'
@@ -14,6 +14,30 @@ export const CURRENT_DATA_SOURCE: DataSource = 'json'
 // 首页默认显示的 JSON 数据源
 // GitHub 公开的 JSON 模板
 import defaultResumeData from '@/data/resume-template-cn.json'
+
+// 默认模块顺序
+export const DEFAULT_SECTION_ORDER: string[] = ['header', 'education', 'intern', 'projects', 'skills', 'about']
+
+// 默认模块标签映射
+export const SECTION_LABELS: Record<string, string> = {
+  header: '个人信息',
+  education: '教育经历',
+  intern: '实习经历',
+  projects: '项目经历',
+  skills: '专业技能',
+  about: '关于我',
+}
+
+/**
+ * 获取默认简历配置
+ */
+export const getDefaultConfig = (): ResumeConfig => ({
+  sectionOrder: [...DEFAULT_SECTION_ORDER],
+  sectionVisibility: Object.fromEntries(DEFAULT_SECTION_ORDER.map(key => [key, true])),
+  fontFamily: 'serif',
+  lineHeight: 1.5,
+  fontSize: 16,
+})
 
 // 当前使用的简历数据（可以通过setCurrentResumeData动态更新）
 let currentResumeData: ResumeData = defaultResumeData

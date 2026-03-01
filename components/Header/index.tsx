@@ -1,3 +1,5 @@
+'use client'
+
 import { getCurrentResumeData } from '@/config/data'
 import { SectionContainer, Link } from '@/components/common'
 import { TITLE_STYLES, CONTAINER_STYLES, TEXT_STYLES } from '@/constants/styles'
@@ -9,7 +11,9 @@ import Image from 'next/image'
  * 左侧显示个人信息，右侧显示照片
  */
 export default function Header() {
-  const { name, contact, jobInfo } = getCurrentResumeData().header
+  const resumeData = getCurrentResumeData()
+  const { name, contact, jobInfo } = resumeData.header
+  const avatarBase64 = resumeData.avatarBase64
 
   return (
     <SectionContainer className={CONTAINER_STYLES.header}>
@@ -63,16 +67,25 @@ export default function Header() {
         {/* 右侧：照片区域 */}
         <div className="flex-shrink-0">
           <div className="w-32 h-40 overflow-hidden relative">
-            <Image 
-              src="/images/avatar.jpg" 
-              alt="个人照片" 
-              fill
-              className="object-cover"
-              onError={() => {
-                // 如果图片加载失败，可以在这里处理
-                console.log('头像加载失败，使用默认占位符');
-              }}
-            />
+            {avatarBase64 ? (
+              // 使用 IndexedDB 存储的 base64 照片
+              <img 
+                src={avatarBase64}
+                alt="个人照片"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              // 使用默认占位照片
+              <Image 
+                src="/images/avatar.jpg" 
+                alt="个人照片" 
+                fill
+                className="object-cover"
+                onError={() => {
+                  console.log('头像加载失败，使用默认占位符');
+                }}
+              />
+            )}
           </div>
         </div>
       </div>

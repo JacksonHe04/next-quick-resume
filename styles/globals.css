@@ -12,9 +12,24 @@
   display: none;
 }
 
-/* 打印时隐藏简历管理按钮 */
+/* A4 打印预览边框 */
+.resume-a4-preview {
+  position: relative;
+  min-height: 297mm;
+  border: 1px solid #e5e7eb;
+  padding: 0;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* 打印时隐藏非打印元素和边框 */
 @media print {
   .no-print {
     display: none !important;
+  }
+  .resume-a4-preview {
+    border: none !important;
+    box-shadow: none !important;
+    min-height: auto;
   }
 }

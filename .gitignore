@@ -3,3 +3,5 @@ pdf
 data_local
 docs_local
 public/images
+node_modules
+.next

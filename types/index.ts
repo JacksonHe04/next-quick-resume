@@ -89,6 +89,20 @@ export interface AboutData {
   content: string
 }
 
+// 简历配置接口 - 控制简历展示样式和布局
+export interface ResumeConfig {
+  /** 模块显示顺序 */
+  sectionOrder: string[]
+  /** 模块显隐控制 */
+  sectionVisibility: Record<string, boolean>
+  /** 字体 */
+  fontFamily?: string
+  /** 行间距 (倍数, 如 1.5) */
+  lineHeight?: number
+  /** 字体大小 (px) */
+  fontSize?: number
+}
+
 // 统一简历数据接口
 export interface ResumeData {
   header: HeaderData
@@ -97,6 +111,10 @@ export interface ResumeData {
   skills?: SkillsData
   intern?: InternData
   projects?: ProjectsData
+  /** 简历配置（模块顺序、显隐、字体、行间距等） */
+  config?: ResumeConfig
+  /** 头像照片 (base64 编码) */
+  avatarBase64?: string
 }
 
 // 通用节标题组件属性接口
