@@ -66,9 +66,8 @@ export default function Header() {
               src="/images/avatar.jpg"
               alt="个人照片"
               className="w-full h-full object-cover"
-              onError={() => {
-                // 如果图片加载失败，可以在这里处理
-                console.log('头像加载失败，使用默认占位符');
+              onError={(e) => {
+                e.currentTarget.style.display = 'none';
               }}
             />
           </div>

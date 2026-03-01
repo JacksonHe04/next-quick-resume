@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { ResumeDisplayConfig, ResumeSectionKey, ResumeData } from '@/types'
 import { updateResumeDataAndConfig, addResume, getDefaultResumeConfig } from '@/utils/indexedDB'
 
@@ -71,14 +71,27 @@ export function useResumeSidebar({
   const [isSaving, setIsSaving] = useState(false)
   const [isCloning, setIsCloning] = useState(false)
   const [saveMessage, setSaveMessage] = useState<Message | null>(null)
+  const isExternalUpdate = useRef(false)
 
   /**
    * 同步外部配置到本地 - 只在初始加载或 recordId 变化时执行
    */
   useEffect(() => {
     const configCopy = JSON.parse(JSON.stringify(config))
+    isExternalUpdate.current = true
     setLocalConfig(configCopy)
   }, [recordId, config])
+
+  /**
+   * 当本地配置变化时，通知父组件（跳过外部同步导致的变化）
+   */
+  useEffect(() => {
+    if (isExternalUpdate.current) {
+      isExternalUpdate.current = false
+      return
+    }
+    onConfigChange(localConfig)
+  }, [localConfig, onConfigChange])
 
   /**
    * 自动清除消息
@@ -100,26 +113,18 @@ export function useResumeSidebar({
       const newSections = prev.sections.map(s =>
         s.key === key ? { ...s, visible } : s
       )
-      const newConfig = { ...prev, sections: newSections }
-      
-      // 通知父组件配置变更
-      onConfigChange(newConfig)
-      return newConfig
+      return { ...prev, sections: newSections }
     })
-  }, [onConfigChange])
+  }, [])
 
   /**
    * 更新模块排序
    */
   const updateSectionOrder = useCallback((newOrder: ResumeSectionKey[]) => {
     setLocalConfig(prev => {
-      const newConfig = { ...prev, sectionOrder: newOrder }
-      
-      // 通知父组件配置变更
-      onConfigChange(newConfig)
-      return newConfig
+      return { ...prev, sectionOrder: newOrder }
     })
-  }, [onConfigChange])
+  }, [])
 
   /**
    * 保存配置和数据到数据库

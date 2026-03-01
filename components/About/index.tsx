@@ -1,6 +1,6 @@
 import { getCurrentResumeData } from '@/config/data'
 import { SectionContainer, SectionTitle } from '@/components/common'
-import { TEXT_STYLES } from '@/constants/styles'
+import { markdownToHtml } from '@/utils/markdown'
 
 /**
  * 关于我组件 - 展示个人简介和自我描述
@@ -8,14 +8,16 @@ import { TEXT_STYLES } from '@/constants/styles'
  */
 export default function About() {
   const { about } = getCurrentResumeData()
-  const { title, content } = about || {}
+
+  if (!about || !about.content) return null
 
   return (
     <SectionContainer>
-      <SectionTitle>{title}</SectionTitle>
-      <div className="text-gray-700 leading-relaxed">
-        <p className={TEXT_STYLES.base}>{content}</p>
-      </div>
+      <SectionTitle>{about.title}</SectionTitle>
+      <div 
+        className="prose prose-sm max-w-none text-gray-700 leading-relaxed"
+        dangerouslySetInnerHTML={{ __html: markdownToHtml(about.content) }} 
+      />
     </SectionContainer>
   )
 }
