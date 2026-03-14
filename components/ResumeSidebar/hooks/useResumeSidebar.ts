@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { ResumeDisplayConfig, ResumeSectionKey, ResumeData } from '@/types'
+import { ResumeDisplayConfig, ResumeSectionKey, ResumeData, HeaderAlignment } from '@/types'
 import { updateResumeDataAndConfig, addResume, getDefaultResumeConfig } from '@/utils/indexedDB'
 
 /**
@@ -46,6 +46,10 @@ interface UseResumeSidebarReturn {
   updateSectionVisibility: (key: ResumeSectionKey, visible: boolean) => void
   /** 更新模块排序 */
   updateSectionOrder: (newOrder: ResumeSectionKey[]) => void
+  /** 更新头部对齐方式 */
+  updateHeaderAlignment: (alignment: HeaderAlignment) => void
+  /** 更新照片配置 */
+  updatePhotoConfig: (photoConfig: { showPhoto?: boolean; photoData?: string | undefined }) => void
   /** 保存配置和数据 */
   saveConfig: () => Promise<void>
   /** 克隆简历 */
@@ -78,8 +82,17 @@ export function useResumeSidebar({
    */
   useEffect(() => {
     const configCopy = JSON.parse(JSON.stringify(config))
+    // 确保新字段有默认值
+    const configWithDefaults = {
+      ...getDefaultResumeConfig(),
+      ...configCopy,
+      photo: {
+        showPhoto: true,
+        ...configCopy.photo
+      }
+    }
     isExternalUpdate.current = true
-    setLocalConfig(configCopy)
+    setLocalConfig(configWithDefaults)
   }, [recordId, config])
 
   /**
@@ -124,6 +137,26 @@ export function useResumeSidebar({
     setLocalConfig(prev => {
       return { ...prev, sectionOrder: newOrder }
     })
+  }, [])
+
+  /**
+   * 更新头部对齐方式
+   */
+  const updateHeaderAlignment = useCallback((alignment: HeaderAlignment) => {
+    setLocalConfig(prev => ({ ...prev, headerAlignment: alignment }))
+  }, [])
+
+  /**
+   * 更新照片配置
+   */
+  const updatePhotoConfig = useCallback((photoConfig: { showPhoto?: boolean; photoData?: string | undefined }) => {
+    setLocalConfig(prev => ({
+      ...prev,
+      photo: {
+        ...prev.photo,
+        ...photoConfig
+      }
+    }))
   }, [])
 
   /**
@@ -237,6 +270,8 @@ export function useResumeSidebar({
     saveMessage,
     updateSectionVisibility,
     updateSectionOrder,
+    updateHeaderAlignment,
+    updatePhotoConfig,
     saveConfig,
     cloneResume,
     clearMessage

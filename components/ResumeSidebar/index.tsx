@@ -1,10 +1,11 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { ResumeData, ResumeDisplayConfig } from '@/types'
+import { ResumeData, ResumeDisplayConfig, HeaderAlignment } from '@/types'
 import { Button } from '@/components/ui'
 import { SectionManager } from './components/SectionManager'
 import { JsonEditor } from './components/JsonEditor'
+import { HeaderConfig } from './components/HeaderConfig'
 import { useResumeSidebar } from './hooks/useResumeSidebar'
 
 /**
@@ -61,6 +62,8 @@ export default function ResumeSidebar({
     saveMessage,
     updateSectionVisibility,
     updateSectionOrder,
+    updateHeaderAlignment,
+    updatePhotoConfig,
     saveConfig,
     cloneResume
   } = useResumeSidebar({
@@ -84,11 +87,20 @@ export default function ResumeSidebar({
       {/* 主内容区域 */}
       <div className="flex-1 overflow-y-auto">
         {viewMode === 'preview' ? (
-          <SectionManager
-            config={localConfig}
-            onVisibilityChange={updateSectionVisibility}
-            onOrderChange={updateSectionOrder}
-          />
+          <>
+            <HeaderConfig
+              alignment={localConfig.headerAlignment || 'left'}
+              photo={localConfig.photo || { showPhoto: true }}
+              onAlignmentChange={updateHeaderAlignment}
+              onShowPhotoChange={(show) => updatePhotoConfig({ showPhoto: show })}
+              onPhotoDataChange={(photoData) => updatePhotoConfig({ photoData })}
+            />
+            <SectionManager
+              config={localConfig}
+              onVisibilityChange={updateSectionVisibility}
+              onOrderChange={updateSectionOrder}
+            />
+          </>
         ) : (
           <JsonEditor
             data={resumeData}

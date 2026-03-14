@@ -143,10 +143,25 @@ export interface ResumeSectionConfig {
   visible: boolean
 }
 
+// 头部区域对齐方式
+export type HeaderAlignment = 'left' | 'center'
+
+// 照片配置
+export interface PhotoConfig {
+  /** 是否显示照片 */
+  showPhoto: boolean
+  /** 照片数据（Base64） */
+  photoData?: string
+}
+
 // 简历显示配置
 export interface ResumeDisplayConfig {
   sections: ResumeSectionConfig[]
   sectionOrder: ResumeSectionKey[]
+  /** 头部区域对齐方式 */
+  headerAlignment: HeaderAlignment
+  /** 照片配置 */
+  photo: PhotoConfig
 }
 
 // 带配置的简历数据

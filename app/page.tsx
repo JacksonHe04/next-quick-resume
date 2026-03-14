@@ -322,9 +322,8 @@ export default function Home() {
     setShowRightSidebar(prev => !prev)
   }, [])
 
-  // 组件映射表
+  // 组件映射表（不含 Header，Header 单独处理以支持配置）
   const componentMap: Record<string, React.ComponentType> = {
-    header: Header,
     education: Education,
     intern: Intern,
     projects: Projects,
@@ -342,8 +341,21 @@ export default function Home() {
 
     return currentConfig.sectionOrder
       .filter(key => visibleSections.includes(key))
-      .filter(key => currentData[key as keyof ResumeData])
+      .filter(key => key === 'header' || currentData[key as keyof ResumeData])
       .map(key => {
+        // 为 Header 组件传递配置
+        if (key === 'header') {
+          return (
+            <Header
+              key={key}
+              data={currentData.header}
+              alignment={currentConfig.headerAlignment || 'left'}
+              showPhoto={currentConfig.photo?.showPhoto ?? true}
+              photoData={currentConfig.photo?.photoData}
+            />
+          )
+        }
+
         const Component = componentMap[key]
         return Component ? <Component key={key} /> : null
       })

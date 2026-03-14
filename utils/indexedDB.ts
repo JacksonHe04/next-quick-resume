@@ -20,7 +20,11 @@ export const getDefaultResumeConfig = (): ResumeDisplayConfig => ({
     { key: 'skills', label: '专业技能', visible: true },
     { key: 'about', label: '关于我', visible: true }
   ],
-  sectionOrder: ['header', 'education', 'intern', 'projects', 'skills', 'about']
+  sectionOrder: ['header', 'education', 'intern', 'projects', 'skills', 'about'],
+  headerAlignment: 'left',
+  photo: {
+    showPhoto: true
+  }
 })
 
 // 简历记录接口（向后兼容）
