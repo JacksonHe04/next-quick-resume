@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { AlignLeft, AlignCenter, Eye, EyeOff } from 'lucide-react'
-import { HeaderAlignment, PhotoConfig } from '@/types'
+import { AlignLeft, AlignCenter } from 'lucide-react'
+import { HeaderAlignment, PhotoConfig, HeaderButtonConfig } from '@/types'
 import { PhotoUploader } from './PhotoUploader'
 
 /**
@@ -13,26 +13,33 @@ interface HeaderConfigProps {
   alignment: HeaderAlignment
   /** 照片配置 */
   photo: PhotoConfig
+  /** 按钮配置 */
+  button?: HeaderButtonConfig
   /** 对齐方式变更回调 */
   onAlignmentChange: (alignment: HeaderAlignment) => void
   /** 照片显示开关变更回调 */
   onShowPhotoChange: (show: boolean) => void
   /** 照片数据变更回调 */
   onPhotoDataChange: (photoData: string | undefined) => void
+  /** 按钮配置变更回调 */
+  onButtonChange?: (button: HeaderButtonConfig) => void
 }
 
 /**
  * 头部配置组件
- * 
+ *
  * 提供头部区域的对齐方式和照片显示配置
  */
 export function HeaderConfig({
   alignment,
   photo,
+  button,
   onAlignmentChange,
   onShowPhotoChange,
-  onPhotoDataChange
+  onPhotoDataChange,
+  onButtonChange
 }: HeaderConfigProps) {
+  const buttonConfig = button ?? { enabled: false, text: '', url: '' }
   return (
     <div className="p-4 border-t border-gray-200">
       <h3 className="text-sm font-medium text-gray-700 mb-4">头部样式设置</h3>
@@ -89,6 +96,50 @@ export function HeaderConfig({
             photoData={photo.photoData}
             onPhotoChange={onPhotoDataChange}
           />
+        )}
+      </div>
+
+      {/* 头部按钮配置 */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h4 className="text-sm font-medium text-gray-700">显示头部按钮</h4>
+          <button
+            onClick={() => onButtonChange?.({ ...buttonConfig, enabled: !buttonConfig.enabled })}
+            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+              buttonConfig.enabled ? 'bg-blue-600' : 'bg-gray-200'
+            }`}
+          >
+            <span
+              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                buttonConfig.enabled ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+
+        {buttonConfig.enabled && (
+          <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">按钮文本</label>
+              <input
+                type="text"
+                value={buttonConfig.text}
+                onChange={(e) => onButtonChange?.({ ...buttonConfig, text: e.target.value })}
+                placeholder="例如：下载简历"
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">链接地址</label>
+              <input
+                type="text"
+                value={buttonConfig.url}
+                onChange={(e) => onButtonChange?.({ ...buttonConfig, url: e.target.value })}
+                placeholder="https://..."
+                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
         )}
       </div>
     </div>

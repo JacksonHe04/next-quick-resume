@@ -1,4 +1,4 @@
-import { HeaderData } from '@/types'
+import { HeaderData, HeaderButtonConfig } from '@/types'
 import { SectionContainer, Link } from '@/components/common'
 import { TITLE_STYLES, CONTAINER_STYLES, TEXT_STYLES } from '@/constants/styles'
 
@@ -14,6 +14,8 @@ interface HeaderProps {
   showPhoto?: boolean
   /** 照片数据（Base64） */
   photoData?: string
+  /** 按钮配置 */
+  button?: HeaderButtonConfig
 }
 
 /**
@@ -24,7 +26,8 @@ export default function Header({
   data,
   alignment = 'left',
   showPhoto = true,
-  photoData
+  photoData,
+  button
 }: HeaderProps) {
   const { name, contact, jobInfo } = data
 
@@ -32,6 +35,17 @@ export default function Header({
   const alignmentClasses = alignment === 'center'
     ? 'items-center text-center'
     : 'items-start text-left'
+
+  // 处理按钮链接，确保是绝对路径
+  const getButtonUrl = (url: string): string => {
+    if (!url) return '#'
+    // 如果 URL 已经是绝对路径（以 http:// 或 https:// 开头），直接返回
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url
+    }
+    // 如果是相对路径，添加 https:// 前缀
+    return `https://${url}`
+  }
 
   return (
     <SectionContainer className={CONTAINER_STYLES.header}>
@@ -64,33 +78,133 @@ export default function Header({
               </p>
             </div>
 
-            {/* 第二行：GitHub和主页 - 移动端垂直布局 */}
-            <div className={`flex flex-col sm:flex-row gap-2 sm:gap-8 ${
-              alignment === 'center' ? 'sm:justify-center' : ''
-            }`}>
-              {contact.homepage && (
-                <p className={TEXT_STYLES.base}>
-                  主页：
-                  <Link href={contact.homepage.url}>
-                    {contact.homepage.text}
-                  </Link>
-                </p>
-              )}
-              {contact.github && (
-                <p className={TEXT_STYLES.base}>
-                  GitHub:&nbsp;
-                  <Link href={contact.github.url}>
-                    {contact.github.text}
-                  </Link>
-                </p>
-              )}
-            </div>
+            {/* 第二行：主页、按钮、GitHub */}
+            {alignment === 'center' && button?.enabled && button.text ? (
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <div className="hidden sm:grid w-full" style={{ gridTemplateColumns: '1fr auto 1fr', gap: '1rem' }}>
+                  <div className="flex items-center justify-end">
+                    {contact.homepage && (
+                      <p className={TEXT_STYLES.base}>
+                        主页：
+                        <Link href={contact.homepage.url}>
+                          {contact.homepage.text}
+                        </Link>
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-center">
+                    <a
+                      href={getButtonUrl(button.url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-1 text-sm font-medium text-gray-700 bg-transparent rounded-lg transition-all duration-200 hover:opacity-80"
+                      style={{
+                        background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, #2f59b6 0%, #3a8eff 33%, #00cad3 66%, #7ae7df 100%) border-box',
+                        border: '2px solid transparent',
+                        borderRadius: '8px'
+                      }}
+                    >
+                      {button.text}
+                    </a>
+                  </div>
+                  <div className="flex items-center justify-start">
+                    {contact.github && (
+                      <p className={TEXT_STYLES.base}>
+                        GitHub:&nbsp;
+                        <Link href={contact.github.url}>
+                          {contact.github.text}
+                        </Link>
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="sm:hidden space-y-2">
+                  <div className="flex flex-col gap-2">
+                    {contact.homepage && (
+                      <p className={TEXT_STYLES.base}>
+                        主页：
+                        <Link href={contact.homepage.url}>
+                          {contact.homepage.text}
+                        </Link>
+                      </p>
+                    )}
+                    {contact.github && (
+                      <p className={TEXT_STYLES.base}>
+                        GitHub:&nbsp;
+                        <Link href={contact.github.url}>
+                          {contact.github.text}
+                        </Link>
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className={`flex flex-col sm:flex-row gap-2 sm:gap-4 ${
+                alignment === 'center' ? 'sm:justify-center' : ''
+              }`}>
+                <div className={`flex flex-col sm:flex-row gap-2 sm:gap-8`}>
+                  {contact.homepage && (
+                    <p className={TEXT_STYLES.base}>
+                      主页：
+                      <Link href={contact.homepage.url}>
+                        {contact.homepage.text}
+                      </Link>
+                    </p>
+                  )}
+                  {contact.github && (
+                    <p className={TEXT_STYLES.base}>
+                      GitHub:&nbsp;
+                      <Link href={contact.github.url}>
+                        {contact.github.text}
+                      </Link>
+                    </p>
+                  )}
+                </div>
+                {button?.enabled && button.text && (
+                  <div className="hidden sm:flex flex-1 justify-center">
+                    <a
+                      href={getButtonUrl(button.url)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-4 py-1.5 text-sm font-medium text-gray-700 bg-transparent rounded-lg transition-all duration-200 hover:opacity-80"
+                      style={{
+                        background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, #2f59b6 0%, #3a8eff 33%, #00cad3 66%, #7ae7df 100%) border-box',
+                        border: '2px solid transparent',
+                        borderRadius: '8px'
+                      }}
+                    >
+                      {button.text}
+                    </a>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 移动端按钮 - 水平居中 */}
+            {button?.enabled && button.text && (
+              <div className="flex justify-center mt-2 sm:hidden">
+                <a
+                  href={getButtonUrl(button.url)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center px-4 py-1.5 text-sm font-medium text-gray-700 bg-transparent rounded-lg transition-all duration-200 hover:opacity-80"
+                  style={{
+                    background: 'linear-gradient(white, white) padding-box, linear-gradient(135deg, #2f59b6 0%, #3a8eff 33%, #00cad3 66%, #7ae7df 100%) border-box',
+                    border: '2px solid transparent',
+                    borderRadius: '8px'
+                  }}
+                >
+                  {button.text}
+                </a>
+              </div>
+            )}
           </div>
         </div>
 
         {/* 右侧：照片区域 - 仅在 showPhoto 为 true 时显示 */}
         {showPhoto && (
-          <div className="flex-shrink-0 self-center sm:self-auto">
+          <div className="flex-shrink-0 self-center sm:self-start">
             <div className="w-24 h-32 sm:w-32 sm:h-40 overflow-hidden rounded-lg border border-gray-200">
               <img
                 src={photoData || '/images/avatar.jpg'}

@@ -150,7 +150,11 @@ export default function Home() {
    * 打印简历功能
    */
   const handlePrintResume = () => {
-    window.print()
+    // 使用 setTimeout 确保在 React 事件循环结束后调用 print
+    // 这样可以避免某些浏览器环境下 print 被阻止的问题
+    setTimeout(() => {
+      window.print()
+    }, 0)
   }
 
   /**
@@ -352,6 +356,7 @@ export default function Home() {
               alignment={currentConfig.headerAlignment || 'left'}
               showPhoto={currentConfig.photo?.showPhoto ?? true}
               photoData={currentConfig.photo?.photoData}
+              button={currentConfig.headerButton}
             />
           )
         }

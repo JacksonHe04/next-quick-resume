@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { ResumeDisplayConfig, ResumeSectionKey, ResumeData, HeaderAlignment } from '@/types'
+import { ResumeDisplayConfig, ResumeSectionKey, ResumeData, HeaderAlignment, HeaderButtonConfig } from '@/types'
 import { updateResumeDataAndConfig, addResume, getDefaultResumeConfig } from '@/utils/indexedDB'
 
 /**
@@ -50,6 +50,8 @@ interface UseResumeSidebarReturn {
   updateHeaderAlignment: (alignment: HeaderAlignment) => void
   /** 更新照片配置 */
   updatePhotoConfig: (photoConfig: { showPhoto?: boolean; photoData?: string | undefined }) => void
+  /** 更新头部按钮配置 */
+  updateHeaderButtonConfig: (buttonConfig: HeaderButtonConfig) => void
   /** 保存配置和数据 */
   saveConfig: () => Promise<void>
   /** 克隆简历 */
@@ -156,6 +158,16 @@ export function useResumeSidebar({
         ...prev.photo,
         ...photoConfig
       }
+    }))
+  }, [])
+
+  /**
+   * 更新头部按钮配置
+   */
+  const updateHeaderButtonConfig = useCallback((buttonConfig: HeaderButtonConfig) => {
+    setLocalConfig(prev => ({
+      ...prev,
+      headerButton: buttonConfig
     }))
   }, [])
 
@@ -272,6 +284,7 @@ export function useResumeSidebar({
     updateSectionOrder,
     updateHeaderAlignment,
     updatePhotoConfig,
+    updateHeaderButtonConfig,
     saveConfig,
     cloneResume,
     clearMessage

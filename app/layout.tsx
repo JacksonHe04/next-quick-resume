@@ -31,7 +31,15 @@ export default function RootLayout({
                     theme: {
                       extend: {
                         fontFamily: {
-                          serif: ["Times New Roman", "SimSun", "serif"],
+                          sans: [
+                            "-apple-system",
+                            "BlinkMacSystemFont",
+                            "PingFang SC",
+                            "Microsoft YaHei",
+                            "Helvetica Neue",
+                            "Arial",
+                            "sans-serif"
+                          ],
                         },
                       },
                     },
@@ -42,7 +50,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-serif leading-6 text-black mx-auto p-4 m-0 bg-gray-100 rounded-2xl border border-gray-400 print:bg-white print:rounded-none print:border-0 print:p-0">
+      <body className="font-sans leading-6 text-black mx-auto p-4 m-0 bg-gray-100 rounded-2xl border border-gray-400 print:bg-white print:rounded-none print:border-0 print:p-0">
         {children}
       </body>
     </html>

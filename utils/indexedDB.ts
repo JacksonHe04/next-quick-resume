@@ -24,6 +24,11 @@ export const getDefaultResumeConfig = (): ResumeDisplayConfig => ({
   headerAlignment: 'left',
   photo: {
     showPhoto: true
+  },
+  headerButton: {
+    enabled: false,
+    text: '',
+    url: ''
   }
 })
 

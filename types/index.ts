@@ -154,6 +154,16 @@ export interface PhotoConfig {
   photoData?: string
 }
 
+// 头部按钮配置
+export interface HeaderButtonConfig {
+  /** 是否启用按钮 */
+  enabled: boolean
+  /** 按钮文本 */
+  text: string
+  /** 按钮链接 */
+  url: string
+}
+
 // 简历显示配置
 export interface ResumeDisplayConfig {
   sections: ResumeSectionConfig[]
@@ -162,6 +172,8 @@ export interface ResumeDisplayConfig {
   headerAlignment: HeaderAlignment
   /** 照片配置 */
   photo: PhotoConfig
+  /** 头部按钮配置 */
+  headerButton?: HeaderButtonConfig
 }
 
 // 带配置的简历数据

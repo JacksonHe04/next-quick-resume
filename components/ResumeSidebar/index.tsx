@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { ResumeData, ResumeDisplayConfig, HeaderAlignment } from '@/types'
+import { ResumeData, ResumeDisplayConfig, HeaderAlignment, HeaderButtonConfig } from '@/types'
 import { Button } from '@/components/ui'
 import { SectionManager } from './components/SectionManager'
 import { JsonEditor } from './components/JsonEditor'
@@ -64,6 +64,7 @@ export default function ResumeSidebar({
     updateSectionOrder,
     updateHeaderAlignment,
     updatePhotoConfig,
+    updateHeaderButtonConfig,
     saveConfig,
     cloneResume
   } = useResumeSidebar({
@@ -91,9 +92,11 @@ export default function ResumeSidebar({
             <HeaderConfig
               alignment={localConfig.headerAlignment || 'left'}
               photo={localConfig.photo || { showPhoto: true }}
+              button={localConfig.headerButton}
               onAlignmentChange={updateHeaderAlignment}
               onShowPhotoChange={(show) => updatePhotoConfig({ showPhoto: show })}
               onPhotoDataChange={(photoData) => updatePhotoConfig({ photoData })}
+              onButtonChange={updateHeaderButtonConfig}
             />
             <SectionManager
               config={localConfig}
