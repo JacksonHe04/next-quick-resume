@@ -16,8 +16,8 @@ export const CONTAINER_STYLES = {
 
 // 标题样式
 export const TITLE_STYLES = {
-  // 主标题（姓名）- 响应式字体大小
-  main: 'text-2xl sm:text-3xl md:text-4xl font-bold m-0',
+  // 主标题（姓名）- 响应式字体大小，使用衬线字体增加正式感
+  main: 'text-2xl sm:text-3xl md:text-4xl font-bold m-0 font-serif',
   // 副标题（职位）- 响应式字体大小
   subtitle: 'text-base sm:text-lg md:text-xl text-gray-600 mt-2 sm:mt-4',
   // 节标题 - 响应式字体大小

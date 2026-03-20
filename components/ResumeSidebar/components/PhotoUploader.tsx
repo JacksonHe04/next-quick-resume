@@ -35,9 +35,9 @@ export function PhotoUploader({ photoData, onPhotoChange }: PhotoUploaderProps) 
       return
     }
 
-    // 验证文件大小（最大 2MB）
-    if (file.size > 2 * 1024 * 1024) {
-      alert('图片大小不能超过 2MB')
+    // 验证文件大小（最大 10MB）
+    if (file.size > 10 * 1024 * 1024) {
+      alert('图片大小不能超过 10MB')
       return
     }
 
@@ -109,7 +109,7 @@ export function PhotoUploader({ photoData, onPhotoChange }: PhotoUploaderProps) 
       />
 
       <p className="text-xs text-gray-500">
-        支持 JPG、PNG 格式，最大 2MB
+        支持 JPG、PNG 格式，最大 10MB
       </p>
     </div>
   )

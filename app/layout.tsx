@@ -30,18 +30,25 @@ export default function RootLayout({
                   tailwind.config = {
                     theme: {
                       extend: {
-                        fontFamily: {
-                          sans: [
-                            "-apple-system",
-                            "BlinkMacSystemFont",
-                            "PingFang SC",
-                            "Microsoft YaHei",
-                            "Helvetica Neue",
-                            "Arial",
-                            "sans-serif"
-                          ],
+                          fontFamily: {
+                            sans: [
+                              "-apple-system",
+                              "BlinkMacSystemFont",
+                              "PingFang SC",
+                              "Microsoft YaHei",
+                              "Helvetica Neue",
+                              "Arial",
+                              "sans-serif"
+                            ],
+                            serif: [
+                              "Georgia",
+                              "Times New Roman",
+                              "Songti SC",
+                              "SimSun",
+                              "serif"
+                            ],
+                          },
                         },
-                      },
                     },
                   };
                 }

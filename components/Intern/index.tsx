@@ -24,20 +24,20 @@ function InternItem({ intern }: { intern: InternItemType }) {
   return (
     <div className={CONTAINER_STYLES.project}>
       <div className={COMBINED_STYLES.projectTitleRow}>
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-baseline gap-2 flex-wrap">
           {intern.image && (
             <Image 
               src={intern.image} 
               alt={`${intern.company} logo`}
               width={36}
               height={36}
-              className="object-contain flex-shrink-0"
+              className="object-contain flex-shrink-0 self-center"
             />
           )}
-          <h3 className={TITLE_STYLES.project}>
+          <h3 className={`${TITLE_STYLES.project} leading-none`}>
             <span className="font-bold">{intern.company}</span>
           </h3>
-          <span className={TEXT_STYLES.period}>{intern.position}</span>
+          <span className={`${TEXT_STYLES.period} leading-none`}>{intern.position}</span>
         </div>
         <div className="flex items-center gap-1 flex-wrap">
           <span className={TEXT_STYLES.period}>{intern.base}</span>

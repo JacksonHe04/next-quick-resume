@@ -58,7 +58,7 @@ export default function Header({
           {/* 姓名和职位 */}
           <div className="mb-3 sm:mb-4">
             <h1 className={TITLE_STYLES.main}>{name}</h1>
-            <p className={TITLE_STYLES.subtitle}>{jobInfo.position}</p>
+            <p className={`${TITLE_STYLES.subtitle} font-serif`}><b>{jobInfo.position}</b></p>
           </div>
 
           {/* 联系方式信息 */}
@@ -67,11 +67,11 @@ export default function Header({
             <div className={`flex flex-col sm:flex-row gap-2 sm:gap-8 ${
               alignment === 'center' ? 'sm:justify-center' : ''
             }`}>
-              <p className={TEXT_STYLES.base}>
-                电话/微信：{contact.phone}
+              <p className={`${TEXT_STYLES.base} font-serif`}>
+                <b>电话/微信：</b>{contact.phone}
               </p>
-              <p className={TEXT_STYLES.base}>
-                邮箱：
+              <p className={`${TEXT_STYLES.base} font-serif`}>
+                <b>邮箱：</b>
                 <Link href={`mailto:${contact.email}`} underline={false}>
                   {contact.email}
                 </Link>
@@ -84,8 +84,8 @@ export default function Header({
                 <div className="hidden sm:grid w-full" style={{ gridTemplateColumns: '1fr auto 1fr', gap: '1rem' }}>
                   <div className="flex items-center justify-end">
                     {contact.homepage && (
-                      <p className={TEXT_STYLES.base}>
-                        主页：
+                      <p className={`${TEXT_STYLES.base} font-serif`}>
+                        <b>主页：</b>
                         <Link href={contact.homepage.url}>
                           {contact.homepage.text}
                         </Link>
@@ -109,7 +109,7 @@ export default function Header({
                   </div>
                   <div className="flex items-center justify-start">
                     {contact.github && (
-                      <p className={TEXT_STYLES.base}>
+                      <p className={`${TEXT_STYLES.base} font-serif`}>
                         GitHub:&nbsp;
                         <Link href={contact.github.url}>
                           {contact.github.text}
@@ -121,15 +121,15 @@ export default function Header({
                 <div className="sm:hidden space-y-2">
                   <div className="flex flex-col gap-2">
                     {contact.homepage && (
-                      <p className={TEXT_STYLES.base}>
-                        主页：
+                      <p className={`${TEXT_STYLES.base} font-serif`}>
+                        <b>主页：</b>
                         <Link href={contact.homepage.url}>
                           {contact.homepage.text}
                         </Link>
                       </p>
                     )}
                     {contact.github && (
-                      <p className={TEXT_STYLES.base}>
+                      <p className={`${TEXT_STYLES.base} font-serif`}>
                         GitHub:&nbsp;
                         <Link href={contact.github.url}>
                           {contact.github.text}
@@ -145,15 +145,15 @@ export default function Header({
               }`}>
                 <div className={`flex flex-col sm:flex-row gap-2 sm:gap-8`}>
                   {contact.homepage && (
-                    <p className={TEXT_STYLES.base}>
-                      主页：
+                    <p className={`${TEXT_STYLES.base} font-serif`}>
+                      <b>主页：</b>
                       <Link href={contact.homepage.url}>
                         {contact.homepage.text}
                       </Link>
                     </p>
                   )}
                   {contact.github && (
-                    <p className={TEXT_STYLES.base}>
+                    <p className={`${TEXT_STYLES.base} font-serif`}>
                       GitHub:&nbsp;
                       <Link href={contact.github.url}>
                         {contact.github.text}
@@ -205,11 +205,11 @@ export default function Header({
         {/* 右侧：照片区域 - 仅在 showPhoto 为 true 时显示 */}
         {showPhoto && (
           <div className="flex-shrink-0 self-center sm:self-start">
-            <div className="w-24 h-32 sm:w-32 sm:h-40 overflow-hidden rounded-lg border border-gray-200">
+            <div className="w-24 h-32 sm:w-32 sm:h-40 overflow-hidden rounded-lg p-[1px]">
               <img
                 src={photoData || '/images/avatar.jpg'}
                 alt="个人照片"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain rounded-lg border border-gray-200 box-border"
                 onError={(e) => {
                   e.currentTarget.src = '/images/avatar.jpg';
                 }}
