@@ -33,7 +33,9 @@ test("completes the job-search lifecycle", async ({ page }) => {
   await page.getByRole("option", { name: /OpenAI/ }).click();
   const position = page.getByRole("combobox").first();
   await position.fill("产品经理");
-  await page.getByRole("option", { name: /^产品经理/ }).click();
+  await page
+    .getByRole("option", { name: "产品经理 官方", exact: true })
+    .click();
   await page.getByLabel("岗位名称").fill(positionName);
   await page.getByLabel("批次").selectOption({ label: batchName });
   await page.getByRole("button", { name: "保存投递" }).click();
