@@ -1,8 +1,6 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-
-export const users = sqliteTable("users", {
-  id: text("id").primaryKey(),
-  email: text("email").notNull().unique(),
-  createdAt: integer("created_at", { mode: "timestamp_ms" }).notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
-});
+export * from "@/db/schema/auth";
+export * from "@/db/schema/batches";
+export * from "@/db/schema/catalog";
+export * from "@/db/schema/hiring";
+export * from "@/db/schema/questions";
+export * from "@/db/schema/resumes";
