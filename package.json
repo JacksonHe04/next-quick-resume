@@ -24,6 +24,7 @@
     "test:watch": "vitest",
     "e2e:prepare": "pnpm db:seed:local && tsx e2e/prepare.ts",
     "e2e": "pnpm e2e:prepare && playwright test",
+    "e2e:production": "playwright test e2e/production-smoke.spec.ts --project=chromium",
     "check": "pnpm lint && pnpm typecheck"
   },
   "dependencies": {
