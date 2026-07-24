@@ -15,8 +15,6 @@ interface TopBarProps {
   onModeChange: (mode: 'preview' | 'edit') => void
   /** 创建简历回调 */
   onCreateResume: () => void
-  /** AI优化回调 */
-  onAiOptimize: () => void
   /** 导出PDF回调 */
   onExportPDF: () => void
   /** 导出Markdown回调 */
@@ -47,7 +45,6 @@ export default function TopBar({
   viewMode,
   onModeChange,
   onCreateResume,
-  onAiOptimize,
   onExportPDF,
   onExportMarkdown,
   resumeName,
@@ -307,18 +304,6 @@ export default function TopBar({
           创建简历
         </button>
         
-        {/* AI优化按钮 - 移动端简化 */}
-        <button
-          onClick={onAiOptimize}
-          className="px-3 sm:px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-sm flex items-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <span className="hidden sm:inline">AI 简历优化</span>
-          <span className="sm:hidden">AI</span>
-        </button>
-
         {/* 导出下拉菜单 - 仅桌面端显示 */}
         <div className="hidden md:block relative">
           <button

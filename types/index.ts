@@ -121,19 +121,6 @@ export interface LinkProps {
   underline?: boolean
 }
 
-// AI优化相关类型定义
-export interface AiOptimizeRequest {
-  currentResume: ResumeData
-  suggestions?: string
-  jobDescription?: string
-}
-
-export interface AiOptimizeResponse {
-  success: boolean
-  data?: ResumeData
-  error?: string
-}
-
 // 简历模块类型
 export type ResumeSectionKey = 'header' | 'education' | 'intern' | 'projects' | 'skills' | 'about'
 
