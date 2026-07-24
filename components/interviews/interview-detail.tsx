@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import type { InterviewView } from "@/components/interviews/interview-manager";
+import { InterviewQuestionCreator } from "@/components/questions/interview-question-creator";
 import {
   Button,
   Card,
@@ -183,10 +184,13 @@ export function InterviewDetail({ id }: { id: string }) {
         ) : (
           <span />
         )}
-        <Button onClick={save} loading={pending}>
-          <Save size={15} />
-          保存状态与复盘
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <InterviewQuestionCreator interviewId={id} />
+          <Button onClick={save} loading={pending}>
+            <Save size={15} />
+            保存状态与复盘
+          </Button>
+        </div>
       </div>
     </>
   );
