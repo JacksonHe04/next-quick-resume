@@ -42,15 +42,34 @@ export function StatusBadge({
   const presentation = STATUS_PRESENTATIONS[value];
 
   return (
+    <PresentationBadge
+      label={presentation.label}
+      tone={presentation.tone}
+      className={className}
+      {...props}
+    />
+  );
+}
+
+export function PresentationBadge({
+  label,
+  tone,
+  className,
+  ...props
+}: {
+  label: string;
+  tone: StatusTone;
+} & Omit<HTMLAttributes<HTMLSpanElement>, "children">) {
+  return (
     <span
       className={cn(
         "inline-flex min-h-6 items-center rounded-full border px-2.5 py-0.5 text-xs font-medium",
-        TONE_CLASS_NAMES[presentation.tone],
+        TONE_CLASS_NAMES[tone],
         className,
       )}
       {...props}
     >
-      {presentation.label}
+      {label}
     </span>
   );
 }

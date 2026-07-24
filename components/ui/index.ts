@@ -17,6 +17,7 @@ export { Input } from "./input";
 export type { InputProps } from "./input";
 export {
   STATUS_PRESENTATIONS,
+  PresentationBadge,
   StatusBadge,
 } from "./status-badge";
 export type {
