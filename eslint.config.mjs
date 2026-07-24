@@ -45,6 +45,8 @@ const eslintConfig = [
       "build/**/*",
       "dist/**/*",
       "node_modules/**/*",
+      ".open-next/**/*",
+      "cloudflare-env.d.ts",
     ],
   },
 ];

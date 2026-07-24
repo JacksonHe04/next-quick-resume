@@ -1,0 +1,38 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "sayless",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-07-24",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sayless-production",
+      "database_id": "4a490018-4ee4-4d16-b8e7-67416a5fe0ef",
+      "migrations_dir": "drizzle"
+    }
+  ],
+  "env": {
+    "preview": {
+      "name": "sayless-preview",
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "sayless-preview",
+          "database_id": "ff37685d-e268-4a83-9a53-7450f8c156b1",
+          "migrations_dir": "drizzle"
+        }
+      ]
+    }
+  }
+}

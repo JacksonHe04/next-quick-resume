@@ -39,6 +39,7 @@ node_modules/
 # 4. 构建输出与缓存 (Build Output & Cache)
 # ==========================================
 .next/
+.open-next/
 out/
 dist/
 dist-ssr/
