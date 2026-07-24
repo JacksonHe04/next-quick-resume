@@ -16,6 +16,15 @@ import type {
 type Database = DrizzleD1Database<typeof schema>;
 const RESULT_LIMIT = 20;
 
+export type OfficialCompany = {
+  id: string;
+  name: string;
+  logoUrl: string | null;
+  websiteUrl: string | null;
+  careersUrl: string | null;
+  industry: string | null;
+};
+
 export function createCatalogRepository(
   database: Database,
 ): CatalogRepository {
@@ -142,4 +151,21 @@ export function createCatalogRepository(
       await database.insert(privatePositions).values(row).run();
     },
   };
+}
+
+export async function listOfficialCompanies(
+  database: Database,
+): Promise<OfficialCompany[]> {
+  return database
+    .select({
+      id: officialCompanies.id,
+      name: officialCompanies.name,
+      logoUrl: officialCompanies.logoUrl,
+      websiteUrl: officialCompanies.websiteUrl,
+      careersUrl: officialCompanies.careersUrl,
+      industry: officialCompanies.industry,
+    })
+    .from(officialCompanies)
+    .where(eq(officialCompanies.isActive, true))
+    .orderBy(asc(officialCompanies.name));
 }
