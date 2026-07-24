@@ -19,6 +19,11 @@ _satellites/
 .cursor/
 .screenshots/
 .playwright-cli/
+.superpowers/
+.worktrees/
+.wrangler/
+.dev.vars
+data_import/
 
 # ==========================================
 # 3. 依赖与环境 (Dependencies & Env)
@@ -62,3 +67,6 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 coverage/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
