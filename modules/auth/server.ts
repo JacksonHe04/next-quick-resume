@@ -25,18 +25,22 @@ function requireEnvironmentValue(
 }
 
 export async function getAuthRuntime() {
-  const [{ env }, database] = await Promise.all([
+  const [{ env }, repository] = await Promise.all([
     getCloudflareContext({ async: true }),
-    getDb(),
+    getAuthRepository(),
   ]);
   const environment = env as AuthEnvironment;
 
   return {
-    repository: createAuthRepository(database),
+    repository,
     email: createTransactionalEmail(
       requireEnvironmentValue(environment, "RESEND_API_KEY"),
       requireEnvironmentValue(environment, "RESEND_FROM_EMAIL"),
     ),
     secret: requireEnvironmentValue(environment, "SESSION_SECRET"),
   };
+}
+
+export async function getAuthRepository() {
+  return createAuthRepository(await getDb());
 }

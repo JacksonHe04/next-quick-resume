@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useRef } from 'react'
-import { Upload, X, User } from 'lucide-react'
+import { X, User } from 'lucide-react'
 
 /**
  * 照片上传组件属性接口

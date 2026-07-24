@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback } from 'react'
-import { ResumeData, ResumeDisplayConfig, HeaderAlignment, HeaderButtonConfig } from '@/types'
+import { ResumeData, ResumeDisplayConfig } from '@/types'
 import { Button } from '@/components/ui'
 import { SectionManager } from './components/SectionManager'
 import { JsonEditor } from './components/JsonEditor'
