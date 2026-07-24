@@ -1,31 +1,22 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-import { createAccountRepository } from "@/modules/account/repository";
-import { AccountError } from "@/modules/account/service";
 import {
   getAuthenticatedDatabaseContext,
   unauthenticatedResponse,
 } from "@/modules/auth/action-context";
+import { createCatalogRepository } from "@/modules/catalog/repository";
 
-export async function getAccountActionContext(request: Request) {
+export async function getCatalogActionContext(request: Request) {
   const context = await getAuthenticatedDatabaseContext(request);
   if (!context) return null;
-
   return {
     user: context.user,
-    repository: createAccountRepository(context.database),
+    repository: createCatalogRepository(context.database),
   };
 }
 
-export function accountErrorResponse(error: unknown): NextResponse {
-  if (error instanceof AccountError) {
-    const status = error.code === "ACCOUNT_NOT_FOUND" ? 404 : 400;
-    return NextResponse.json(
-      { error: { code: error.code, message: error.message } },
-      { status },
-    );
-  }
+export function catalogErrorResponse(error: unknown) {
   if (error instanceof ZodError) {
     return NextResponse.json(
       {
@@ -38,8 +29,7 @@ export function accountErrorResponse(error: unknown): NextResponse {
       { status: 400 },
     );
   }
-
-  console.error("Unhandled account error", error);
+  console.error("Unhandled catalog error", error);
   return NextResponse.json(
     {
       error: {
