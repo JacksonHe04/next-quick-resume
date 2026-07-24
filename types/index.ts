@@ -177,6 +177,14 @@ export interface ResumeDisplayConfig {
   headerButton?: HeaderButtonConfig
 }
 
+// 服务端持久化使用的版本化简历文档。后续数据结构升级必须新增版本，
+// 不能在不变更 schemaVersion 的情况下改变既有字段语义。
+export interface ResumeDocumentV1 {
+  schemaVersion: 1
+  data: ResumeData
+  displayConfig: ResumeDisplayConfig
+}
+
 // 带配置的简历数据
 export interface ResumeDataWithConfig {
   data: ResumeData
