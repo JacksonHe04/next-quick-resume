@@ -45,7 +45,10 @@ export class OpenAIClient {
         const response = await this.makeRequest(request)
         
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}))
+          const errorData = await response.json<{
+            error?: { message?: string }
+            message?: string
+          }>().catch(() => ({}))
           const errorMessage = this.getErrorMessage(response.status, errorData)
           throw new Error(errorMessage)
         }
@@ -77,8 +80,11 @@ export class OpenAIClient {
       const response = await this.makeRequest(streamRequest)
       
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(`API请求失败: ${response.status} ${response.statusText} - ${errorData.message || '未知错误'}`)
+        const errorData = await response.json<{
+          message?: string
+        }>().catch(() => ({}))
+        const errorMessage = 'message' in errorData ? errorData.message : undefined
+        throw new Error(`API请求失败: ${response.status} ${response.statusText} - ${errorMessage || '未知错误'}`)
       }
 
       const reader = response.body?.getReader()

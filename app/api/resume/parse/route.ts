@@ -1,5 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+import { readJson } from '@/lib/http/json'
 import { ResumeData } from '@/types'
+
+const parseResumeRequestSchema = z.object({
+  text: z.string().min(1),
+  _template: z.unknown().optional(),
+})
 
 /**
  * AI文本解析API
@@ -7,7 +15,7 @@ import { ResumeData } from '@/types'
  */
 export async function POST(request: NextRequest) {
   try {
-    const { text, _template } = await request.json()
+    const { text, _template } = await readJson(request, parseResumeRequestSchema)
     void _template // 故意忽略模板参数，使用默认解析逻辑
 
     if (!text) {

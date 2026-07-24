@@ -1,4 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+import { readJson } from '@/lib/http/json'
+
+const saveResumeRequestSchema = z.object({
+  resumeData: z.unknown(),
+  _userId: z.string().optional(),
+  resumeName: z.string().optional(),
+})
 
 /**
  * 保存简历数据API
@@ -6,7 +15,7 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 export async function POST(request: NextRequest) {
   try {
-    const { resumeData, _userId, resumeName } = await request.json()
+    const { resumeData, _userId, resumeName } = await readJson(request, saveResumeRequestSchema)
     void _userId // 故意忽略用户ID，使用默认保存逻辑
 
     if (!resumeData) {

@@ -1,4 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+
+import { readJson } from '@/lib/http/json'
+
+const ocrRequestSchema = z.object({
+  fileId: z.string().optional(),
+  filePath: z.string().optional(),
+})
 
 /**
  * OCR文本识别API
@@ -6,7 +14,7 @@ import { NextRequest, NextResponse } from 'next/server'
  */
 export async function POST(request: NextRequest) {
   try {
-    const { fileId, filePath } = await request.json()
+    const { fileId, filePath } = await readJson(request, ocrRequestSchema)
 
     if (!fileId && !filePath) {
       return NextResponse.json(
