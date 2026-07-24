@@ -22,6 +22,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
+    "e2e:prepare": "pnpm db:seed:local && tsx e2e/prepare.ts",
+    "e2e": "pnpm e2e:prepare && playwright test",
     "check": "pnpm lint && pnpm typecheck"
   },
   "dependencies": {
@@ -58,6 +60,7 @@
     "@cloudflare/workers-types": "5.20260724.1",
     "@eslint/eslintrc": "^3",
     "@eslint/js": "^9.30.1",
+    "@playwright/test": "1.61.0",
     "@tailwindcss/postcss": "4.3.2",
     "@testing-library/dom": "10.4.1",
     "@testing-library/jest-dom": "6.9.1",

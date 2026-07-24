@@ -46,6 +46,8 @@ const eslintConfig = [
       "dist/**/*",
       "node_modules/**/*",
       ".open-next/**/*",
+      "playwright-report/**/*",
+      "test-results/**/*",
       "cloudflare-env.d.ts",
     ],
   },
