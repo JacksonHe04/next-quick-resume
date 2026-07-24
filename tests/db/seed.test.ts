@@ -14,6 +14,7 @@ import {
   submissions,
   users,
 } from "@/db/schema";
+import { OFFICIAL_STAGES } from "@/db/seed/catalog";
 import { createTestD1Binding } from "@/tests/db/d1-test-binding";
 
 describe("database seed", () => {
@@ -62,6 +63,19 @@ describe("database seed", () => {
     await seed(database, options);
 
     expect(await counts()).toEqual(first);
-    expect(first).toEqual([8, 7, 8, 1, 2, 5, 4, 3]);
+    expect(first).toEqual([8, 7, 11, 1, 2, 5, 4, 3]);
+    expect(OFFICIAL_STAGES.map(([, , name]) => name)).toEqual([
+      "测评",
+      "笔试",
+      "AI 面试",
+      "群面",
+      "电话面试",
+      "一面",
+      "二面",
+      "三面",
+      "业务面",
+      "HR 面",
+      "终面",
+    ]);
   });
 });

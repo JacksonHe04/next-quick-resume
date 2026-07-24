@@ -28,28 +28,66 @@ test("completes the job-search lifecycle", async ({ page }) => {
 
   await page.goto("/app/submissions");
   await page.getByRole("button", { name: "记录投递" }).click();
-  const company = page.getByRole("combobox").first();
+  const submissionDialog = page.getByRole("dialog", {
+    name: "记录投递",
+  });
+  const company = submissionDialog.getByRole("combobox", {
+    name: "公司",
+  });
   await company.fill("OpenAI");
-  await page.getByRole("option", { name: /OpenAI/ }).click();
-  const position = page.getByRole("combobox").first();
+  await submissionDialog
+    .getByRole("option", { name: "OpenAI 官方", exact: true })
+    .click();
+  const position = submissionDialog.getByRole("combobox", {
+    name: "岗位",
+  });
   await position.fill("产品经理");
-  await page
+  await submissionDialog
     .getByRole("option", { name: "产品经理 官方", exact: true })
     .click();
-  await page.getByLabel("岗位名称").fill(positionName);
-  await page.getByLabel("批次").selectOption({ label: batchName });
-  await page.getByRole("button", { name: "保存投递" }).click();
-  await expect(page.getByText(positionName)).toBeVisible();
+  await submissionDialog.getByLabel("岗位名称").fill(positionName);
+  await submissionDialog
+    .getByLabel("批次")
+    .selectOption({ label: batchName });
+  await submissionDialog
+    .getByRole("button", { name: "保存投递" })
+    .click();
+  await expect(
+    page.getByRole("table").getByText(positionName),
+  ).toBeVisible();
+  await page
+    .getByLabel("按批次筛选")
+    .selectOption({ label: batchName });
+  await expect(page).toHaveURL(/batch=/);
+  await expect(
+    page.getByRole("table").getByText(positionName),
+  ).toBeVisible();
 
   await page.goto("/app/interviews");
   await page.getByRole("button", { name: "添加选拔" }).click();
-  await page
+  const interviewDialog = page.getByRole("dialog", {
+    name: "添加选拔事件",
+  });
+  await interviewDialog
     .getByLabel("对应投递")
     .selectOption({ label: `OpenAI · ${positionName}` });
-  await page.getByLabel("选拔阶段").selectOption({ label: "一面" });
-  await page.getByLabel("状态").selectOption("passed");
-  await page.getByLabel("选拔名称").fill(interviewName);
-  await page.getByRole("button", { name: "保存选拔事件" }).click();
+  await interviewDialog
+    .getByLabel("选拔阶段")
+    .selectOption({ label: "一面" });
+  await interviewDialog.getByLabel("状态").selectOption("passed");
+  await interviewDialog.getByLabel("选拔名称").fill(interviewName);
+  await interviewDialog
+    .getByRole("button", { name: "保存选拔事件" })
+    .click();
+  await expect(page.getByText(interviewName)).toBeVisible();
+  await page
+    .getByLabel("按选拔阶段筛选")
+    .selectOption({ label: "一面" });
+  await page
+    .getByLabel("按选拔状态筛选")
+    .selectOption("passed");
+  await expect(page).toHaveURL(/stage=stage-first/);
+  await expect(page.getByRole("heading", { name: "历史" })).toBeVisible();
   await expect(page.getByText(interviewName)).toBeVisible();
 
   await page.goto("/app/submissions");

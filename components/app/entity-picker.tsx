@@ -93,7 +93,12 @@ export function EntityPicker({
 
   return (
     <div className="relative">
-      <span className="mb-2 block text-sm font-medium">{label}</span>
+      <label
+        htmlFor={`${listboxId}-input`}
+        className="mb-2 block text-sm font-medium"
+      >
+        {label}
+      </label>
       {value ? (
         <div className="flex min-h-11 items-center gap-2 rounded-xl border border-[#baddc6] bg-[#f7fbf8] px-3.5">
           <Check size={15} className="text-[#27764b]" />
@@ -120,6 +125,7 @@ export function EntityPicker({
               className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98a099]"
             />
             <Input
+              id={`${listboxId}-input`}
               role="combobox"
               aria-expanded={open}
               aria-controls={listboxId}

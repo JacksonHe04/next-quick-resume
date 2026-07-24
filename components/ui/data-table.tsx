@@ -29,7 +29,29 @@ export function DataTable<TRow>({
         className,
       )}
     >
-      <table className="w-full border-collapse text-left text-sm">
+      <div className="divide-y divide-[#edf0ed] sm:hidden">
+        {rows.map((row) => (
+          <article key={rowKey(row)} className="space-y-3 p-4">
+            {columns.map((column) => (
+              <div
+                key={column.key}
+                className={cn(
+                  "flex items-start justify-between gap-4",
+                  column.className,
+                )}
+              >
+                <div className="shrink-0 pt-0.5 text-[11px] font-medium text-[#879088]">
+                  {column.header}
+                </div>
+                <div className="min-w-0 text-right">
+                  {column.render(row)}
+                </div>
+              </div>
+            ))}
+          </article>
+        ))}
+      </div>
+      <table className="hidden w-full border-collapse text-left text-sm sm:table">
         <thead className="bg-[#f6f8f4] text-xs font-medium text-[#687269]">
           <tr>
             {columns.map((column) => (

@@ -7,6 +7,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import { useQueryState } from "nuqs";
 import {
   useCallback,
   useEffect,
@@ -18,11 +19,16 @@ import { SubmissionForm } from "@/components/submissions/submission-form";
 import {
   Button,
   DataTable,
+  FilterSelect,
   FormDrawer,
   Input,
   PresentationBadge,
   type DataTableColumn,
 } from "@/components/ui";
+import {
+  filterSubmissions,
+  submissionStatusLabel,
+} from "@/modules/submissions/filter";
 import { displaySubmissionStatus } from "@/modules/submissions/status";
 import type {
   DirectSubmissionStatus,
@@ -60,7 +66,34 @@ export function SubmissionManager() {
     null,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useQueryState("q", {
+    defaultValue: "",
+    history: "replace",
+  });
+  const [batchId, setBatchId] = useQueryState("batch", {
+    defaultValue: "",
+    history: "replace",
+  });
+  const [companyName, setCompanyName] = useQueryState("company", {
+    defaultValue: "",
+    history: "replace",
+  });
+  const [positionConcept, setPositionConcept] = useQueryState(
+    "position",
+    { defaultValue: "", history: "replace" },
+  );
+  const [status, setStatus] = useQueryState("status", {
+    defaultValue: "",
+    history: "replace",
+  });
+  const [from, setFrom] = useQueryState("from", {
+    defaultValue: "",
+    history: "replace",
+  });
+  const [to, setTo] = useQueryState("to", {
+    defaultValue: "",
+    history: "replace",
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
@@ -93,19 +126,56 @@ export function SubmissionManager() {
   }, [load]);
 
   const filtered = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase("zh-CN");
-    if (!normalized) return submissions;
-    return submissions.filter((submission) =>
-      [
-        submission.companyName,
-        submission.positionConcept,
-        submission.positionName,
-        submission.batchName,
-      ].some((value) =>
-        value.toLocaleLowerCase("zh-CN").includes(normalized),
-      ),
-    );
-  }, [query, submissions]);
+    return filterSubmissions(submissions, {
+      query,
+      batchId,
+      companyName,
+      positionConcept,
+      status,
+      from,
+      to,
+    });
+  }, [
+    batchId,
+    companyName,
+    from,
+    positionConcept,
+    query,
+    status,
+    submissions,
+    to,
+  ]);
+
+  const filterOptions = useMemo(
+    () => ({
+      companies: Array.from(
+        new Set(submissions.map((item) => item.companyName)),
+      )
+        .sort((a, b) => a.localeCompare(b, "zh-CN"))
+        .map((value) => ({ value, label: value })),
+      positions: Array.from(
+        new Set(submissions.map((item) => item.positionConcept)),
+      )
+        .sort((a, b) => a.localeCompare(b, "zh-CN"))
+        .map((value) => ({ value, label: value })),
+      statuses: Array.from(
+        new Set(submissions.map(submissionStatusLabel)),
+      )
+        .sort((a, b) => a.localeCompare(b, "zh-CN"))
+        .map((value) => ({ value, label: value })),
+    }),
+    [submissions],
+  );
+
+  const hasFilters = Boolean(
+    query ||
+      batchId ||
+      companyName ||
+      positionConcept ||
+      status ||
+      from ||
+      to,
+  );
 
   async function remove(id: string) {
     setError(undefined);
@@ -217,18 +287,88 @@ export function SubmissionManager() {
 
   return (
     <>
-      <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative w-full max-w-sm">
-          <Search
-            size={15}
-            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98a099]"
-          />
-          <Input
-            value={query}
-            onChange={(event) => setQuery(event.target.value)}
-            placeholder="搜索公司、岗位或批次"
-            className="pl-10"
-          />
+      <div className="mt-7 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
+        <div className="flex flex-1 flex-col gap-3">
+          <div className="relative w-full max-w-sm">
+            <Search
+              size={15}
+              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98a099]"
+            />
+            <Input
+              value={query}
+              onChange={(event) =>
+                void setQuery(event.target.value)
+              }
+              placeholder="搜索公司、岗位或批次"
+              className="pl-10"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <FilterSelect
+              label="按批次筛选"
+              value={batchId}
+              onChange={(value) => void setBatchId(value)}
+              allLabel="全部批次"
+              options={batches.map((batch) => ({
+                value: batch.id,
+                label: batch.name,
+              }))}
+            />
+            <FilterSelect
+              label="按公司筛选"
+              value={companyName}
+              onChange={(value) => void setCompanyName(value)}
+              allLabel="全部公司"
+              options={filterOptions.companies}
+            />
+            <FilterSelect
+              label="按岗位筛选"
+              value={positionConcept}
+              onChange={(value) => void setPositionConcept(value)}
+              allLabel="全部岗位"
+              options={filterOptions.positions}
+            />
+            <FilterSelect
+              label="按状态筛选"
+              value={status}
+              onChange={(value) => void setStatus(value)}
+              allLabel="全部状态"
+              options={filterOptions.statuses}
+            />
+            <Input
+              aria-label="投递开始日期"
+              type="date"
+              value={from}
+              onChange={(event) => void setFrom(event.target.value)}
+              className="w-auto min-w-36"
+            />
+            <Input
+              aria-label="投递结束日期"
+              type="date"
+              value={to}
+              onChange={(event) => void setTo(event.target.value)}
+              className="w-auto min-w-36"
+            />
+            {hasFilters ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => {
+                  void Promise.all([
+                    setQuery(null),
+                    setBatchId(null),
+                    setCompanyName(null),
+                    setPositionConcept(null),
+                    setStatus(null),
+                    setFrom(null),
+                    setTo(null),
+                  ]);
+                }}
+              >
+                清除筛选
+              </Button>
+            ) : null}
+          </div>
         </div>
         <Button
           onClick={() => setDrawerOpen(true)}
@@ -268,7 +408,7 @@ export function SubmissionManager() {
             rows={filtered}
             rowKey={(row) => row.id}
             empty={
-              query
+              hasFilters
                 ? "没有符合当前搜索的投递"
                 : "还没有投递记录，记录第一条已发生的投递"
             }

@@ -23,4 +23,32 @@ test("opens the Chinese product navigation on mobile", async ({ page }) => {
     "公司",
     "批次",
   ]);
+
+  await page.goto("/app/submissions");
+  await expect(page.getByRole("table")).toBeHidden();
+  await expect(page.locator("article").first()).toBeVisible();
+});
+
+test("creates and filters a question on mobile", async ({ page }) => {
+  const suffix = Date.now().toString().slice(-6);
+  const question = `移动端题目 ${suffix}`;
+
+  await login(page);
+  await page.goto("/app/questions");
+  await page.getByRole("button", { name: "新建问题" }).click();
+  const dialog = page.getByRole("dialog", { name: "新建问题" });
+  await dialog
+    .getByRole("textbox", { name: "问题", exact: true })
+    .fill(question);
+  await dialog
+    .getByRole("textbox", { name: "分类（可选）" })
+    .fill("移动端");
+  await dialog
+    .getByRole("textbox", { name: "标准答案" })
+    .fill("一份持续迭代的答案");
+  await dialog.getByRole("button", { name: "保存问题" }).click();
+  await expect(page.getByText(question)).toBeVisible();
+
+  await page.getByLabel("按分类筛选").selectOption("移动端");
+  await expect(page.getByText(question)).toBeVisible();
 });

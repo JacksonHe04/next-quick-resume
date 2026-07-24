@@ -13,6 +13,7 @@ export { Card } from "./card";
 export { DataTable } from "./data-table";
 export type { DataTableColumn } from "./data-table";
 export { FormDrawer } from "./form-drawer";
+export { FilterSelect } from "./filter-select";
 export { Input } from "./input";
 export type { InputProps } from "./input";
 export {

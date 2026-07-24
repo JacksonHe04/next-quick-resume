@@ -33,10 +33,13 @@ export const OFFICIAL_POSITIONS = [
 export const OFFICIAL_STAGES = [
   ["stage-assessment", "online_assessment", "测评"],
   ["stage-written", "written_test", "笔试"],
+  ["stage-ai", "ai_interview", "AI 面试"],
   ["stage-group", "group_interview", "群面"],
+  ["stage-phone", "phone_interview", "电话面试"],
   ["stage-first", "first_interview", "一面"],
   ["stage-second", "second_interview", "二面"],
   ["stage-third", "third_interview", "三面"],
+  ["stage-business", "business_interview", "业务面"],
   ["stage-hr", "hr_interview", "HR 面"],
   ["stage-final", "final_interview", "终面"],
 ] as const;
