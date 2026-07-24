@@ -11,7 +11,7 @@ import { ButtonStyleConfig } from './Button.types'
 export const buttonStyles: ButtonStyleConfig = {
   // 基础样式 - 所有按钮共享
   base: [
-    'inline-flex items-center justify-center',
+    'inline-flex items-center justify-center gap-2',
     'font-medium rounded-xl transition-[background-color,border-color,color,transform,box-shadow] duration-200',
     'border focus:outline-none focus-visible:ring-3 focus-visible:ring-[#55b97a]/30',
     'disabled:opacity-50 disabled:cursor-not-allowed',

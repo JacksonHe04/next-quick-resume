@@ -15,6 +15,7 @@ export const STATUS_PRESENTATIONS = {
   passed: { label: "已通过", tone: "positive" },
   failed: { label: "未通过", tone: "negative" },
   active: { label: "进行中", tone: "info" },
+  current: { label: "当前批次", tone: "positive" },
   archived: { label: "已归档", tone: "neutral" },
 } as const satisfies Record<
   string,

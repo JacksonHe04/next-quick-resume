@@ -1,13 +1,15 @@
-import { CalendarRange } from "lucide-react";
-
-import { ModulePlaceholder } from "@/components/app/module-placeholder";
+import { BatchManager } from "@/components/batches/batch-manager";
 
 export default function BatchesPage() {
   return (
-    <ModulePlaceholder
-      title="批次"
-      description="按求职阶段为投递分组，并选择一个当前批次。"
-      icon={CalendarRange}
-    />
+    <div className="mx-auto max-w-6xl px-5 py-10">
+      <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
+        批次
+      </h1>
+      <p className="mt-2 text-sm text-[#687269]">
+        按求职阶段为投递分组，并选择一个当前批次。
+      </p>
+      <BatchManager />
+    </div>
   );
 }
