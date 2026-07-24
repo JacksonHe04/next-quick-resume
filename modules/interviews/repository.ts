@@ -9,6 +9,8 @@ import type { DrizzleD1Database } from "drizzle-orm/d1";
 import * as schema from "@/db/schema";
 import {
   interviews,
+  officialCompanies,
+  privateCompanies,
   stages,
   submissions,
 } from "@/db/schema";
@@ -168,4 +170,60 @@ export function createInterviewRepository(
       ]);
     },
   };
+}
+
+export async function listActiveStages(database: Database) {
+  return database
+    .select({
+      id: stages.id,
+      code: stages.code,
+      name: stages.name,
+      sortOrder: stages.sortOrder,
+    })
+    .from(stages)
+    .where(eq(stages.isActive, true))
+    .orderBy(stages.sortOrder);
+}
+
+export async function listInterviewViews(
+  database: Database,
+  userId: string,
+) {
+  return database
+    .select({
+      id: interviews.id,
+      submissionId: interviews.submissionId,
+      companyName:
+        sql<string>`coalesce(${officialCompanies.name}, ${privateCompanies.name})`,
+      positionName: submissions.positionName,
+      stageId: interviews.stageId,
+      stageName: stages.name,
+      name: interviews.name,
+      scheduledAt: interviews.scheduledAt,
+      durationMinutes: interviews.durationMinutes,
+      meetingUrl: interviews.meetingUrl,
+      status: interviews.status,
+      reviewMarkdown: interviews.reviewMarkdown,
+      createdAt: interviews.createdAt,
+      updatedAt: interviews.updatedAt,
+    })
+    .from(interviews)
+    .innerJoin(
+      submissions,
+      eq(interviews.submissionId, submissions.id),
+    )
+    .innerJoin(stages, eq(interviews.stageId, stages.id))
+    .leftJoin(
+      officialCompanies,
+      eq(submissions.officialCompanyId, officialCompanies.id),
+    )
+    .leftJoin(
+      privateCompanies,
+      eq(submissions.privateCompanyId, privateCompanies.id),
+    )
+    .where(eq(interviews.userId, userId))
+    .orderBy(
+      desc(interviews.scheduledAt),
+      desc(interviews.createdAt),
+    );
 }

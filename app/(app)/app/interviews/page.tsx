@@ -1,13 +1,15 @@
-import { Video } from "lucide-react";
-
-import { ModulePlaceholder } from "@/components/app/module-placeholder";
+import { InterviewManager } from "@/components/interviews/interview-manager";
 
 export default function InterviewsPage() {
   return (
-    <ModulePlaceholder
-      title="面试"
-      description="管理测评、笔试和每一轮面试安排。"
-      icon={Video}
-    />
+    <div className="mx-auto max-w-7xl px-5 py-10">
+      <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
+        面试
+      </h1>
+      <p className="mt-2 text-sm text-[#687269]">
+        管理测评、笔试和每一轮面试安排。
+      </p>
+      <InterviewManager />
+    </div>
   );
 }

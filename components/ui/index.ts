@@ -24,3 +24,4 @@ export type {
   KnownStatus,
   StatusTone,
 } from "./status-badge";
+export { MarkdownEditor } from "./markdown-editor";
