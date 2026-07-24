@@ -43,7 +43,7 @@ export async function createSession(
 }
 
 export async function resolveSession(
-  repository: SessionRepository,
+  repository: Pick<SessionRepository, "findByTokenHash" | "deleteById">,
   rawToken: string,
   now = new Date(),
 ): Promise<SessionRecord | null> {
