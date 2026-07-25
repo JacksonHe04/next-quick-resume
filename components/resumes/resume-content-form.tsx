@@ -1,9 +1,15 @@
 "use client";
 
+import { Plus, Trash2 } from "lucide-react";
 import { type ReactNode, useState } from "react";
 
 import { cn } from "@/lib/utils";
+import {
+  getEducationItems,
+  withEducationItems,
+} from "@/modules/resumes/education";
 import type {
+  EducationItem,
   InternItem,
   ProjectItem,
   ResumeData,
@@ -96,6 +102,55 @@ function lines(value: string) {
   return value.split("\n");
 }
 
+function CollectionItem({
+  label,
+  onDelete,
+  children,
+}: {
+  label: string;
+  onDelete: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <div className="grid gap-3 rounded-lg border border-border bg-muted/20 p-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="truncate text-xs font-medium text-muted-foreground">
+          {label}
+        </span>
+        <button
+          type="button"
+          aria-label={`删除${label}`}
+          title={`删除${label}`}
+          onClick={onDelete}
+          className="grid size-7 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+        >
+          <Trash2 className="size-3.5" aria-hidden="true" />
+        </button>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function AddItemButton({
+  label,
+  onClick,
+}: {
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex h-9 w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border text-sm font-medium text-muted-foreground transition-colors hover:border-foreground/25 hover:bg-muted/45 hover:text-foreground"
+    >
+      <Plus className="size-4" aria-hidden="true" />
+      {label}
+    </button>
+  );
+}
+
 export function ResumeContentForm({
   data,
   onChange,
@@ -103,16 +158,43 @@ export function ResumeContentForm({
   data: ResumeData;
   onChange: (data: ResumeData) => void;
 }) {
-  const education = data.education ?? {
-    title: "教育经历",
-    school: "",
-    period: "",
-    details: "",
-  };
+  const educationTitle = data.education?.title ?? "教育经历";
+  const educationItems = getEducationItems(data.education);
   const intern = data.intern ?? { title: "实习经历", items: [] };
   const projects = data.projects ?? { title: "项目经历", items: [] };
   const skills = data.skills ?? { title: "专业技能", items: [] };
   const about = data.about ?? { title: "关于我", content: "" };
+
+  function updateEducation(index: number, patch: Partial<EducationItem>) {
+    const items = educationItems.map((item, itemIndex) =>
+      itemIndex === index ? { ...item, ...patch } : item,
+    );
+    onChange({
+      ...data,
+      education: withEducationItems(educationTitle, items),
+    });
+  }
+
+  function addEducation() {
+    const items = [
+      ...educationItems,
+      { school: "", base: "", period: "", details: "" },
+    ];
+    onChange({
+      ...data,
+      education: withEducationItems(educationTitle, items),
+    });
+  }
+
+  function removeEducation(index: number) {
+    const items = educationItems.filter(
+      (_, itemIndex) => itemIndex !== index,
+    );
+    onChange({
+      ...data,
+      education: withEducationItems(educationTitle, items),
+    });
+  }
 
   function updateIntern(index: number, patch: Partial<InternItem>) {
     onChange({
@@ -126,6 +208,36 @@ export function ResumeContentForm({
     });
   }
 
+  function addIntern() {
+    onChange({
+      ...data,
+      intern: {
+        ...intern,
+        items: [
+          ...intern.items,
+          {
+            company: "",
+            position: "",
+            period: "",
+            base: "",
+            description: "",
+            responsibilities: [""],
+          },
+        ],
+      },
+    });
+  }
+
+  function removeIntern(index: number) {
+    const items = intern.items.filter(
+      (_, itemIndex) => itemIndex !== index,
+    );
+    onChange({
+      ...data,
+      intern: items.length ? { ...intern, items } : undefined,
+    });
+  }
+
   function updateProject(index: number, patch: Partial<ProjectItem>) {
     onChange({
       ...data,
@@ -135,6 +247,34 @@ export function ResumeContentForm({
           itemIndex === index ? { ...item, ...patch } : item,
         ),
       },
+    });
+  }
+
+  function addProject() {
+    onChange({
+      ...data,
+      projects: {
+        ...projects,
+        items: [
+          ...projects.items,
+          {
+            name: "",
+            github: "",
+            description: "",
+            features: [""],
+          },
+        ],
+      },
+    });
+  }
+
+  function removeProject(index: number) {
+    const items = projects.items.filter(
+      (_, itemIndex) => itemIndex !== index,
+    );
+    onChange({
+      ...data,
+      projects: items.length ? { ...projects, items } : undefined,
     });
   }
 
@@ -271,42 +411,46 @@ export function ResumeContentForm({
       <FormSection title="教育经历" defaultOpen>
         <Field
           label="模块标题"
-          value={education.title}
+          value={educationTitle}
           onChange={(title) =>
-            onChange({ ...data, education: { ...education, title } })
+            onChange({
+              ...data,
+              education: withEducationItems(title, educationItems),
+            })
           }
         />
-        <div className="grid grid-cols-2 gap-3">
-          <Field
-            label="学校"
-            value={education.school}
-            onChange={(school) =>
-              onChange({ ...data, education: { ...education, school } })
-            }
-          />
-          <Field
-            label="地点"
-            value={education.base ?? ""}
-            onChange={(base) =>
-              onChange({ ...data, education: { ...education, base } })
-            }
-          />
-        </div>
-        <Field
-          label="时间"
-          value={education.period}
-          onChange={(period) =>
-            onChange({ ...data, education: { ...education, period } })
-          }
-        />
-        <TextAreaField
-          label="专业与学历"
-          rows={3}
-          value={education.details}
-          onChange={(details) =>
-            onChange({ ...data, education: { ...education, details } })
-          }
-        />
+        {educationItems.map((item, index) => (
+          <CollectionItem
+            key={`education-${index}`}
+            label={item.school || `教育经历 ${index + 1}`}
+            onDelete={() => removeEducation(index)}
+          >
+            <div className="grid grid-cols-2 gap-3">
+              <Field
+                label="学校"
+                value={item.school}
+                onChange={(school) => updateEducation(index, { school })}
+              />
+              <Field
+                label="地点"
+                value={item.base ?? ""}
+                onChange={(base) => updateEducation(index, { base })}
+              />
+            </div>
+            <Field
+              label="时间"
+              value={item.period}
+              onChange={(period) => updateEducation(index, { period })}
+            />
+            <TextAreaField
+              label="专业与学历"
+              rows={3}
+              value={item.details}
+              onChange={(details) => updateEducation(index, { details })}
+            />
+          </CollectionItem>
+        ))}
+        <AddItemButton label="新增教育经历" onClick={addEducation} />
       </FormSection>
 
       <FormSection title="实习经历">
@@ -318,9 +462,10 @@ export function ResumeContentForm({
           }
         />
         {intern.items.map((item, index) => (
-          <div
+          <CollectionItem
             key={`intern-${index}`}
-            className="grid gap-3 rounded-lg border border-border bg-muted/20 p-3"
+            label={item.company || `实习经历 ${index + 1}`}
+            onDelete={() => removeIntern(index)}
           >
             <div className="grid grid-cols-2 gap-3">
               <Field
@@ -360,8 +505,9 @@ export function ResumeContentForm({
               }
               rows={10}
             />
-          </div>
+          </CollectionItem>
         ))}
+        <AddItemButton label="新增实习经历" onClick={addIntern} />
       </FormSection>
 
       <FormSection title="项目经历">
@@ -373,9 +519,10 @@ export function ResumeContentForm({
           }
         />
         {projects.items.map((item, index) => (
-          <div
+          <CollectionItem
             key={`project-${index}`}
-            className="grid gap-3 rounded-lg border border-border bg-muted/20 p-3"
+            label={item.name || `项目经历 ${index + 1}`}
+            onDelete={() => removeProject(index)}
           >
             <Field
               label="项目名称"
@@ -412,8 +559,9 @@ export function ResumeContentForm({
               }
               rows={8}
             />
-          </div>
+          </CollectionItem>
         ))}
+        <AddItemButton label="新增项目经历" onClick={addProject} />
       </FormSection>
 
       <FormSection title="专业技能">

@@ -17,6 +17,14 @@ const contactSchema = z.object({
     .optional(),
 });
 
+const educationItemSchema = z.object({
+  school: z.string(),
+  base: optionalText,
+  period: z.string(),
+  details: z.string(),
+  image: optionalText,
+});
+
 const resumeDataSchema = z.object({
   header: z.object({
     name: z.string(),
@@ -36,11 +44,8 @@ const resumeDataSchema = z.object({
   education: z
     .object({
       title: z.string(),
-      school: z.string(),
-      base: optionalText,
-      period: z.string(),
-      details: z.string(),
-      image: optionalText,
+      ...educationItemSchema.shape,
+      items: z.array(educationItemSchema).optional(),
     })
     .optional(),
   skills: z

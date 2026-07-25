@@ -158,7 +158,10 @@ export function ResumeConfigSidebar({
         ))}
       </nav>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div
+        data-testid="resume-sidebar-scroll"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain"
+      >
         {mode === "layout" ? (
           <>
             <div className="grid gap-5 border-b border-border p-4">

@@ -41,6 +41,47 @@ describe("resume document schema", () => {
     expect(document.data.header.name).toBe("何锦诚");
   });
 
+  it("accepts multiple education entries while preserving legacy fields", () => {
+    const document = resumeDocumentV1Schema.parse({
+      schemaVersion: 1,
+      data: {
+        header: {
+          name: "何锦诚",
+          contact: { phone: "", email: "" },
+          jobInfo: {},
+        },
+        education: {
+          title: "教育经历",
+          school: "东南大学",
+          period: "2022–2026",
+          details: "本科",
+          items: [
+            {
+              school: "东南大学",
+              period: "2022–2026",
+              details: "本科",
+            },
+            {
+              school: "清华大学",
+              period: "2026–2029",
+              details: "硕士",
+            },
+          ],
+        },
+      },
+      displayConfig: {
+        sections: [
+          { key: "education", label: "教育经历", visible: true },
+        ],
+        sectionOrder: ["education"],
+        headerAlignment: "left",
+        photo: { showPhoto: false },
+      },
+    });
+
+    expect(document.data.education?.items).toHaveLength(2);
+  });
+
   it("rejects an unsupported schema version", () => {
     expect(() =>
       resumeDocumentV1Schema.parse({

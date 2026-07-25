@@ -46,7 +46,7 @@ export function ResumeListSidebar({
   }
 
   return (
-    <div className="h-full overflow-y-auto bg-background p-3">
+    <div className="min-h-full bg-background p-3">
       <div className="space-y-2">
         {sorted.map((resume) => {
           const active = resume.id === currentId;

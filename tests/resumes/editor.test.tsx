@@ -149,6 +149,56 @@ describe("resume editor", () => {
     );
   });
 
+  it("adds and removes education, internship, and project entries", async () => {
+    const user = userEvent.setup();
+    const save = vi.fn().mockResolvedValue({ version: 2 });
+    render(<ResumeEditor initial={initial} save={save} autosaveDelay={10} />);
+
+    await user.click(screen.getByRole("button", { name: "内容" }));
+
+    await user.click(
+      screen.getByRole("button", { name: "新增教育经历" }),
+    );
+    expect(screen.getAllByLabelText("学校")).toHaveLength(1);
+    await user.click(
+      screen.getByRole("button", { name: "删除教育经历 1" }),
+    );
+    expect(screen.queryByLabelText("学校")).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText("实习经历编辑区域"));
+    await user.click(
+      screen.getByRole("button", { name: "新增实习经历" }),
+    );
+    expect(screen.getAllByLabelText("公司")).toHaveLength(1);
+    await user.click(
+      screen.getByRole("button", { name: "删除实习经历 1" }),
+    );
+    expect(screen.queryByLabelText("公司")).not.toBeInTheDocument();
+
+    await user.click(screen.getByLabelText("项目经历编辑区域"));
+    await user.click(
+      screen.getByRole("button", { name: "新增项目经历" }),
+    );
+    expect(screen.getAllByLabelText("项目名称")).toHaveLength(1);
+    await user.click(
+      screen.getByRole("button", { name: "删除项目经历 1" }),
+    );
+    expect(screen.queryByLabelText("项目名称")).not.toBeInTheDocument();
+  });
+
+  it("contains sidebar and preview scrolling inside the editor", () => {
+    render(<ResumeEditor initial={initial} />);
+
+    expect(screen.getByTestId("resume-sidebar-scroll")).toHaveClass(
+      "overflow-y-auto",
+      "overscroll-y-contain",
+    );
+    expect(screen.getByRole("main", { name: "简历预览" })).toHaveClass(
+      "overflow-y-auto",
+      "overscroll-y-contain",
+    );
+  });
+
   it("does not save an unchanged resume when Strict Mode replays effects", async () => {
     const save = vi.fn().mockResolvedValue({ version: 2 });
 
@@ -190,6 +240,43 @@ describe("resume editor", () => {
     expect(title).toHaveClass("border-black");
     expect(list).toHaveClass("list-decimal");
     expect(screen.getByText("React").tagName).toBe("STRONG");
+  });
+
+  it("renders multiple education entries in the preview", () => {
+    const document = structuredClone(initial.document);
+    document.data.education = {
+      title: "教育经历",
+      school: "东南大学",
+      period: "2022–2026",
+      details: "本科",
+      items: [
+        {
+          school: "东南大学",
+          period: "2022–2026",
+          details: "本科",
+        },
+        {
+          school: "清华大学",
+          period: "2026–2029",
+          details: "硕士",
+        },
+      ],
+    };
+    document.displayConfig.sections.push({
+      key: "education",
+      label: "教育经历",
+      visible: true,
+    });
+    document.displayConfig.sectionOrder.push("education");
+
+    render(<ResumePreview document={document} />);
+
+    expect(
+      screen.getByRole("heading", { name: "东南大学" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "清华大学" }),
+    ).toBeVisible();
   });
 
   it("keeps the photo inside a header-sized frame for printing", () => {

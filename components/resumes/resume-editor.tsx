@@ -16,6 +16,7 @@ import { ResumePreview } from "@/components/resumes/resume-preview";
 import { ResumeTopbar } from "@/components/resumes/resume-topbar";
 import { appFetch } from "@/lib/app-fetch";
 import { cn } from "@/lib/utils";
+import { getEducationItems } from "@/modules/resumes/education";
 import { getResumePhotoValidationError } from "@/modules/resumes/photo";
 import type { ResumeRecord } from "@/modules/resumes/service";
 import type {
@@ -73,13 +74,15 @@ function toMarkdown(data: ResumeData) {
     );
   }
   if (data.education) {
-    lines.push(
-      "",
-      `## ${data.education.title}`,
-      `${data.education.school} · ${data.education.period}`,
-      "",
-      data.education.details,
-    );
+    lines.push("", `## ${data.education.title}`);
+    getEducationItems(data.education).forEach((item) => {
+      lines.push(
+        "",
+        `${item.school} · ${item.period}`,
+        "",
+        item.details,
+      );
+    });
   }
   if (data.skills) {
     lines.push(
@@ -265,7 +268,7 @@ export function ResumeEditor({
   }
 
   return (
-    <div className="relative flex h-[calc(100dvh-4rem)] flex-col overflow-hidden bg-background print:h-auto print:overflow-visible">
+    <div className="relative flex h-[calc(100dvh-4rem)] flex-col overflow-hidden overscroll-none bg-background print:h-auto print:overflow-visible">
       <ResumeTopbar
         editorHref={`/app/resumes/${initial.id}`}
         name={name}
@@ -327,7 +330,7 @@ export function ResumeEditor({
         <section
           role="main"
           aria-label="简历预览"
-          className="relative min-w-0 flex-1 overflow-y-auto bg-muted/35 print:overflow-visible print:bg-transparent"
+          className="relative min-w-0 flex-1 overflow-y-auto overscroll-y-contain bg-muted/35 print:overflow-visible print:bg-transparent"
         >
           <div className="p-4 sm:p-6 md:p-8 print:p-0">
             <ResumePreview document={document} />

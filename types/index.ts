@@ -33,14 +33,20 @@ export interface HeaderData {
   jobInfo: JobInfo
 }
 
-// 教育经历数据接口
-export interface EducationData {
-  title: string
+// 单条教育经历数据接口
+export interface EducationItem {
   school: string
   base?: string
   period: string
   details: string
   image?: string
+}
+
+// 教育经历数据接口
+export interface EducationData extends EducationItem {
+  title: string
+  /** 新版编辑器使用的完整经历列表；缺省时兼容上方的单条旧数据。 */
+  items?: EducationItem[]
 }
 
 // 技能数据接口

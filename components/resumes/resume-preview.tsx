@@ -2,6 +2,7 @@ import Image from "next/image";
 
 import { renderSafeInlineMarkdown } from "@/lib/markdown";
 import { cn } from "@/lib/utils";
+import { getEducationItems } from "@/modules/resumes/education";
 import type { ResumeDocumentV1, ResumeSectionKey } from "@/types";
 
 const sectionTitleClass =
@@ -176,33 +177,37 @@ function EducationSection({
 }) {
   const education = document.data.education;
   if (!education) return null;
+  const items = getEducationItems(education);
+  if (items.length === 0) return null;
   return (
     <section className={sectionClass}>
       <SectionTitle>{education.title}</SectionTitle>
-      <div className={itemClass}>
-        <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
-          <div className="flex flex-wrap items-center gap-2">
-            {education.image ? (
-              <Image
-                src={education.image}
-                alt={`${education.school} logo`}
-                width={36}
-                height={36}
-                unoptimized
-                className="shrink-0 object-contain"
-              />
-            ) : null}
-            <h3 className="text-base font-bold leading-none sm:text-lg">
-              {education.school}
-            </h3>
+      {items.map((item, index) => (
+        <div className={itemClass} key={`${item.school}-${index}`}>
+          <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
+            <div className="flex flex-wrap items-center gap-2">
+              {item.image ? (
+                <Image
+                  src={item.image}
+                  alt={`${item.school} logo`}
+                  width={36}
+                  height={36}
+                  unoptimized
+                  className="shrink-0 object-contain"
+                />
+              ) : null}
+              <h3 className="text-base font-bold leading-none sm:text-lg">
+                {item.school}
+              </h3>
+            </div>
+            <div className="flex flex-wrap items-center gap-1">
+              <span className={mutedTextClass}>{item.base}</span>
+              <span className={mutedTextClass}>｜{item.period}</span>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-1">
-            <span className={mutedTextClass}>{education.base}</span>
-            <span className={mutedTextClass}>｜{education.period}</span>
-          </div>
+          <p className={bodyTextClass}>{item.details}</p>
         </div>
-        <p className={bodyTextClass}>{education.details}</p>
-      </div>
+      ))}
     </section>
   );
 }
