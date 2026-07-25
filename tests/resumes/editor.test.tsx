@@ -1,6 +1,7 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { StrictMode } from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ResumeEditor } from "@/components/resumes/resume-editor";
 import type { ResumeRecord } from "@/modules/resumes/service";
@@ -32,7 +33,37 @@ const initial: ResumeRecord = {
   },
 };
 
+afterEach(cleanup);
+
 describe("resume editor", () => {
+  it("restores the configuration, preview, and resume switcher columns", () => {
+    render(
+      <ResumeEditor
+        initial={initial}
+        availableResumes={[
+          initial,
+          {
+            ...initial,
+            id: "resume-b",
+            name: "市场简历",
+          },
+        ]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("complementary", { name: "简历配置" }),
+    ).toBeVisible();
+    expect(screen.getByRole("main", { name: "简历预览" })).toBeVisible();
+    expect(
+      screen.getByRole("complementary", { name: "切换简历" }),
+    ).toBeVisible();
+    expect(screen.getByLabelText("上传头像")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "切换到市场简历" }),
+    ).toHaveAttribute("href", "/app/resumes/resume-b");
+  });
+
   it("keeps the local draft and offers retry after a save failure", async () => {
     const user = userEvent.setup();
     const save = vi.fn().mockRejectedValue(new Error("offline"));
@@ -42,5 +73,18 @@ describe("resume editor", () => {
 
     expect(await screen.findByText("保存失败，重试")).toBeVisible();
     expect(screen.getByLabelText("姓名")).toHaveValue("Jackson何");
+  });
+
+  it("does not save an unchanged resume when Strict Mode replays effects", async () => {
+    const save = vi.fn().mockResolvedValue({ version: 2 });
+
+    render(
+      <StrictMode>
+        <ResumeEditor initial={initial} save={save} autosaveDelay={1} />
+      </StrictMode>,
+    );
+
+    await new Promise((resolve) => window.setTimeout(resolve, 20));
+    expect(save).not.toHaveBeenCalled();
   });
 });

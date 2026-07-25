@@ -22,21 +22,16 @@ test("creates, edits, and clones an independent resume", async ({
   await expect(page.getByRole("status")).toContainText("已保存");
 
   await page.getByRole("link", { name: "返回简历列表" }).click();
-  const resumeLink = page.getByRole("link", {
-    name: editedName,
-    exact: true,
+  const resumeRow = page.getByRole("row").filter({
+    hasText: editedName,
   });
-  await expect(resumeLink).toBeVisible();
-  const resumeCard = resumeLink.locator(
-    "xpath=ancestor::*[.//button[@aria-label='克隆简历']][1]",
-  );
-  await expect(resumeCard.getByText(candidateName)).toBeVisible();
-  await resumeCard.getByRole("button", { name: "克隆简历" }).click();
+  await expect(resumeRow).toHaveCount(1);
+  await expect(resumeRow.getByText(candidateName)).toBeVisible();
+  await resumeRow.getByRole("button", { name: "克隆简历" }).click();
 
   await expect(
-    page.getByRole("link", {
-      name: `${editedName}（副本）`,
-      exact: true,
+    page.getByRole("button", {
+      name: `编辑简历名称：${editedName}（副本）`,
     }),
   ).toBeVisible();
 });

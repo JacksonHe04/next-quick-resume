@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 import type { ResumeDocumentV1, ResumeSectionKey } from "@/types";
 
 function Title({ children }: { children: React.ReactNode }) {
@@ -23,36 +25,62 @@ export function ResumePreview({
   const sections: Partial<Record<ResumeSectionKey, React.ReactNode>> = {
     header: (
       <header
-        className={
-          displayConfig.headerAlignment === "center"
-            ? "text-center"
-            : "text-left"
-        }
+        className={`flex gap-8 ${
+          displayConfig.photo.showPhoto
+            ? "items-start justify-between"
+            : ""
+        }`}
       >
-        <h1 className="font-serif text-4xl font-bold">{data.header.name}</h1>
-        <p className="mt-2 text-lg text-[#687269]">
-          {data.header.jobInfo.position}
-        </p>
         <div
-          className={`mt-4 flex flex-wrap gap-x-7 gap-y-1 text-sm ${
+          className={`min-w-0 flex-1 ${
             displayConfig.headerAlignment === "center"
-              ? "justify-center"
-              : ""
+              ? "text-center"
+              : "text-left"
           }`}
         >
-          {data.header.contact.phone ? (
-            <span>电话 / 微信：{data.header.contact.phone}</span>
-          ) : null}
-          {data.header.contact.email ? (
-            <span>邮箱：{data.header.contact.email}</span>
-          ) : null}
-          {data.header.contact.github ? (
-            <span>GitHub：{data.header.contact.github.text}</span>
-          ) : null}
-          {data.header.contact.homepage ? (
-            <span>主页：{data.header.contact.homepage.text}</span>
-          ) : null}
+          <h1 className="font-serif text-4xl font-bold">
+            {data.header.name}
+          </h1>
+          <p className="mt-2 text-lg text-[#687269]">
+            {data.header.jobInfo.position}
+          </p>
+          <div
+            className={`mt-4 flex flex-wrap gap-x-7 gap-y-1 text-sm ${
+              displayConfig.headerAlignment === "center"
+                ? "justify-center"
+                : ""
+            }`}
+          >
+            {data.header.contact.phone ? (
+              <span>电话 / 微信：{data.header.contact.phone}</span>
+            ) : null}
+            {data.header.contact.email ? (
+              <span>邮箱：{data.header.contact.email}</span>
+            ) : null}
+            {data.header.contact.github ? (
+              <span>GitHub：{data.header.contact.github.text}</span>
+            ) : null}
+            {data.header.contact.homepage ? (
+              <span>主页：{data.header.contact.homepage.text}</span>
+            ) : null}
+          </div>
         </div>
+        {displayConfig.photo.showPhoto ? (
+          <div className="grid h-36 w-28 shrink-0 place-items-center overflow-hidden rounded-md border border-[#dfe4dd] bg-[#f4f6f2] text-xs text-[#879087]">
+            {displayConfig.photo.photoData ? (
+              <Image
+                src={displayConfig.photo.photoData}
+                alt={`${data.header.name}的头像`}
+                width={112}
+                height={144}
+                unoptimized
+                className="size-full object-cover"
+              />
+            ) : (
+              "头像"
+            )}
+          </div>
+        ) : null}
       </header>
     ),
     education: data.education ? (

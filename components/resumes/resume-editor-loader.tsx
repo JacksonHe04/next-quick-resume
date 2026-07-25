@@ -8,20 +8,33 @@ import type { ResumeRecord } from "@/modules/resumes/service";
 
 export function ResumeEditorLoader({ id }: { id: string }) {
   const [resume, setResume] = useState<ResumeRecord>();
+  const [resumes, setResumes] = useState<ResumeRecord[]>([]);
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
-    const response = await appFetch(`/api/resumes/${id}`, {
-      cache: "no-store",
-    });
+    const [response, listResponse] = await Promise.all([
+      appFetch(`/api/resumes/${id}`, { cache: "no-store" }),
+      appFetch("/api/resumes", { cache: "no-store" }),
+    ]);
     const payload = (await response.json().catch(() => ({}))) as {
       resume?: ResumeRecord;
       error?: { message?: string };
     };
-    if (!response.ok || !payload.resume) {
+    const listPayload = (await listResponse
+      .json()
+      .catch(() => ({}))) as {
+      resumes?: ResumeRecord[];
+    };
+    if (
+      !response.ok ||
+      !payload.resume ||
+      !listResponse.ok ||
+      !listPayload.resumes
+    ) {
       throw new Error(payload.error?.message ?? "简历不存在");
     }
     setResume(payload.resume);
+    setResumes(listPayload.resumes);
   }, [id]);
 
   useEffect(() => {
@@ -42,5 +55,11 @@ export function ResumeEditorLoader({ id }: { id: string }) {
       <div className="min-h-screen animate-pulse bg-[#eef2eb]" />
     );
   }
-  return <ResumeEditor initial={resume} />;
+  return (
+    <ResumeEditor
+      key={resume.id}
+      initial={resume}
+      availableResumes={resumes}
+    />
+  );
 }
