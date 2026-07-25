@@ -20,8 +20,8 @@ export default defineConfig({
   webServer: local
     ? [
         {
-          name: "Cloudflare D1 gateway",
-          command: "pnpm dev:worker",
+          name: "Isolated E2E D1 gateway",
+          command: "pnpm e2e:worker",
           url: "http://127.0.0.1:8787/health",
           reuseExistingServer: false,
           timeout: 120_000,

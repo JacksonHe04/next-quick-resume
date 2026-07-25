@@ -84,48 +84,27 @@ cp .env.example .env.local
 | `RESEND_API_KEY` | Resend API Key，用于发送注册验证码和密码重置邮件 |
 | `RESEND_FROM_EMAIL` | Resend 已验证的发件地址 |
 | `SESSION_SECRET` | 会话签名密钥，请使用足够长的随机值 |
-| `D1_GATEWAY_URL` | D1 网关地址；本地默认使用 `http://127.0.0.1:8787` |
+| `D1_GATEWAY_URL` | 线上 D1 网关地址；本地开发与线上环境均使用已部署的 Production Worker |
 | `D1_GATEWAY_TOKEN` | Next.js 应用访问 D1 网关的 Bearer Token |
 | `SAYLESS_DEV_LOGIN_EMAIL` | 可选；仅开发环境使用的快捷登录邮箱 |
 | `SAYLESS_DEV_LOGIN_PASSWORD` | 可选；仅服务端读取的开发快捷登录密码 |
 
-本地 Worker 从 `.dev.vars` 读取同一个 `D1_GATEWAY_TOKEN`。该值必须与 `.env.local` 中的值一致：
+本地开发不启动 Cloudflare Worker，也不使用本地 D1。`D1_GATEWAY_URL`
+直接指向已部署的 Production Worker，`D1_GATEWAY_TOKEN` 必须与线上
+Worker Secret 保持一致。
 
-```dotenv
-D1_GATEWAY_TOKEN=replace-with-a-local-secret
-```
-
-> `.env.local` 与 `.dev.vars` 均不会提交到 Git。不要在仓库中保存真实密钥。
+> `.env.local` 不会提交到 Git。不要在仓库中保存真实密钥。
 
 如果同时配置两个 `SAYLESS_DEV_LOGIN_*` 变量，开发环境访问
 `/login` 时会自动创建该账号的本地会话。快捷登录接口在
 Production 构建中始终关闭，密码不会发送到浏览器。建议将个人配置
 放在优先级更高且同样被忽略的 `.env.development.local` 中。
 
-### 3. 初始化本地 D1
+### 3. 启动开发环境
+
+只需启动 Next.js；应用会通过 HTTPS 直接访问 Production Worker：
 
 ```bash
-pnpm db:seed:local
-```
-
-该命令会应用本地迁移、导入官方目录，并创建演示账户。默认凭据为：
-
-```text
-邮箱：demo@local.sayless.app
-密码：sayless-demo-2026
-```
-
-如需自定义，可在执行命令时设置 `SAYLESS_DEMO_EMAIL` 和 `SAYLESS_DEMO_PASSWORD`。
-
-### 4. 启动开发环境
-
-需要同时运行 D1 网关和 Next.js 应用：
-
-```bash
-# 终端 1：Cloudflare Worker / D1 网关
-pnpm dev:worker
-
-# 终端 2：Next.js
 pnpm dev
 ```
 
@@ -135,20 +114,19 @@ pnpm dev
 
 | 命令 | 说明 |
 | --- | --- |
-| `pnpm dev` | 启动 Next.js 开发服务器 |
-| `pnpm dev:worker` | 在 `8787` 端口启动本地 D1 网关 |
+| `pnpm dev` | 启动 Next.js 开发服务器，并连接 Production Worker / D1 |
 | `pnpm build` | 构建 Next.js 应用 |
 | `pnpm build:worker` | dry-run 构建 Cloudflare Worker |
 | `pnpm start` | 启动 Next.js 生产服务器 |
 | `pnpm db:generate` | 根据 Drizzle Schema 生成迁移 |
-| `pnpm db:migrate:local` | 将迁移应用到本地 D1 |
-| `pnpm db:seed:local` | 迁移并填充本地 D1 |
+| `pnpm db:migrate:local` | 将迁移应用到 E2E 隔离用的本地 D1 |
+| `pnpm db:seed:local` | 迁移并填充 E2E 隔离用的本地 D1 |
 | `pnpm lint` | 运行 ESLint |
 | `pnpm typecheck` | 运行 TypeScript 类型检查 |
 | `pnpm check` | 依次运行 lint 与类型检查 |
 | `pnpm test` | 运行 Vitest 测试 |
 | `pnpm test:watch` | 以监听模式运行 Vitest |
-| `pnpm e2e` | 准备本地数据并运行 Playwright E2E 测试 |
+| `pnpm e2e` | 准备隔离的本地数据并运行 Playwright E2E 测试 |
 | `pnpm e2e:production` | 对 `BASE_URL` 指向的环境运行生产冒烟测试 |
 | `pnpm cf-typegen` | 生成 Cloudflare 环境类型 |
 | `pnpm deploy:worker` | 部署 D1 网关 Worker |
