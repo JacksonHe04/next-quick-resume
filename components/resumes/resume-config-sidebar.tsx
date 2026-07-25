@@ -16,7 +16,6 @@ import { type ChangeEvent, useState } from "react";
 import { cn } from "@/lib/utils";
 import type {
   HeaderAlignment,
-  HeaderButtonConfig,
   ResumeData,
   ResumeDisplayConfig,
   ResumeSectionKey,
@@ -89,19 +88,6 @@ export function ResumeConfigSidebar({
     onConfigChange({ ...config, headerAlignment: alignment });
   }
 
-  function updateButton(changes: Partial<HeaderButtonConfig>) {
-    onConfigChange({
-      ...config,
-      headerButton: {
-        enabled: false,
-        text: "",
-        url: "",
-        ...config.headerButton,
-        ...changes,
-      },
-    });
-  }
-
   function toggleSection(key: ResumeSectionKey) {
     onConfigChange({
       ...config,
@@ -132,12 +118,6 @@ export function ResumeConfigSidebar({
     onConfigChange({ ...config, sectionOrder });
     setDraggedIndex(target);
   }
-
-  const button = config.headerButton ?? {
-    enabled: false,
-    text: "",
-    url: "",
-  };
 
   return (
     <div className="flex h-full w-full flex-col bg-white">
@@ -227,46 +207,6 @@ export function ResumeConfigSidebar({
                 ) : null}
               </div>
 
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-700">
-                    显示头部按钮
-                  </h3>
-                  <Switch
-                    label="显示头部按钮"
-                    checked={button.enabled}
-                    onChange={(enabled) => updateButton({ enabled })}
-                  />
-                </div>
-                {button.enabled ? (
-                  <div className="space-y-3 rounded-lg bg-gray-50 p-3">
-                    <label className="block">
-                      <span className="mb-1 block text-xs font-medium text-gray-600">
-                        按钮文本
-                      </span>
-                      <input
-                        value={button.text}
-                        onChange={(event) =>
-                          updateButton({ text: event.target.value })
-                        }
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </label>
-                    <label className="block">
-                      <span className="mb-1 block text-xs font-medium text-gray-600">
-                        链接地址
-                      </span>
-                      <input
-                        value={button.url}
-                        onChange={(event) =>
-                          updateButton({ url: event.target.value })
-                        }
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
-                      />
-                    </label>
-                  </div>
-                ) : null}
-              </div>
             </div>
 
             <div className="p-4">

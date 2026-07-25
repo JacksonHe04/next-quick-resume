@@ -107,13 +107,6 @@ const displayConfigSchema = z.object({
     showPhoto: z.boolean(),
     photoData: optionalText,
   }),
-  headerButton: z
-    .object({
-      enabled: z.boolean(),
-      text: z.string(),
-      url: z.string(),
-    })
-    .optional(),
 });
 
 export const resumeDocumentV1Schema: z.ZodType<ResumeDocumentV1> =

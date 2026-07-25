@@ -50,4 +50,32 @@ describe("resume document schema", () => {
       }),
     ).toThrow();
   });
+
+  it("drops the removed header button from legacy documents", () => {
+    const document = resumeDocumentV1Schema.parse({
+      schemaVersion: 1,
+      data: {
+        header: {
+          name: "何锦诚",
+          contact: { phone: "", email: "" },
+          jobInfo: {},
+        },
+      },
+      displayConfig: {
+        sections: [
+          { key: "header", label: "基本信息", visible: true },
+        ],
+        sectionOrder: ["header"],
+        headerAlignment: "left",
+        photo: { showPhoto: false },
+        headerButton: {
+          enabled: true,
+          text: "已移除的按钮",
+          url: "https://example.com",
+        },
+      },
+    });
+
+    expect(document.displayConfig).not.toHaveProperty("headerButton");
+  });
 });

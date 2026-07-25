@@ -71,6 +71,9 @@ describe("resume editor", () => {
     await user.click(screen.getByRole("switch", { name: "显示照片" }));
     expect(screen.getByLabelText("上传头像")).toBeInTheDocument();
     expect(
+      screen.queryByRole("switch", { name: "显示头部按钮" }),
+    ).not.toBeInTheDocument();
+    expect(
       screen.getByRole("link", { name: "切换到市场简历" }),
     ).toHaveAttribute("href", "/app/resumes/resume-b");
   });
@@ -158,7 +161,7 @@ describe("resume editor", () => {
       "inset-0",
       "h-full",
       "w-full",
-      "object-contain",
+      "object-cover",
     );
   });
 });

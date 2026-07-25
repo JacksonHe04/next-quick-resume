@@ -2,11 +2,7 @@ import Image from "next/image";
 
 import { renderSafeMarkdown } from "@/lib/markdown";
 import { cn } from "@/lib/utils";
-import type {
-  HeaderButtonConfig,
-  ResumeDocumentV1,
-  ResumeSectionKey,
-} from "@/types";
+import type { ResumeDocumentV1, ResumeSectionKey } from "@/types";
 
 const sectionTitleClass =
   "mb-2 border-b border-black py-1 text-lg font-bold text-black sm:text-xl";
@@ -63,12 +59,6 @@ function ResumeLink({
   );
 }
 
-function normalizeButtonUrl(button: HeaderButtonConfig): string {
-  if (!button.url) return "#";
-  if (/^https?:\/\//u.test(button.url)) return button.url;
-  return `https://${button.url}`;
-}
-
 function HeaderSection({
   document,
 }: {
@@ -77,27 +67,10 @@ function HeaderSection({
   const { data, displayConfig } = document;
   const { contact, jobInfo, name } = data.header;
   const alignment = displayConfig.headerAlignment ?? "left";
-  const button = displayConfig.headerButton;
   const alignmentClasses =
     alignment === "center"
       ? "items-center text-center"
       : "items-start text-left";
-
-  const headerButton =
-    button?.enabled && button.text ? (
-      <a
-        href={normalizeButtonUrl(button)}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center rounded-lg border-2 border-transparent bg-transparent px-4 py-1.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:opacity-80"
-        style={{
-          background:
-            "linear-gradient(white, white) padding-box, linear-gradient(135deg, #2f59b6 0%, #3a8eff 33%, #00cad3 66%, #7ae7df 100%) border-box",
-        }}
-      >
-        {button.text}
-      </a>
-    ) : null;
 
   return (
     <header className="mb-0">
@@ -144,96 +117,29 @@ function HeaderSection({
               </p>
             </div>
 
-            {alignment === "center" && headerButton ? (
-              <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
-                <div
-                  className="hidden w-full sm:grid"
-                  style={{
-                    gridTemplateColumns: "1fr auto 1fr",
-                    gap: "1rem",
-                  }}
-                >
-                  <div className="flex items-center justify-end">
-                    {contact.homepage ? (
-                      <p className={bodyTextClass}>
-                        <b>主页：</b>
-                        <ResumeLink href={contact.homepage.url}>
-                          {contact.homepage.text}
-                        </ResumeLink>
-                      </p>
-                    ) : null}
-                  </div>
-                  <div className="flex items-center justify-center">
-                    {headerButton}
-                  </div>
-                  <div className="flex items-center justify-start">
-                    {contact.github ? (
-                      <p className={bodyTextClass}>
-                        <b>GitHub:</b>&nbsp;
-                        <ResumeLink href={contact.github.url}>
-                          {contact.github.text}
-                        </ResumeLink>
-                      </p>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="space-y-2 sm:hidden">
-                  {contact.homepage ? (
-                    <p className={bodyTextClass}>
-                      <b>主页：</b>
-                      <ResumeLink href={contact.homepage.url}>
-                        {contact.homepage.text}
-                      </ResumeLink>
-                    </p>
-                  ) : null}
-                  {contact.github ? (
-                    <p className={bodyTextClass}>
-                      <b>GitHub:</b>&nbsp;
-                      <ResumeLink href={contact.github.url}>
-                        {contact.github.text}
-                      </ResumeLink>
-                    </p>
-                  ) : null}
-                </div>
-              </div>
-            ) : (
-              <div
-                className={cn(
-                  "flex flex-col gap-2 sm:flex-row sm:gap-4",
-                  alignment === "center" && "sm:justify-center",
-                )}
-              >
-                <div className="flex flex-col gap-2 sm:flex-row sm:gap-8">
-                  {contact.homepage ? (
-                    <p className={bodyTextClass}>
-                      <b>主页：</b>
-                      <ResumeLink href={contact.homepage.url}>
-                        {contact.homepage.text}
-                      </ResumeLink>
-                    </p>
-                  ) : null}
-                  {contact.github ? (
-                    <p className={bodyTextClass}>
-                      <b>GitHub:</b>&nbsp;
-                      <ResumeLink href={contact.github.url}>
-                        {contact.github.text}
-                      </ResumeLink>
-                    </p>
-                  ) : null}
-                </div>
-                {headerButton ? (
-                  <div className="hidden flex-1 justify-center sm:flex">
-                    {headerButton}
-                  </div>
-                ) : null}
-              </div>
-            )}
-
-            {headerButton ? (
-              <div className="mt-2 flex justify-center sm:hidden">
-                {headerButton}
-              </div>
-            ) : null}
+            <div
+              className={cn(
+                "flex flex-col gap-2 sm:flex-row sm:gap-8",
+                alignment === "center" && "sm:justify-center",
+              )}
+            >
+              {contact.homepage ? (
+                <p className={bodyTextClass}>
+                  <b>主页：</b>
+                  <ResumeLink href={contact.homepage.url}>
+                    {contact.homepage.text}
+                  </ResumeLink>
+                </p>
+              ) : null}
+              {contact.github ? (
+                <p className={bodyTextClass}>
+                  <b>GitHub:</b>&nbsp;
+                  <ResumeLink href={contact.github.url}>
+                    {contact.github.text}
+                  </ResumeLink>
+                </p>
+              ) : null}
+            </div>
           </div>
         </div>
 
@@ -249,7 +155,7 @@ function HeaderSection({
                 width={128}
                 height={160}
                 unoptimized
-                className="resume-photo-image absolute inset-0 h-full w-full object-contain"
+                className="resume-photo-image absolute inset-0 h-full w-full object-cover"
               />
             ) : (
               <div className="absolute inset-0 grid place-items-center bg-gray-50 text-xs text-gray-400">

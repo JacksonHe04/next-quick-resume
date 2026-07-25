@@ -24,7 +24,6 @@ export const defaultResumeDisplayConfig: ResumeDisplayConfig = {
   ],
   headerAlignment: "left",
   photo: { showPhoto: false },
-  headerButton: { enabled: false, text: "", url: "" },
 };
 
 export function createDefaultResumeDocument(): ResumeDocumentV1 {
