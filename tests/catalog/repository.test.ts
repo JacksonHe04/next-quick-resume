@@ -34,9 +34,8 @@ function limitStatementParameters(
       },
       run: () => statement.run(),
       all: () => statement.all(),
-      first: (column?: string) => statement.first(column),
-      raw: (options?: { columnNames?: boolean }) =>
-        statement.raw(options),
+      first: statement.first.bind(statement),
+      raw: statement.raw.bind(statement),
     } as D1PreparedStatement;
   }
 
@@ -127,6 +126,36 @@ describe("D1 catalog repository", () => {
     ).resolves.toHaveLength(25);
   });
 
+  it("searches official companies in semantic priority order", async () => {
+    await database.insert(officialCompanies).values([
+      {
+        id: "official-search-unranked",
+        name: "Aardvark Unranked",
+        normalizedName: "aardvark unranked",
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: "official-search-big",
+        name: "Zulu Big",
+        normalizedName: "zulu big",
+        priority: "Big",
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+
+    const companies = await repository.searchOfficial("company", "");
+
+    expect(companies.map((company) => company.name)).toEqual([
+      "OpenAI",
+      "Zulu Big",
+      "Aardvark Unranked",
+    ]);
+  });
+
   it("lists official companies with cities and related submission counts", async () => {
     await database.insert(officialCities).values({
       id: "city-sf",
@@ -179,6 +208,46 @@ describe("D1 catalog repository", () => {
         cities: ["San Francisco"],
         submissionCount: 1,
       }),
+    ]);
+  });
+
+  it("lists official companies in semantic priority order", async () => {
+    await database.insert(officialCompanies).values([
+      {
+        id: "official-unranked",
+        name: "Aardvark Unranked",
+        normalizedName: "aardvark unranked",
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: "official-big",
+        name: "Zulu Big",
+        normalizedName: "zulu big",
+        priority: "Big",
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      },
+      {
+        id: "official-hardware",
+        name: "Beta Hardware",
+        normalizedName: "beta hardware",
+        priority: "Hardware",
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      },
+    ]);
+
+    const companies = await listOfficialCompanies(database);
+
+    expect(companies.map((company) => company.name)).toEqual([
+      "OpenAI",
+      "Zulu Big",
+      "Beta Hardware",
+      "Aardvark Unranked",
     ]);
   });
 

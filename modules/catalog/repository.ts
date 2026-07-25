@@ -4,6 +4,7 @@ import {
   count,
   eq,
   like,
+  sql,
 } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 
@@ -24,6 +25,22 @@ import type {
 
 type Database = DrizzleD1Database<typeof schema>;
 const RESULT_LIMIT = 200;
+
+function officialCompanyPriorityOrder() {
+  return sql<number>`case ${officialCompanies.priority}
+    when 'Top' then 0
+    when 'Big' then 1
+    when 'Hardware' then 2
+    when 'AI' then 3
+    when 'Middle' then 4
+    when 'Foreign' then 5
+    when 'State Owned' then 6
+    when 'Starup' then 7
+    when 'Other' then 8
+    when 'Game' then 9
+    else 10
+  end`;
+}
 
 export type OfficialCompany = {
   id: string;
@@ -60,7 +77,10 @@ export function createCatalogRepository(
               like(officialCompanies.normalizedName, pattern),
             ),
           )
-          .orderBy(asc(officialCompanies.name))
+          .orderBy(
+            officialCompanyPriorityOrder(),
+            asc(officialCompanies.name),
+          )
           .limit(RESULT_LIMIT);
       }
       return database
@@ -210,7 +230,10 @@ export async function listOfficialCompanies(
     })
     .from(officialCompanies)
     .where(eq(officialCompanies.isActive, true))
-    .orderBy(asc(officialCompanies.name));
+    .orderBy(
+      officialCompanyPriorityOrder(),
+      asc(officialCompanies.name),
+    );
 
   if (companies.length === 0) return [];
 
