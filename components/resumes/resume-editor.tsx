@@ -18,6 +18,7 @@ import {
 } from "@/components/resumes/resume-topbar";
 import { appFetch } from "@/lib/app-fetch";
 import { cn } from "@/lib/utils";
+import { getResumePhotoValidationError } from "@/modules/resumes/photo";
 import type { ResumeRecord } from "@/modules/resumes/service";
 import type {
   ResumeData,
@@ -232,12 +233,9 @@ export function ResumeEditor({
   function changePhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setPhotoError("请选择 JPG、PNG 或 WebP 图片");
-      return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-      setPhotoError("头像不能超过 2 MB");
+    const validationError = getResumePhotoValidationError(file);
+    if (validationError) {
+      setPhotoError(validationError);
       return;
     }
     const reader = new FileReader();
