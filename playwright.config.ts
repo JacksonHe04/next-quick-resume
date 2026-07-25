@@ -18,14 +18,35 @@ export default defineConfig({
     video: "retain-on-failure",
   },
   webServer: local
-    ? {
-        command: "pnpm dev --hostname 127.0.0.1",
-        url: baseURL,
-        reuseExistingServer: true,
-        timeout: 120_000,
-        stdout: "pipe",
-        stderr: "pipe",
-      }
+    ? [
+        {
+          name: "Cloudflare D1 gateway",
+          command: "pnpm dev:worker",
+          url: "http://127.0.0.1:8787/health",
+          reuseExistingServer: false,
+          timeout: 120_000,
+          stdout: "pipe",
+          stderr: "pipe",
+        },
+        {
+          name: "Vercel Next.js web",
+          command: "pnpm dev --hostname 127.0.0.1",
+          url: baseURL,
+          env: {
+            D1_GATEWAY_URL: "http://127.0.0.1:8787",
+            D1_GATEWAY_TOKEN: "local-d1-gateway-token",
+            RESEND_API_KEY: "re_test_local_only",
+            RESEND_FROM_EMAIL:
+              "SAYLESS Local <local@sayless.invalid>",
+            SESSION_SECRET:
+              "local-e2e-session-secret-32-characters",
+          },
+          reuseExistingServer: false,
+          timeout: 120_000,
+          stdout: "pipe",
+          stderr: "pipe",
+        },
+      ]
     : undefined,
   projects: [
     {

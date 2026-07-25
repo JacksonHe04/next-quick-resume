@@ -1,10 +1,17 @@
-import { render, screen, within } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import {
+  cleanup,
+  render,
+  screen,
+  within,
+} from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 
 import {
   NAV_ITEMS,
   Sidebar,
 } from "@/components/app/sidebar";
+
+afterEach(cleanup);
 
 describe("SAYLESS application sidebar", () => {
   it("renders the approved Chinese navigation order", () => {
@@ -42,5 +49,16 @@ describe("SAYLESS application sidebar", () => {
       "公司",
       "批次",
     ]);
+  });
+
+  it("shows a login action instead of account actions for guests", () => {
+    render(<Sidebar user={null} />);
+
+    expect(
+      screen.getByRole("link", { name: "登录后开始记录" }),
+    ).toHaveAttribute("href", "/login");
+    expect(
+      screen.queryByRole("button", { name: "退出" }),
+    ).not.toBeInTheDocument();
   });
 });

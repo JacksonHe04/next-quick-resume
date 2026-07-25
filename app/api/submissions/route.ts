@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getReadDatabaseContext } from "@/modules/auth/action-context";
 import {
   getSubmissionActionContext,
   submissionErrorResponse,
@@ -10,11 +11,10 @@ import { createSubmission } from "@/modules/submissions/service";
 
 export async function GET(request: Request) {
   try {
-    const context = await getSubmissionActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getReadDatabaseContext(request);
     const submissions = await listSubmissionViews(
       context.database,
-      context.user.id,
+      context.userId,
     );
     return NextResponse.json({ submissions });
   } catch (error) {

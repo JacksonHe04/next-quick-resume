@@ -1,372 +1,219 @@
-<h1 align="center">🚀 Next Quick Resume</h1>
-<p align="center">现代化的数据驱动简历生成器</p>
+<h1 align="center">SAYLESS</h1>
+<p align="center">把简历、投递、面试和复盘放在一条清晰的求职路径上。</p>
 
-一个基于 Next.js 15 的现代化简历展示项目，采用数据驱动的设计理念，支持在线编辑、本地存储和多版本管理。通过直观的可视化界面，您可以轻松创建、编辑和管理个人简历。
+SAYLESS 是一个面向求职全流程的管理工具。它将简历、岗位投递、选拔轮次、面试安排与面试题库集中到同一条路径中，帮助你持续记录进展，并把注意力放在下一步。
 
-## ✨ 核心特性
+## 核心功能
 
-### 🎯 简历管理
-- 📝 **可视化编辑器** - 内置简历编辑器，支持实时预览
-- 💾 **本地存储** - 基于 IndexedDB 的本地数据存储
-- 📁 **多版本管理** - 支持创建和管理多个简历版本
-- 🔄 **数据同步** - JSON 文件与数据库双向同步
-- 📤 **导入导出** - 支持简历数据的导入和导出
+- **求职批次**：按用户自己的时间阶段组织投递分组，记录策略、时间范围与归档状态。
+- **简历管理**：维护结构化简历及展示配置，并通过克隆快速创建新版本。
+- **投递追踪**：记录公司、职位、JD、渠道、地点、投递时间和当前状态。
+- **面试管理**：管理每一轮选拔的阶段、时间、时长、会议链接与复盘笔记。
+- **面试题库**：使用 Markdown 沉淀问题与答案，并将题目关联到具体面试。
+- **公司与职位目录**：同时使用官方目录和个人私有目录，减少重复录入。
+- **数据概览**：集中查看投递统计、阶段转化、近期安排与当前求职批次。
+- **账户系统**：支持邮箱验证码注册、登录、密码重置、资料修改与账户注销。
 
-### 🛠️ 技术特性
-- 🚀 **Next.js 15** - 最新的 React 框架，支持 App Router
-- ⚡ **React 19** - 使用最新的 React 特性
-- 🎨 **Tailwind CSS 4** - 现代化的原子化 CSS 框架
-- 🔧 **TypeScript** - 完整的类型安全保障
-- 📦 **模块化架构** - 高度可复用的组件设计
-- 🎯 **响应式设计** - 完美适配桌面端和移动端
+## 技术栈
 
-### 🏗️ 架构特性
-- 🧩 **组件化设计** - 每个简历模块独立组件
-- 🎨 **统一样式系统** - 通过常量管理样式，确保一致性
-- 🔗 **自定义 Hooks** - 业务逻辑与 UI 分离
-- 📊 **数据驱动** - 通过 JSON 配置快速定制内容
+| 分类 | 技术 |
+| --- | --- |
+| Web | Next.js 16、React 19、TypeScript 6 |
+| UI | Tailwind CSS 4、shadcn、Radix UI、Lucide React、Recharts |
+| 表单与状态 | React Hook Form、Zod、TanStack Query、nuqs |
+| 数据库 | Cloudflare D1、Drizzle ORM |
+| 邮件 | Resend |
+| 测试 | Vitest、Testing Library、Playwright |
+| 基础设施 | Cloudflare Workers、Wrangler |
 
-## 🛠️ 技术栈
+## 系统架构
 
-- **前端框架**: Next.js 15.3.4
-- **UI 库**: React 19.0.0
-- **开发语言**: TypeScript 5+
-- **样式框架**: Tailwind CSS 4
-- **数据存储**: IndexedDB
-- **包管理器**: pnpm
-- **代码规范**: ESLint 9 + TypeScript ESLint
+Next.js 应用通过带 Bearer Token 鉴权的 Cloudflare Worker 网关访问 D1：
 
-## 📁 项目结构
-
-```
-next-quick-resume/
-├── app/                    # Next.js App Router
-│   ├── api/               # API 路由
-│   │   └── data-files/    # 数据文件 API
-│   ├── layout.tsx         # 全局布局
-│   ├── page.tsx           # 主页面
-│   └── favicon.ico        # 网站图标
-├── components/            # 组件目录
-│   ├── Header/           # 头部信息组件
-│   ├── Education/        # 教育经历组件
-│   ├── Skills/           # 专业技能组件
-│   ├── Projects/         # 项目经历组件
-│   ├── About/            # 关于我组件
-│   ├── ResumeManager/    # 简历管理组件
-│   │   ├── components/   # 子组件
-│   │   ├── hooks/        # 自定义 Hooks
-│   │   └── index.tsx     # 主组件
-│   ├── common/           # 通用组件
-│   │   ├── Link.tsx      # 链接组件
-│   │   ├── SectionContainer.tsx  # 节容器
-│   │   └── SectionTitle.tsx     # 节标题
-│   └── ui/               # UI 组件库
-│       └── Button/       # 按钮组件
-├── config/               # 配置文件
-│   └── data.ts           # 数据配置
-├── constants/            # 常量定义
-│   └── styles.ts         # 样式常量
-├── data/                 # 简历数据
-│   ├── resume.json       # 中文简历数据
-│   ├── resume-en.json    # 英文简历数据
-│   └── resume-template.json  # 简历模板
-├── types/                # 类型定义
-│   └── index.ts          # 全局类型
-├── utils/                # 工具函数
-│   ├── indexedDB.ts      # IndexedDB 工具
-│   └── cn.ts             # 类名合并工具
-├── styles/               # 样式文件
-│   └── globals.css       # 全局样式
-└── docs/                 # 项目文档
-    ├── COMPREHENSIVE_REFACTOR_REPORT.md
-    ├── OPTIMIZATION_GUIDE.md
-    └── REFACTOR_COMPLETE_REPORT.md
+```text
+Browser
+   │
+   ▼
+Next.js App Router
+   │  D1_GATEWAY_URL + D1_GATEWAY_TOKEN
+   ▼
+Cloudflare Worker (workers/d1-gateway.ts)
+   │
+   ▼
+Cloudflare D1
 ```
 
-## 🚀 快速开始
+应用不会在浏览器中直接访问数据库。认证、业务规则和数据访问均在服务端完成；注册验证码与密码重置邮件由 Resend 发送。
+
+## 快速开始
 
 ### 环境要求
 
-- Node.js 18.0 或更高版本
-- pnpm 8.0 或更高版本（推荐）
+- Node.js 24.14.0（项目通过 `.nvmrc` 固定；最低支持 22.12.0）
+- pnpm 9.12.0
 
-### 安装依赖
+如果使用 nvm：
 
 ```bash
-# 克隆项目
-git clone https://github.com/JacksonHe04/next-quick-resume.git
-cd next-quick-resume
+nvm use
+corepack enable
+```
 
-# 安装依赖
+### 1. 克隆并安装依赖
+
+```bash
+git clone https://github.com/JacksonHe04/sayless.git
+cd sayless
 pnpm install
 ```
 
-### 开发模式
+### 2. 配置环境变量
+
+复制环境变量模板：
 
 ```bash
-# 启动开发服务器
+cp .env.example .env.local
+```
+
+填写以下变量：
+
+| 变量 | 用途 |
+| --- | --- |
+| `RESEND_API_KEY` | Resend API Key，用于发送注册验证码和密码重置邮件 |
+| `RESEND_FROM_EMAIL` | Resend 已验证的发件地址 |
+| `SESSION_SECRET` | 会话签名密钥，请使用足够长的随机值 |
+| `D1_GATEWAY_URL` | D1 网关地址；本地默认使用 `http://127.0.0.1:8787` |
+| `D1_GATEWAY_TOKEN` | Next.js 应用访问 D1 网关的 Bearer Token |
+
+本地 Worker 从 `.dev.vars` 读取同一个 `D1_GATEWAY_TOKEN`。该值必须与 `.env.local` 中的值一致：
+
+```dotenv
+D1_GATEWAY_TOKEN=replace-with-a-local-secret
+```
+
+> `.env.local` 与 `.dev.vars` 均不会提交到 Git。不要在仓库中保存真实密钥。
+
+### 3. 初始化本地 D1
+
+```bash
+pnpm db:seed:local
+```
+
+该命令会应用本地迁移、导入官方目录，并创建演示账户。默认凭据为：
+
+```text
+邮箱：demo@local.sayless.app
+密码：sayless-demo-2026
+```
+
+如需自定义，可在执行命令时设置 `SAYLESS_DEMO_EMAIL` 和 `SAYLESS_DEMO_PASSWORD`。
+
+### 4. 启动开发环境
+
+需要同时运行 D1 网关和 Next.js 应用：
+
+```bash
+# 终端 1：Cloudflare Worker / D1 网关
+pnpm dev:worker
+
+# 终端 2：Next.js
 pnpm dev
 ```
 
-访问 [http://localhost:3000](http://localhost:3000) 查看效果。
+访问 [http://localhost:3000](http://localhost:3000)。
 
-### 构建部署
+## 常用命令
+
+| 命令 | 说明 |
+| --- | --- |
+| `pnpm dev` | 启动 Next.js 开发服务器 |
+| `pnpm dev:worker` | 在 `8787` 端口启动本地 D1 网关 |
+| `pnpm build` | 构建 Next.js 应用 |
+| `pnpm build:worker` | dry-run 构建 Cloudflare Worker |
+| `pnpm start` | 启动 Next.js 生产服务器 |
+| `pnpm db:generate` | 根据 Drizzle Schema 生成迁移 |
+| `pnpm db:migrate:local` | 将迁移应用到本地 D1 |
+| `pnpm db:seed:local` | 迁移并填充本地 D1 |
+| `pnpm lint` | 运行 ESLint |
+| `pnpm typecheck` | 运行 TypeScript 类型检查 |
+| `pnpm check` | 依次运行 lint 与类型检查 |
+| `pnpm test` | 运行 Vitest 测试 |
+| `pnpm test:watch` | 以监听模式运行 Vitest |
+| `pnpm e2e` | 准备本地数据并运行 Playwright E2E 测试 |
+| `pnpm e2e:production` | 对 `BASE_URL` 指向的环境运行生产冒烟测试 |
+| `pnpm cf-typegen` | 生成 Cloudflare 环境类型 |
+| `pnpm deploy:worker` | 部署 D1 网关 Worker |
+
+运行生产冒烟测试时需要指定目标地址：
 
 ```bash
-# 构建生产版本
-pnpm build
+BASE_URL=https://example.com pnpm e2e:production
+```
 
-# 启动生产服务器
-pnpm start
+## 项目结构
 
-# 代码检查
-pnpm lint
+```text
+sayless/
+├── app/
+│   ├── (marketing)/        # 落地页
+│   ├── (auth)/             # 登录、注册与密码重置
+│   ├── (app)/app/          # 受保护的产品页面
+│   └── api/                # REST API 路由
+├── components/             # 业务组件、应用外壳与基础 UI
+├── db/
+│   ├── schema/             # Drizzle 数据模型
+│   └── seed/               # 官方目录与演示数据
+├── drizzle/                # D1 SQL 迁移
+├── e2e/                    # Playwright 端到端测试
+├── lib/                    # Markdown、HTTP 等通用能力
+├── modules/                # 按领域划分的 service、repository 与 schema
+├── styles/                 # 全局样式
+├── tests/                  # Vitest 测试
+└── workers/
+    └── d1-gateway.ts       # Cloudflare D1 HTTP 网关
+```
 
-# 类型检查和代码检查
+## 数据库与 Worker
+
+### 生成迁移
+
+修改 `db/schema/` 后运行：
+
+```bash
+pnpm db:generate
+```
+
+生成的 SQL 会写入 `drizzle/`，应随代码一起审查。
+
+### 部署 D1 网关
+
+`wrangler.jsonc` 中配置了 Worker、D1 binding 和迁移目录。部署前请先在 Cloudflare 中安全配置 `D1_GATEWAY_TOKEN`，然后执行：
+
+```bash
+pnpm deploy:worker
+```
+
+Next.js 运行环境中的 `D1_GATEWAY_URL` 应指向部署后的 Worker 地址，并使用相同的 `D1_GATEWAY_TOKEN`。
+
+## 质量检查
+
+提交变更前建议至少运行：
+
+```bash
 pnpm check
+pnpm test
+pnpm build
+pnpm build:worker
 ```
 
-## 📝 使用指南
+涉及关键用户流程时，再运行：
 
-### 🎯 简历管理功能
-
-项目提供了两种管理简历数据的方式：
-
-#### 1. 可视化简历管理器
-
-点击页面右上角的「简历管理」按钮，可以：
-
-- 📝 **在线编辑**：使用内置编辑器修改简历内容
-- 💾 **本地存储**：简历数据自动保存到浏览器 IndexedDB
-- 📁 **版本管理**：创建和管理多个简历版本
-- 📤 **导入导出**：支持 JSON 格式的数据导入导出
-- 🔄 **模板复制**：基于现有简历创建新版本
-
-#### 2. JSON 文件配置
-
-直接编辑 `./data/` 目录下的 JSON 文件：
-
-```json
-// ./data/resume.json
-{
-  "header": {
-    "name": "您的姓名",
-    "contact": {
-      "phone": "您的电话",
-      "email": "您的邮箱",
-      "wechat": "您的微信",
-      "age": "您的年龄",
-    "github": {
-      "text": "GitHub用户名",
-      "url": "GitHub链接"
-    },
-    "homepage": {
-      "text": "个人主页",
-      "url": "主页链接"
-    }
-  },
-  "jobInfo": {
-    "position": "目标岗位",
-    "duration": "可工作时间",
-    "availability": "到岗时间"
-  },
-  "about": {
-    "title": "关于我",
-    "content": "个人简介内容"
-  },
-  "education": {
-    "title": "教育经历",
-    "school": "学校名称",
-    "period": "就读时间",
-    "details": "专业信息"
-  },
-  "skills": {
-    "title": "专业技能",
-    "items": [
-      "技能描述1",
-      "技能描述2"
-    ]
-  },
-  "projects": {
-    "title": "项目经历",
-    "items": [
-      {
-        "name": "项目名称",
-        "github": "GitHub链接",
-        "demo": "演示链接",
-        "techStack": "技术栈",
-        "description": "项目描述",
-        "features": ["功能1", "功能2"],
-        "show": true
-      }
-    ]
-  }
-}
+```bash
+pnpm e2e
 ```
-
-### 🔄 切换简历版本
-
-#### 方法一：修改配置文件
-
-编辑 `./config/data.ts` 文件：
-
-```typescript
-// 切换到不同的简历文件
-export const RESUME_DATA_PATH = './data/resume.json'        // 中文简历
-// export const RESUME_DATA_PATH = './data/resume-en.json'  // 英文简历
-```
-
-#### 方法二：使用简历管理器
-
-1. 点击「简历管理」按钮
-2. 在「文件记录」标签页查看所有 JSON 文件
-3. 点击「使用此简历」切换到对应版本
-
-### 📊 数据结构说明
-
-项目采用统一的数据结构，所有简历数据都遵循 `ResumeData` 接口定义。详细的类型定义请参考 `./types/index.ts` 文件。
-
-## 🎨 样式自定义
-
-### 统一样式系统
-
-项目使用统一的样式常量系统，位于 `./constants/styles.ts`：
-
-```typescript
-// 修改标题样式
-export const TITLE_STYLES = {
-  main: 'text-4xl font-bold m-0',
-  section: 'text-xl font-bold text-black py-1 mb-2 border-b border-black'
-}
-
-// 修改容器样式
-export const CONTAINER_STYLES = {
-  section: 'mb-4',
-  project: 'mb-3'
-}
-```
-
-### Tailwind CSS 配置
-
-1. 修改 `./styles/globals.css` 调整全局样式
-2. 在组件中直接使用 Tailwind 类名
-3. 通过 `./app/layout.tsx` 中的 Tailwind 配置自定义主题
-
-## 🏗️ 开发指南
-
-### 组件开发
-
-项目采用模块化组件设计，每个简历模块都是独立的组件：
-
-```typescript
-// 创建新的简历模块组件
-import { getCurrentResumeData } from '@/config/data'
-import { SectionContainer, SectionTitle } from '@/components/common'
-
-export default function YourSection() {
-  const data = getCurrentResumeData().yourSection
-  
-  return (
-    <SectionContainer>
-      <SectionTitle>{data.title}</SectionTitle>
-      {/* 组件内容 */}
-    </SectionContainer>
-  )
-}
-```
-
-### 自定义 Hooks
-
-项目提供了多个自定义 Hooks，位于 `./components/ResumeManager/hooks/`：
-
-- `useResumeData`: IndexedDB 数据管理
-- `useFileRecords`: 文件记录管理  
-- `useResumeEditor`: 编辑状态管理
-
-### 样式开发
-
-使用统一的样式常量系统：
-
-```typescript
-import { TITLE_STYLES, CONTAINER_STYLES } from '@/constants/styles'
-
-// 在组件中使用
-<h2 className={TITLE_STYLES.section}>标题</h2>
-<div className={CONTAINER_STYLES.section}>内容</div>
-```
-
-## 📦 部署指南
-
-### Vercel 部署（推荐）
-
-1. 将代码推送到 GitHub
-2. 在 [Vercel](https://vercel.com) 导入项目
-3. 自动部署完成
-
-### 其他平台
-
-- **Netlify**: 支持拖拽部署
-- **GitHub Pages**: 需要配置静态导出
-- **自建服务器**: 使用 `pnpm build && pnpm start`
-
-### 环境变量
-
-项目无需额外的环境变量配置，开箱即用。
-
-## 🔧 故障排除
-
-### 常见问题
-
-1. **简历数据不显示**
-   - 检查 `./data/resume.json` 文件格式是否正确
-   - 确认 `./config/data.ts` 中的路径配置
-
-2. **IndexedDB 数据丢失**
-   - 浏览器隐私模式下数据不会持久化
-   - 清除浏览器数据会删除 IndexedDB 内容
-
-3. **样式显示异常**
-   - 确认 Tailwind CSS 正确加载
-   - 检查 `./styles/globals.css` 文件
-
-## 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request！
-
-### 开发流程
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启 Pull Request
-
-### 代码规范
-
-- 使用 TypeScript 进行开发
-- 遵循 ESLint 配置规范
-- 为新功能添加适当的注释
-- 保持组件的单一职责原则
-
-## 📚 相关文档
-
-- [重构完成报告](./REFACTOR_COMPLETION_REPORT.md)
-- [优化使用指南](./docs/OPTIMIZATION_GUIDE.md)
-- [全面重构分析](./docs/COMPREHENSIVE_REFACTOR_REPORT.md)
-
-## 📄 许可证
-
-本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
-## 🙏 致谢
-
-- [Next.js](https://nextjs.org/) - React 框架
-- [Tailwind CSS](https://tailwindcss.com/) - CSS 框架
-- [TypeScript](https://www.typescriptlang.org/) - 类型安全
-- [IndexedDB](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) - 本地数据存储
 
 ---
 
 <p align="center">
-  <strong>作者：JacksonHe04</strong><br>
+  <strong>把复杂留给系统，把注意力留给下一步。</strong>
 </p>

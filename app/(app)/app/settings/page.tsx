@@ -1,32 +1,37 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { SettingsForms } from "@/components/account/settings-forms";
-import { getAuthRepository } from "@/modules/auth/server";
-import {
-  resolveSession,
-  SESSION_COOKIE_NAME,
-} from "@/modules/auth/session";
+import { Button, Card, CardContent } from "@/components/ui";
+import { getOptionalCurrentUser } from "@/modules/auth/server";
 
 export default async function SettingsPage() {
-  const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
-  if (!token) redirect("/login");
-
-  const repository = await getAuthRepository();
-  const session = await resolveSession(repository, token);
-  if (!session) redirect("/login");
-  const user = await repository.findUserById(session.userId);
-  if (!user) redirect("/login");
+  const user = await getOptionalCurrentUser();
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-10">
       <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
         个人设置
       </h1>
-      <p className="mt-2 text-sm text-[#687269]">
+      <p className="mt-2 text-sm text-muted-foreground">
         管理个人资料、登录安全和账户数据。
       </p>
-      <SettingsForms user={{ name: user.name, email: user.email }} />
+      {user ? (
+        <SettingsForms user={{ name: user.name, email: user.email }} />
+      ) : (
+        <Card className="mt-8 max-w-xl">
+          <CardContent className="space-y-4 py-8">
+            <div>
+              <h2 className="text-base font-medium">登录后管理个人设置</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                访客可以浏览 SAYLESS 的全部功能页面；个人资料、密码和账户数据需要登录后管理。
+              </p>
+            </div>
+            <Button asChild>
+              <Link href="/login?next=%2Fapp%2Fsettings">登录</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

@@ -8,6 +8,7 @@ import {
 } from "react";
 
 import { Input } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 
 export type EntityPickerOption = {
   source: "official" | "private";
@@ -44,7 +45,7 @@ export function EntityPicker({
       setLoading(true);
       setRequestError(undefined);
       try {
-        const response = await fetch(
+        const response = await appFetch(
           `/api/catalog/${entity}?q=${encodeURIComponent(query)}`,
           { signal: controller.signal },
         );
@@ -72,7 +73,7 @@ export function EntityPicker({
     setLoading(true);
     setRequestError(undefined);
     try {
-      const response = await fetch(`/api/catalog/${entity}`, {
+      const response = await appFetch(`/api/catalog/${entity}`, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ name: query }),
@@ -101,18 +102,18 @@ export function EntityPicker({
       </label>
       {value ? (
         <div className="flex min-h-11 items-center gap-2 rounded-xl border border-[#baddc6] bg-[#f7fbf8] px-3.5">
-          <Check size={15} className="text-[#27764b]" />
+          <Check size={15} className="text-foreground" />
           <span className="min-w-0 flex-1 truncate text-sm">
             {value.name}
           </span>
-          <span className="text-[10px] text-[#879088]">
+          <span className="text-[10px] text-muted-foreground">
             {value.source === "official" ? "官方" : "自定义"}
           </span>
           <button
             type="button"
             aria-label={`清除${label}`}
             onClick={() => onChange(null)}
-            className="grid size-7 place-items-center rounded-full text-[#687269] hover:bg-[#e7f1e8]"
+            className="grid size-7 place-items-center rounded-full text-muted-foreground hover:bg-[#e7f1e8]"
           >
             <X size={14} />
           </button>
@@ -142,7 +143,7 @@ export function EntityPicker({
             />
           </div>
           {open ? (
-            <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 overflow-hidden rounded-xl border border-[#dce5dd] bg-white shadow-[0_18px_50px_rgb(32_38_32/0.14)]">
+            <div className="absolute left-0 right-0 top-[calc(100%+6px)] z-30 overflow-hidden rounded-xl border border-border bg-white shadow-[0_18px_50px_rgb(32_38_32/0.14)]">
               <div
                 id={listboxId}
                 role="listbox"
@@ -159,16 +160,16 @@ export function EntityPicker({
                       setOpen(false);
                       setQuery("");
                     }}
-                    className="flex min-h-10 w-full items-center justify-between rounded-lg px-3 text-left text-sm hover:bg-[#eef4ee]"
+                    className="flex min-h-10 w-full items-center justify-between rounded-lg px-3 text-left text-sm hover:bg-muted"
                   >
                     <span>{option.name}</span>
-                    <span className="text-[10px] text-[#879088]">
+                    <span className="text-[10px] text-muted-foreground">
                       {option.source === "official" ? "官方" : "自定义"}
                     </span>
                   </button>
                 ))}
                 {!loading && options.length === 0 && !query ? (
-                  <p className="px-3 py-4 text-center text-xs text-[#879088]">
+                  <p className="px-3 py-4 text-center text-xs text-muted-foreground">
                     输入名称开始搜索
                   </p>
                 ) : null}
@@ -178,7 +179,7 @@ export function EntityPicker({
                   type="button"
                   onClick={createPrivate}
                   disabled={loading}
-                  className="flex min-h-11 w-full items-center gap-2 border-t border-[#edf0ed] px-4 text-left text-sm text-[#27764b] transition hover:bg-[#f7fbf8] disabled:opacity-50"
+                  className="flex min-h-11 w-full items-center gap-2 border-t border-border px-4 text-left text-sm text-foreground transition hover:bg-[#f7fbf8] disabled:opacity-50"
                 >
                   <Plus size={15} />
                   没找到？使用“{query.trim()}”

@@ -10,7 +10,7 @@ export function AppShell({
   user,
   children,
 }: {
-  user: { name: string; email: string };
+  user: { name: string; email: string } | null;
   children: ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,7 +24,7 @@ export function AppShell({
   }
 
   return (
-    <div className="min-h-screen lg:grid lg:grid-cols-[248px_minmax(0,1fr)]">
+    <div className="min-h-screen bg-background lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
       <div className="fixed inset-y-0 left-0 z-40 hidden lg:block">
         <Sidebar user={user} pathname={pathname} onLogout={logout} />
       </div>
@@ -33,7 +33,7 @@ export function AppShell({
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
             type="button"
-            className="absolute inset-0 bg-[#202620]/20 backdrop-blur-[2px]"
+            className="absolute inset-0 bg-black/15 backdrop-blur-[2px]"
             aria-label="关闭导航"
             onClick={() => setMenuOpen(false)}
           />
@@ -41,26 +41,26 @@ export function AppShell({
             user={user}
             pathname={pathname}
             onLogout={logout}
-            className="relative z-10 shadow-[20px_0_60px_rgb(32_38_32/0.14)]"
+            className="relative z-10 shadow-2xl"
             onNavigate={() => setMenuOpen(false)}
           />
         </div>
       ) : null}
 
       <div className="lg:col-start-2">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-[#dce5dd]/80 bg-[#f6f7f2]/88 px-4 backdrop-blur-xl lg:hidden">
+        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-xl lg:hidden">
           <button
             type="button"
             aria-label={menuOpen ? "关闭导航" : "打开导航"}
             onClick={() => setMenuOpen((value) => !value)}
-            className="grid size-10 place-items-center rounded-xl border border-[#dce5dd] bg-white"
+            className="grid size-8 place-items-center rounded-md border border-border bg-background"
           >
             {menuOpen ? <X size={19} /> : <Menu size={19} />}
           </button>
-          <span className="font-[var(--font-display)] font-semibold tracking-[-0.03em]">
+          <span className="text-sm font-semibold tracking-[-0.02em]">
             SAYLESS
           </span>
-          <span className="grid size-9 place-items-center rounded-full bg-[#dff1e5] text-[#27764b]">
+          <span className="grid size-8 place-items-center rounded-full border border-border bg-muted text-foreground">
             <UserRound size={17} />
           </span>
         </header>

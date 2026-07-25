@@ -39,7 +39,7 @@ function Message({
       className={
         error
           ? "mt-3 text-sm text-[#9d4450]"
-          : "mt-3 text-sm text-[#27764b]"
+          : "mt-3 text-sm text-foreground"
       }
     >
       {value}
@@ -127,11 +127,11 @@ export function SettingsForms({
   return (
     <div className="mt-7 space-y-5">
       <Card className="p-5 shadow-none sm:p-6">
-        <div className="border-b border-[#edf0ed] pb-4">
+        <div className="border-b border-border pb-4">
           <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
             个人资料
           </h2>
-          <p className="mt-1 text-sm text-[#687269]">
+          <p className="mt-1 text-sm text-muted-foreground">
             这些信息会显示在你的个人区域。
           </p>
         </div>
@@ -160,11 +160,11 @@ export function SettingsForms({
       </Card>
 
       <Card className="p-5 shadow-none sm:p-6">
-        <div className="border-b border-[#edf0ed] pb-4">
+        <div className="border-b border-border pb-4">
           <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
             登录密码
           </h2>
-          <p className="mt-1 text-sm text-[#687269]">
+          <p className="mt-1 text-sm text-muted-foreground">
             修改后，所有设备需要使用新密码重新登录。
           </p>
         </div>

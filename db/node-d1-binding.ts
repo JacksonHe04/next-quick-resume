@@ -23,7 +23,15 @@ class NodeD1Statement {
   }
 
   async run() {
-    const result = this.prepare().run(...this.parameters);
+    const statement = this.prepare();
+    if (statement.columns().length > 0) {
+      return {
+        success: true,
+        results: statement.all(...this.parameters),
+        meta: { changes: 0 },
+      };
+    }
+    const result = statement.run(...this.parameters);
     return {
       success: true,
       results: [],

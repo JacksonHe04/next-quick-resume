@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { QuestionForm } from "@/components/questions/question-form";
 import { Button, Card, FormDrawer, Input } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 
 type QuestionView = {
   id: string;
@@ -25,7 +26,7 @@ export function QuestionManager() {
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
-    const response = await fetch("/api/questions", { cache: "no-store" });
+    const response = await appFetch("/api/questions", { cache: "no-store" });
     if (!response.ok) throw new Error("题库加载失败");
     const payload = (await response.json()) as {
       questions: QuestionView[];
@@ -65,7 +66,7 @@ export function QuestionManager() {
   }, [category, query, questions]);
 
   async function remove(id: string) {
-    const response = await fetch(`/api/questions/${id}`, {
+    const response = await appFetch(`/api/questions/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -82,7 +83,7 @@ export function QuestionManager() {
           <label className="relative max-w-md flex-1">
             <Search
               size={15}
-              className="pointer-events-none absolute left-3.5 top-3.5 text-[#879088]"
+              className="pointer-events-none absolute left-3.5 top-3.5 text-muted-foreground"
             />
             <Input
               aria-label="搜索题库"
@@ -96,7 +97,7 @@ export function QuestionManager() {
             aria-label="按分类筛选"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="min-h-11 rounded-xl border border-[#dce5dd] bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+            className="min-h-11 rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
           >
             {categories.map((item) => (
               <option key={item}>{item}</option>
@@ -123,7 +124,7 @@ export function QuestionManager() {
           ? [0, 1].map((item) => (
               <div
                 key={item}
-                className="h-44 animate-pulse rounded-[18px] border border-[#dce5dd] bg-white/60"
+                className="h-44 animate-pulse rounded-[18px] border border-border bg-white/60"
               />
             ))
           : filtered.map((question) => (
@@ -132,21 +133,21 @@ export function QuestionManager() {
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       {question.category ? (
-                        <span className="rounded-full bg-[#eef4ee] px-2.5 py-1 text-[11px] font-medium text-[#27764b]">
+                        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-foreground">
                           {question.category}
                         </span>
                       ) : null}
-                      <span className="text-[11px] text-[#879088]">
+                      <span className="text-[11px] text-muted-foreground">
                         关联 {question.interviewCount} 场选拔
                       </span>
                     </div>
                     <Link
                       href={`/app/questions/${question.id}`}
-                      className="mt-3 block font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-[#27764b]"
+                      className="mt-3 block font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-foreground"
                     >
                       {question.questionText}
                     </Link>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#687269]">
+                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
                       {question.answerMarkdown || "还没有标准答案"}
                     </p>
                   </div>
@@ -154,7 +155,7 @@ export function QuestionManager() {
                     type="button"
                     aria-label="删除问题"
                     onClick={() => remove(question.id)}
-                    className="grid size-8 shrink-0 place-items-center rounded-lg text-[#879088] hover:bg-[#fbecef] hover:text-[#9d4450]"
+                    className="grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-[#fbecef] hover:text-[#9d4450]"
                   >
                     <Trash2 size={14} />
                   </button>
@@ -173,7 +174,7 @@ export function QuestionManager() {
             <p className="mt-4 text-sm font-medium">
               {questions.length === 0 ? "还没有问题" : "没有匹配的问题"}
             </p>
-            <p className="mt-1 text-xs text-[#879088]">
+            <p className="mt-1 text-xs text-muted-foreground">
               提前准备高频问题，也可以从具体面试中沉淀。
             </p>
           </div>

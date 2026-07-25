@@ -10,6 +10,7 @@ import {
   type EntityPickerOption,
 } from "@/components/app/entity-picker";
 import { Button, Input } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 
 type BatchOption = { id: string; name: string };
 
@@ -47,7 +48,7 @@ export function SubmissionForm({
     setPending(true);
     setRequestError(undefined);
     try {
-      const response = await fetch("/api/submissions", {
+      const response = await appFetch("/api/submissions", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -117,7 +118,7 @@ export function SubmissionForm({
           <select
             name="batchId"
             defaultValue={currentBatchId ?? ""}
-            className="min-h-11 w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+            className="min-h-11 w-full rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
           >
             <option value="">选择批次</option>
             {batches.map((batch) => (
@@ -156,7 +157,7 @@ export function SubmissionForm({
         <textarea
           name="notesMarkdown"
           rows={5}
-          className="w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 py-3 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+          className="w-full rounded-xl border border-border bg-white px-3.5 py-3 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
           placeholder="记录 JD 重点、联系人或后续事项"
         />
       </label>

@@ -25,6 +25,7 @@ import {
   PresentationBadge,
   type DataTableColumn,
 } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 import {
   filterSubmissions,
   submissionStatusLabel,
@@ -99,8 +100,8 @@ export function SubmissionManager() {
 
   const load = useCallback(async () => {
     const [submissionResponse, batchResponse] = await Promise.all([
-      fetch("/api/submissions", { cache: "no-store" }),
-      fetch("/api/batches", { cache: "no-store" }),
+      appFetch("/api/submissions", { cache: "no-store" }),
+      appFetch("/api/batches", { cache: "no-store" }),
     ]);
     if (!submissionResponse.ok || !batchResponse.ok) {
       throw new Error("投递数据加载失败");
@@ -179,7 +180,7 @@ export function SubmissionManager() {
 
   async function remove(id: string) {
     setError(undefined);
-    const response = await fetch(`/api/submissions/${id}`, {
+    const response = await appFetch(`/api/submissions/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -200,11 +201,11 @@ export function SubmissionManager() {
         <div className="min-w-52">
           <Link
             href={`/app/submissions/${submission.id}`}
-            className="font-medium text-[#202620] hover:text-[#27764b]"
+            className="font-medium text-foreground hover:text-foreground"
           >
             {submission.companyName}
           </Link>
-          <p className="mt-1 text-xs text-[#687269]">
+          <p className="mt-1 text-xs text-muted-foreground">
             {submission.positionName}
           </p>
           <p className="mt-1 text-[10px] text-[#98a099]">
@@ -240,14 +241,14 @@ export function SubmissionManager() {
       key: "batch",
       header: "批次",
       render: (submission) => (
-        <span className="text-[#687269]">{submission.batchName}</span>
+        <span className="text-muted-foreground">{submission.batchName}</span>
       ),
     },
     {
       key: "date",
       header: "投递日期",
       render: (submission) => (
-        <span className="font-[var(--font-data)] text-xs text-[#687269]">
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
           {new Intl.DateTimeFormat("zh-CN", {
             month: "2-digit",
             day: "2-digit",
@@ -267,7 +268,7 @@ export function SubmissionManager() {
               target="_blank"
               rel="noreferrer"
               aria-label="打开职位链接"
-              className="grid size-8 place-items-center rounded-lg text-[#687269] hover:bg-[#eef4ee] hover:text-[#27764b]"
+              className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ExternalLink size={14} />
             </a>
@@ -276,7 +277,7 @@ export function SubmissionManager() {
             type="button"
             aria-label="删除投递"
             onClick={() => remove(submission.id)}
-            className="grid size-8 place-items-center rounded-lg text-[#879088] hover:bg-[#fbecef] hover:text-[#9d4450]"
+            className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-[#fbecef] hover:text-[#9d4450]"
           >
             <Trash2 size={14} />
           </button>
@@ -383,7 +384,7 @@ export function SubmissionManager() {
           新建投递前，需要先在{" "}
           <Link
             href="/app/batches"
-            className="font-medium text-[#27764b] underline"
+            className="font-medium text-foreground underline"
           >
             批次
           </Link>{" "}
@@ -401,7 +402,7 @@ export function SubmissionManager() {
 
       <div className="mt-5">
         {loading ? (
-          <div className="h-72 animate-pulse rounded-[18px] border border-[#dce5dd] bg-white/60" />
+          <div className="h-72 animate-pulse rounded-[18px] border border-border bg-white/60" />
         ) : (
           <DataTable
             columns={columns}

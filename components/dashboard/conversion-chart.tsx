@@ -38,16 +38,16 @@ export function ConversionChart({
 
   return (
     <Card className="overflow-hidden shadow-none">
-      <div className="flex items-center justify-between border-b border-[#edf0ed] px-5 py-4">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
           <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
             投递转化
           </h2>
-          <p className="mt-1 text-xs text-[#879088]">
+          <p className="mt-1 text-xs text-muted-foreground">
             全部批次，不受当前批次筛选
           </p>
         </div>
-        <span className="font-[var(--font-data)] text-xs text-[#687269]">
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
           {conversion.submitted} TOTAL
         </span>
       </div>
@@ -63,29 +63,29 @@ export function ConversionChart({
                 {count}
               </p>
               <p className="mt-1 text-xs font-medium">{label}</p>
-              <p className="mt-1 font-[var(--font-data)] text-[10px] text-[#879088]">
+              <p className="mt-1 font-[var(--font-data)] text-[10px] text-muted-foreground">
                 {rate}%
               </p>
             </div>
           ))}
         </div>
-        <div className="mt-8 rounded-2xl bg-[#f6f8f4] px-4 py-3 text-sm text-[#687269]">
+        <div className="mt-8 rounded-2xl bg-muted px-4 py-3 text-sm text-muted-foreground">
           简历通过到进入面试的转化目前为{" "}
-          <strong className="font-semibold text-[#27764b]">
+          <strong className="font-semibold text-foreground">
             {interviewRate}%
           </strong>
           。
         </div>
         {dashboard.stageDistribution.length > 0 ? (
           <div className="mt-5">
-            <p className="text-xs font-medium text-[#687269]">
+            <p className="text-xs font-medium text-muted-foreground">
               选拔阶段分布
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
               {dashboard.stageDistribution.map((item) => (
                 <span
                   key={item.label}
-                  className="rounded-full border border-[#dce5dd] bg-white px-3 py-1.5 text-xs text-[#687269]"
+                  className="rounded-full border border-border bg-white px-3 py-1.5 text-xs text-muted-foreground"
                 >
                   {item.label} · {item.count}
                 </span>

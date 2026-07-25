@@ -2,8 +2,16 @@ import Link from "next/link";
 
 import { AuthFrame } from "@/components/auth/auth-frame";
 import { LoginForm } from "@/components/auth/auth-forms";
+import { safePostAuthPath } from "@/modules/auth/navigation";
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ next?: string }>;
+}) {
+  const nextPath = safePostAuthPath((await searchParams).next);
+  const registerHref = `/register?next=${encodeURIComponent(nextPath)}`;
+
   return (
     <AuthFrame
       eyebrow="Welcome back"
@@ -13,15 +21,15 @@ export default function LoginPage() {
         <>
           还没有账户？{" "}
           <Link
-            href="/register"
-            className="font-medium text-[#27764b] hover:underline"
+            href={registerHref}
+            className="font-medium text-foreground underline-offset-4 hover:underline"
           >
             免费注册
           </Link>
         </>
       }
     >
-      <LoginForm />
+      <LoginForm nextPath={nextPath} />
     </AuthFrame>
   );
 }

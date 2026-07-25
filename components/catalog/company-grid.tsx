@@ -16,11 +16,11 @@ export function CompanyGrid({
     return (
       <Card className="mt-7 grid min-h-64 place-items-center p-8 text-center shadow-none">
         <div>
-          <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e7f6ec] text-[#27764b]">
+          <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e7f6ec] text-foreground">
             <Building2 size={21} />
           </span>
           <p className="mt-4 text-sm font-medium">官方公司目录正在整理</p>
-          <p className="mt-1 text-xs text-[#879088]">
+          <p className="mt-1 text-xs text-muted-foreground">
             创建投递时仍可使用只属于你的自定义公司。
           </p>
         </div>
@@ -36,20 +36,20 @@ export function CompanyGrid({
           <li key={company.id}>
             <Card className="group h-full p-5 shadow-none transition hover:-translate-y-0.5 hover:border-[#b7cbb9] hover:shadow-[0_16px_45px_rgb(32_38_32/0.07)]">
               <div className="flex items-start gap-4">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-[#dce5dd] bg-[#f6f8f4] font-[var(--font-display)] text-lg font-semibold text-[#27764b]">
+                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-border bg-muted font-[var(--font-display)] text-lg font-semibold text-foreground">
                   {companyInitial(company.name)}
                 </span>
                 <div className="min-w-0 flex-1">
                   <h2 className="truncate font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
                     {company.name}
                   </h2>
-                  <p className="mt-1 text-xs text-[#879088]">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {company.industry ?? "行业未分类"}
                   </p>
                 </div>
               </div>
-              <div className="mt-7 flex items-center justify-between border-t border-[#edf0ed] pt-4">
-                <span className="inline-flex items-center gap-1.5 text-xs text-[#687269]">
+              <div className="mt-7 flex items-center justify-between border-t border-border pt-4">
+                <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Globe2 size={13} />
                   官方公司
                 </span>
@@ -59,7 +59,7 @@ export function CompanyGrid({
                     target="_blank"
                     rel="noreferrer"
                     aria-label={`查看 ${company.name} 招聘页面`}
-                    className="inline-flex items-center gap-1 text-xs font-medium text-[#27764b] hover:underline"
+                    className="inline-flex items-center gap-1 text-xs font-medium text-foreground hover:underline"
                   >
                     招聘页面
                     <ArrowUpRight size={13} />

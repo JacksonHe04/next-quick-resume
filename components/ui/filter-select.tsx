@@ -21,7 +21,7 @@ export function FilterSelect({
       aria-label={label}
       value={value}
       onChange={(event) => onChange(event.target.value)}
-      className="min-h-11 min-w-32 rounded-xl border border-[#dce5dd] bg-white px-3.5 text-sm text-[#303830] outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+      className="h-9 min-w-32 rounded-md border border-input bg-background px-3 text-sm text-foreground shadow-xs outline-none transition-colors focus:border-ring focus:ring-3 focus:ring-ring/20"
     >
       <option value="">{allLabel}</option>
       {options.map((option) => (

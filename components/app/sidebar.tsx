@@ -9,7 +9,7 @@ import {
   LogOut,
   Settings,
   Send,
-  Sparkles,
+  LogIn,
   Video,
 } from "lucide-react";
 import Link from "next/link";
@@ -46,38 +46,38 @@ export function Sidebar({
   pathname = "",
   onLogout,
 }: {
-  user: { name: string; email: string };
+  user: { name: string; email: string } | null;
   className?: string;
   onNavigate?: () => void;
   pathname?: string;
   onLogout?: () => void | Promise<void>;
 }) {
-  const initials = user.name.trim().slice(0, 1).toUpperCase() || "S";
+  const initials = user?.name.trim().slice(0, 1).toUpperCase() || "S";
 
   return (
     <aside
       className={cn(
-        "flex h-full w-[248px] flex-col border-r border-[#dce5dd] bg-[#f8faf6]",
+        "flex h-full w-[240px] flex-col border-r border-border bg-background",
         className,
       )}
     >
       <Link
         href="/app"
         onClick={onNavigate}
-        className="mx-4 mt-4 flex h-14 items-center gap-3 rounded-2xl px-3"
+        className="mx-3 mt-3 flex h-12 items-center gap-2.5 rounded-lg px-2.5"
         aria-label="SAYLESS 首页"
       >
-        <span className="grid size-9 place-items-center rounded-xl bg-[#27764b] text-white shadow-[0_9px_22px_rgb(39_118_75/0.18)]">
-          <Sparkles size={17} strokeWidth={2.2} />
+        <span className="grid size-7 place-items-center rounded-md bg-foreground text-xs font-semibold text-background">
+          S
         </span>
-        <span className="font-[var(--font-display)] text-[17px] font-semibold tracking-[-0.03em]">
+        <span className="text-sm font-semibold tracking-[-0.02em]">
           SAYLESS
         </span>
       </Link>
 
       <nav
         aria-label="主要导航"
-        className="mt-5 flex flex-1 flex-col gap-1 px-3"
+        className="mt-4 flex flex-1 flex-col gap-0.5 px-3"
       >
         {NAV_ITEMS.map(({ href, label, icon: IconComponent }) => {
           const active = isActivePath(pathname, href);
@@ -88,10 +88,10 @@ export function Sidebar({
               onClick={onNavigate}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "group flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium text-[#687269] transition",
-                "hover:bg-[#eef4ee] hover:text-[#202620]",
+                "group flex h-9 items-center gap-2.5 rounded-md px-2.5 text-sm text-muted-foreground transition-colors",
+                "hover:bg-muted hover:text-foreground",
                 active &&
-                  "bg-white text-[#27764b] shadow-[0_6px_22px_rgb(32_38_32/0.07)] ring-1 ring-[#dce5dd]",
+                  "bg-muted font-medium text-foreground",
               )}
             >
               <IconComponent
@@ -105,35 +105,50 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="m-3 rounded-2xl border border-[#dce5dd] bg-white p-2 shadow-[0_8px_28px_rgb(32_38_32/0.05)]">
-        <div className="flex items-center gap-2.5 px-2 py-2">
-          <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#dff1e5] font-[var(--font-display)] text-sm font-semibold text-[#27764b]">
+      <div className="border-t border-border p-3">
+        <div className="flex items-center gap-2.5 rounded-md px-2 py-2">
+          <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-muted text-xs font-medium text-foreground">
             {initials}
           </span>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-[#202620]">
-              {user.name}
+            <p className="truncate text-sm font-medium text-foreground">
+              {user?.name ?? "访客模式"}
             </p>
-            <p className="truncate text-xs text-[#879088]">{user.email}</p>
+            <p className="truncate text-xs text-muted-foreground">
+              {user?.email ?? "浏览演示数据"}
+            </p>
           </div>
         </div>
-        <div className="mt-1 grid grid-cols-2 gap-1 border-t border-[#edf0ed] pt-2">
-          <Link
-            href="/app/settings"
-            onClick={onNavigate}
-            className="flex min-h-9 items-center justify-center gap-1.5 rounded-lg text-xs text-[#687269] transition hover:bg-[#eef4ee] hover:text-[#202620]"
-          >
-            <Settings size={14} />
-            设置
-          </Link>
-          <button
-            type="button"
-            onClick={onLogout}
-            className="flex min-h-9 items-center justify-center gap-1.5 rounded-lg text-xs text-[#687269] transition hover:bg-[#fbecef] hover:text-[#9d4450]"
-          >
-            <LogOut size={14} />
-            退出
-          </button>
+        <div className="mt-1 grid grid-cols-2 gap-1">
+          {user ? (
+            <>
+              <Link
+                href="/app/settings"
+                onClick={onNavigate}
+                className="flex h-8 items-center justify-center gap-1.5 rounded-md text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Settings size={14} />
+                设置
+              </Link>
+              <button
+                type="button"
+                onClick={onLogout}
+                className="flex h-8 items-center justify-center gap-1.5 rounded-md text-xs text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              >
+                <LogOut size={14} />
+                退出
+              </button>
+            </>
+          ) : (
+            <Link
+              href="/login"
+              onClick={onNavigate}
+              className="col-span-2 flex h-8 items-center justify-center gap-1.5 rounded-md bg-foreground text-xs font-medium text-background transition-opacity hover:opacity-85"
+            >
+              <LogIn size={14} />
+              登录后开始记录
+            </Link>
+          )}
         </div>
       </div>
     </aside>

@@ -1,26 +1,25 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
+import * as React from "react"
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils"
 
-export type InputProps = InputHTMLAttributes<HTMLInputElement> & {
-  error?: boolean;
-};
+type InputProps = React.ComponentProps<"input"> & {
+  error?: boolean
+}
 
-export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, error = false, ...props }, ref) => (
+function Input({ className, type, error = false, ...props }: InputProps) {
+  return (
     <input
-      ref={ref}
-      aria-invalid={error || undefined}
+      type={type}
+      data-slot="input"
+      aria-invalid={error || props["aria-invalid"]}
       className={cn(
-        "min-h-11 w-full rounded-xl border bg-white px-3.5 text-sm text-[#202620] shadow-[0_1px_0_rgb(32_38_32/0.02)] transition placeholder:text-[#98a099]",
-        "border-[#dce5dd] hover:border-[#bdcabe] focus:border-[#55b97a] focus:outline-none focus:ring-3 focus:ring-[#55b97a]/15",
-        error &&
-          "border-[#c45a67] focus:border-[#c45a67] focus:ring-[#c45a67]/15",
-        className,
+        "h-9 w-full min-w-0 rounded-md border border-input bg-background px-3 py-1 text-base shadow-xs transition-colors outline-none file:inline-flex file:h-6 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20 disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-muted disabled:opacity-60 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/15 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
+        className
       )}
       {...props}
     />
-  ),
-);
+  )
+}
 
-Input.displayName = "Input";
+export { Input }
+export type { InputProps }

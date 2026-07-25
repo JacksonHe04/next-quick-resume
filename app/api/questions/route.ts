@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getReadDatabaseContext } from "@/modules/auth/action-context";
 import {
   getQuestionActionContext,
   questionErrorResponse,
@@ -10,11 +11,10 @@ import { createQuestion } from "@/modules/questions/service";
 
 export async function GET(request: Request) {
   try {
-    const context = await getQuestionActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getReadDatabaseContext(request);
     const questions = await listQuestionViews(
       context.database,
-      context.user.id,
+      context.userId,
     );
     return NextResponse.json({ questions });
   } catch (error) {

@@ -19,6 +19,7 @@ import {
 
 import { ResumePreview } from "@/components/resumes/resume-preview";
 import { Button, Card, Input } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 import type { ResumeRecord } from "@/modules/resumes/service";
 import type {
   ResumeData,
@@ -36,7 +37,7 @@ type SaveInput = {
 type SaveResult = { version: number };
 
 async function saveThroughApi(input: SaveInput): Promise<SaveResult> {
-  const response = await fetch(`/api/resumes/${input.id}`, {
+  const response = await appFetch(`/api/resumes/${input.id}`, {
     method: "PATCH",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(input),
@@ -248,13 +249,13 @@ export function ResumeEditor({
 
   return (
     <div className="min-h-screen bg-[#f4f6f1] print:bg-white">
-      <div className="sticky top-0 z-30 border-b border-[#dce5dd] bg-[#fbfcf8]/95 px-4 py-3 backdrop-blur print:hidden">
+      <div className="sticky top-0 z-30 border-b border-border bg-[#fbfcf8]/95 px-4 py-3 backdrop-blur print:hidden">
         <div className="mx-auto flex max-w-[1500px] flex-wrap items-center justify-between gap-3">
           <div className="flex min-w-0 items-center gap-3">
             <Link
               href="/app/resumes"
               aria-label="返回简历列表"
-              className="grid size-9 place-items-center rounded-lg text-[#687269] hover:bg-[#eef4ee]"
+              className="grid size-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
             >
               <ArrowLeft size={17} />
             </Link>
@@ -264,7 +265,7 @@ export function ResumeEditor({
               onChange={(event) => setName(event.target.value)}
               className="w-48 bg-white font-medium"
             />
-            <span className="hidden text-xs text-[#879088] sm:inline">
+            <span className="hidden text-xs text-muted-foreground sm:inline">
               v{version}
             </span>
           </div>
@@ -274,7 +275,7 @@ export function ResumeEditor({
               className={
                 syncState === "error"
                   ? "text-xs text-[#9d4450]"
-                  : "text-xs text-[#687269]"
+                  : "text-xs text-muted-foreground"
               }
             >
               {syncState === "saved" ? (
@@ -312,7 +313,7 @@ export function ResumeEditor({
             <h2 className="text-sm font-semibold">基本信息</h2>
             <div className="mt-4 space-y-3">
               <label>
-                <span className="mb-1.5 block text-xs text-[#687269]">
+                <span className="mb-1.5 block text-xs text-muted-foreground">
                   姓名
                 </span>
                 <Input
@@ -324,7 +325,7 @@ export function ResumeEditor({
                 />
               </label>
               <label>
-                <span className="mb-1.5 block text-xs text-[#687269]">
+                <span className="mb-1.5 block text-xs text-muted-foreground">
                   求职方向
                 </span>
                 <Input
@@ -341,7 +342,7 @@ export function ResumeEditor({
                 />
               </label>
               <label>
-                <span className="mb-1.5 block text-xs text-[#687269]">
+                <span className="mb-1.5 block text-xs text-muted-foreground">
                   邮箱
                 </span>
                 <Input
@@ -353,7 +354,7 @@ export function ResumeEditor({
                 />
               </label>
               <label>
-                <span className="mb-1.5 block text-xs text-[#687269]">
+                <span className="mb-1.5 block text-xs text-muted-foreground">
                   电话 / 微信
                 </span>
                 <Input
@@ -370,7 +371,7 @@ export function ResumeEditor({
           <Card className="p-4 shadow-none">
             <h2 className="text-sm font-semibold">版式与模块</h2>
             <label className="mt-4 block">
-              <span className="mb-1.5 block text-xs text-[#687269]">
+              <span className="mb-1.5 block text-xs text-muted-foreground">
                 头部对齐
               </span>
               <select
@@ -386,7 +387,7 @@ export function ResumeEditor({
                     },
                   }))
                 }
-                className="min-h-10 w-full rounded-xl border border-[#dce5dd] bg-white px-3 text-sm"
+                className="min-h-10 w-full rounded-xl border border-border bg-white px-3 text-sm"
               >
                 <option value="left">左对齐</option>
                 <option value="center">居中</option>
@@ -401,7 +402,7 @@ export function ResumeEditor({
                 return (
                   <div
                     key={key}
-                    className="flex items-center gap-2 rounded-xl border border-[#edf0ed] px-3 py-2"
+                    className="flex items-center gap-2 rounded-xl border border-border px-3 py-2"
                   >
                     <label className="flex flex-1 items-center gap-2 text-sm">
                       <input
@@ -415,7 +416,7 @@ export function ResumeEditor({
                       type="button"
                       aria-label={`上移${section.label}`}
                       onClick={() => moveSection(key, -1)}
-                      className="text-[#879088]"
+                      className="text-muted-foreground"
                     >
                       <ArrowUp size={13} />
                     </button>
@@ -423,7 +424,7 @@ export function ResumeEditor({
                       type="button"
                       aria-label={`下移${section.label}`}
                       onClick={() => moveSection(key, 1)}
-                      className="text-[#879088]"
+                      className="text-muted-foreground"
                     >
                       <ArrowDown size={13} />
                     </button>
@@ -434,9 +435,9 @@ export function ResumeEditor({
           </Card>
 
           <Card className="overflow-hidden shadow-none">
-            <div className="border-b border-[#edf0ed] px-4 py-3">
+            <div className="border-b border-border px-4 py-3">
               <h2 className="text-sm font-semibold">完整 JSON</h2>
-              <p className="mt-1 text-xs text-[#879088]">
+              <p className="mt-1 text-xs text-muted-foreground">
                 用于编辑教育、项目、实习等全部结构化字段。
               </p>
             </div>

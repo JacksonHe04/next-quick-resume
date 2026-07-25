@@ -21,12 +21,12 @@ export function UpcomingInterviews({
 }) {
   return (
     <Card className="overflow-hidden shadow-none">
-      <div className="flex items-center justify-between border-b border-[#edf0ed] px-5 py-4">
+      <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
           <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
             近期面试
           </h2>
-          <p className="mt-1 text-xs text-[#879088]">
+          <p className="mt-1 text-xs text-muted-foreground">
             接下来最多五场安排
           </p>
         </div>
@@ -37,7 +37,7 @@ export function UpcomingInterviews({
           <Link
             key={interview.id}
             href={`/app/interviews/${interview.id}`}
-            className="group flex items-center gap-4 px-5 py-4 transition hover:bg-[#fbfcf9]"
+            className="group flex items-center gap-4 px-5 py-4 transition hover:bg-muted"
           >
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
@@ -46,16 +46,16 @@ export function UpcomingInterviews({
                 </p>
                 <StatusBadge value="upcoming" />
               </div>
-              <p className="mt-1 truncate text-sm text-[#687269]">
+              <p className="mt-1 truncate text-sm text-muted-foreground">
                 {interview.name} · {interview.positionName}
               </p>
-              <p className="mt-1.5 font-[var(--font-data)] text-[10px] text-[#879088]">
+              <p className="mt-1.5 font-[var(--font-data)] text-[10px] text-muted-foreground">
                 {formatSchedule(interview.scheduledAt!)}
               </p>
             </div>
             <ArrowUpRight
               size={16}
-              className="text-[#a2aba3] transition group-hover:text-[#27764b]"
+              className="text-[#a2aba3] transition group-hover:text-foreground"
             />
           </Link>
         ))}
@@ -64,7 +64,7 @@ export function UpcomingInterviews({
             <p className="text-sm font-medium">近期没有待进行的面试</p>
             <Link
               href="/app/interviews"
-              className="mt-2 inline-block text-xs text-[#27764b] hover:underline"
+              className="mt-2 inline-block text-xs text-foreground hover:underline"
             >
               查看全部选拔事件
             </Link>

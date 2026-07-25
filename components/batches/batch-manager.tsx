@@ -22,6 +22,7 @@ import {
   Input,
   StatusBadge,
 } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 
 type Batch = {
   id: string;
@@ -43,7 +44,7 @@ async function api(
   method: "POST" | "DELETE",
   body?: unknown,
 ) {
-  const response = await fetch(url, {
+  const response = await appFetch(url, {
     method,
     headers: body ? { "content-type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined,
@@ -77,7 +78,7 @@ export function BatchManager() {
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
-    const response = await fetch("/api/batches", { cache: "no-store" });
+    const response = await appFetch("/api/batches", { cache: "no-store" });
     if (!response.ok) throw new Error("批次加载失败");
     setData((await response.json()) as BatchResponse);
   }, []);
@@ -129,7 +130,7 @@ export function BatchManager() {
         {[0, 1].map((item) => (
           <div
             key={item}
-            className="h-48 animate-pulse rounded-[18px] border border-[#dce5dd] bg-white/60"
+            className="h-48 animate-pulse rounded-[18px] border border-border bg-white/60"
           />
         ))}
       </div>
@@ -139,7 +140,7 @@ export function BatchManager() {
   return (
     <>
       <div className="mt-7 flex items-center justify-between gap-4">
-        <p className="text-sm text-[#687269]">
+        <p className="text-sm text-muted-foreground">
           当前批次只作为新建投递的默认分组，不会筛选其他页面。
         </p>
         <Button onClick={() => setDrawerOpen(true)}>
@@ -159,11 +160,11 @@ export function BatchManager() {
       {data.batches.length === 0 ? (
         <Card className="mt-5 grid min-h-64 place-items-center p-8 text-center shadow-none">
           <div>
-            <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e7f6ec] text-[#27764b]">
+            <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e7f6ec] text-foreground">
               <CalendarRange size={21} />
             </span>
             <h2 className="mt-4 font-medium">先建立第一个求职批次</h2>
-            <p className="mt-1 text-sm text-[#687269]">
+            <p className="mt-1 text-sm text-muted-foreground">
               例如“2026 夏季产品岗”或“毕业前冲刺阶段”。
             </p>
             <Button
@@ -205,12 +206,12 @@ export function BatchManager() {
                       )}
                     </div>
                     {batch.description ? (
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#687269]">
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
                         {batch.description}
                       </p>
                     ) : null}
                     {start || end ? (
-                      <p className="mt-3 font-[var(--font-data)] text-[10px] text-[#879088]">
+                      <p className="mt-3 font-[var(--font-data)] text-[10px] text-muted-foreground">
                         {start ?? "未设置"} — {end ?? "至今"}
                       </p>
                     ) : null}
@@ -221,7 +222,7 @@ export function BatchManager() {
                   />
                 </div>
 
-                <div className="mt-5 flex flex-wrap gap-2 border-t border-[#edf0ed] pt-4">
+                <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
                   {!archived && !current ? (
                     <Button
                       size="sm"
@@ -324,7 +325,7 @@ export function BatchManager() {
             <textarea
               name="description"
               rows={3}
-              className="w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 py-3 text-sm outline-none transition focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+              className="w-full rounded-xl border border-border bg-white px-3.5 py-3 text-sm outline-none transition focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
               placeholder="这个阶段的目标是什么？"
             />
           </label>
@@ -349,7 +350,7 @@ export function BatchManager() {
             <textarea
               name="strategyMarkdown"
               rows={7}
-              className="w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 py-3 font-[var(--font-data)] text-xs leading-6 outline-none transition focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+              className="w-full rounded-xl border border-border bg-white px-3.5 py-3 font-[var(--font-data)] text-xs leading-6 outline-none transition focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
               placeholder="- 这一阶段优先投递什么岗位&#10;- 每周投递和复盘节奏"
             />
           </label>

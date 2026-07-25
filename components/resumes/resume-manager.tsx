@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
 import { Button, Card, Input } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 import { createDefaultResumeDocument } from "@/modules/resumes/defaults";
 import type { ResumeRecord } from "@/modules/resumes/service";
 
@@ -16,7 +17,7 @@ export function ResumeManager() {
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
-    const response = await fetch("/api/resumes", { cache: "no-store" });
+    const response = await appFetch("/api/resumes", { cache: "no-store" });
     if (!response.ok) throw new Error("简历列表加载失败");
     const payload = (await response.json()) as {
       resumes: ResumeRecord[];
@@ -34,7 +35,7 @@ export function ResumeManager() {
     setPending(true);
     setError(undefined);
     try {
-      const response = await fetch("/api/resumes", {
+      const response = await appFetch("/api/resumes", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -57,7 +58,7 @@ export function ResumeManager() {
   }
 
   async function mutate(id: string, action: "clone" | "delete") {
-    const response = await fetch(
+    const response = await appFetch(
       `/api/resumes/${id}${action === "clone" ? "/clone" : ""}`,
       { method: action === "clone" ? "POST" : "DELETE" },
     );
@@ -105,7 +106,7 @@ export function ResumeManager() {
           ? [0, 1, 2].map((item) => (
               <div
                 key={item}
-                className="h-44 animate-pulse rounded-[18px] border border-[#dce5dd] bg-white/60"
+                className="h-44 animate-pulse rounded-[18px] border border-border bg-white/60"
               />
             ))
           : resumes.map((resume) => (
@@ -115,11 +116,11 @@ export function ResumeManager() {
                     <FileText size={19} className="text-[#55a572]" />
                     <Link
                       href={`/app/resumes/${resume.id}`}
-                      className="mt-4 block font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-[#27764b]"
+                      className="mt-4 block font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-foreground"
                     >
                       {resume.name}
                     </Link>
-                    <p className="mt-2 text-xs text-[#879088]">
+                    <p className="mt-2 text-xs text-muted-foreground">
                       {resume.document.data.header.name || "未填写姓名"} · v
                       {resume.version}
                     </p>
@@ -129,7 +130,7 @@ export function ResumeManager() {
                       type="button"
                       aria-label="克隆简历"
                       onClick={() => mutate(resume.id, "clone")}
-                      className="grid size-8 place-items-center rounded-lg text-[#879088] hover:bg-[#eef4ee] hover:text-[#27764b]"
+                      className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
                     >
                       <Copy size={14} />
                     </button>
@@ -137,7 +138,7 @@ export function ResumeManager() {
                       type="button"
                       aria-label="删除简历"
                       onClick={() => mutate(resume.id, "delete")}
-                      className="grid size-8 place-items-center rounded-lg text-[#879088] hover:bg-[#fbecef] hover:text-[#9d4450]"
+                      className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-[#fbecef] hover:text-[#9d4450]"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -152,7 +153,7 @@ export function ResumeManager() {
           <div>
             <FileText size={24} className="mx-auto text-[#55a572]" />
             <p className="mt-4 text-sm font-medium">还没有简历</p>
-            <p className="mt-1 text-xs text-[#879088]">
+            <p className="mt-1 text-xs text-muted-foreground">
               创建第一份简历后，内容会安全保存在个人空间中。
             </p>
           </div>

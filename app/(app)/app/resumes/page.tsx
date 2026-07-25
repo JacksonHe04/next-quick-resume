@@ -6,7 +6,7 @@ export default function ResumesPage() {
       <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
         简历
       </h1>
-      <p className="mt-2 text-sm text-[#687269]">
+      <p className="mt-2 text-sm text-muted-foreground">
         管理结构化简历，并在统一编辑器中预览和导出。
       </p>
       <ResumeManager />

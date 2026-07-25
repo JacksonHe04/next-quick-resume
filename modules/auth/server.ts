@@ -1,23 +1,17 @@
-import { getCloudflareContext } from "@opennextjs/cloudflare";
+import { cookies } from "next/headers";
 
 import { getDb } from "@/db/client";
 import { createTransactionalEmail } from "@/modules/auth/email";
 import { createAuthRepository } from "@/modules/auth/repository";
-
-type AuthEnvironment = CloudflareEnv & {
-  RESEND_API_KEY?: string;
-  RESEND_FROM_EMAIL?: string;
-  SESSION_SECRET?: string;
-};
+import {
+  resolveSession,
+  SESSION_COOKIE_NAME,
+} from "@/modules/auth/session";
 
 function requireEnvironmentValue(
-  environment: AuthEnvironment,
-  key: keyof Pick<
-    AuthEnvironment,
-    "RESEND_API_KEY" | "RESEND_FROM_EMAIL" | "SESSION_SECRET"
-  >,
+  key: "RESEND_API_KEY" | "RESEND_FROM_EMAIL" | "SESSION_SECRET",
 ): string {
-  const value = environment[key];
+  const value = process.env[key];
   if (!value) {
     throw new Error(`Missing required runtime variable: ${key}`);
   }
@@ -25,22 +19,29 @@ function requireEnvironmentValue(
 }
 
 export async function getAuthRuntime() {
-  const [{ env }, repository] = await Promise.all([
-    getCloudflareContext({ async: true }),
-    getAuthRepository(),
-  ]);
-  const environment = env as AuthEnvironment;
+  const repository = await getAuthRepository();
 
   return {
     repository,
     email: createTransactionalEmail(
-      requireEnvironmentValue(environment, "RESEND_API_KEY"),
-      requireEnvironmentValue(environment, "RESEND_FROM_EMAIL"),
+      requireEnvironmentValue("RESEND_API_KEY"),
+      requireEnvironmentValue("RESEND_FROM_EMAIL"),
     ),
-    secret: requireEnvironmentValue(environment, "SESSION_SECRET"),
+    secret: requireEnvironmentValue("SESSION_SECRET"),
   };
 }
 
 export async function getAuthRepository() {
   return createAuthRepository(await getDb());
+}
+
+export async function getOptionalCurrentUser() {
+  const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
+  if (!token) return null;
+
+  const repository = await getAuthRepository();
+  const session = await resolveSession(repository, token);
+  if (!session) return null;
+  const user = await repository.findUserById(session.userId);
+  return user && !user.disabledAt ? user : null;
 }

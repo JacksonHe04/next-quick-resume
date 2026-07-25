@@ -12,7 +12,7 @@ export default function ForgotPasswordPage() {
       footer={
         <Link
           href="/login"
-          className="font-medium text-[#27764b] hover:underline"
+          className="font-medium text-foreground hover:underline"
         >
           返回登录
         </Link>

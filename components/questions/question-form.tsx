@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from "react";
 
 import { Button, Input, MarkdownEditor } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 
 export function QuestionForm({
   interviewId,
@@ -22,7 +23,7 @@ export function QuestionForm({
     const data = new FormData(event.currentTarget);
 
     try {
-      const response = await fetch("/api/questions", {
+      const response = await appFetch("/api/questions", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -40,7 +41,7 @@ export function QuestionForm({
       }
 
       if (interviewId) {
-        const linkResponse = await fetch(
+        const linkResponse = await appFetch(
           `/api/questions/${payload.question.id}/links`,
           {
             method: "POST",

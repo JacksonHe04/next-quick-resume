@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getReadDatabaseContext } from "@/modules/auth/action-context";
 import {
   getInterviewActionContext,
   interviewErrorResponse,
@@ -10,11 +11,10 @@ import { createInterview } from "@/modules/interviews/service";
 
 export async function GET(request: Request) {
   try {
-    const context = await getInterviewActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getReadDatabaseContext(request);
     const interviews = await listInterviewViews(
       context.database,
-      context.user.id,
+      context.userId,
     );
     return NextResponse.json({ interviews });
   } catch (error) {

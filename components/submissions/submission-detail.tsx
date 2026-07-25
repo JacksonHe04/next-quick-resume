@@ -8,6 +8,7 @@ import {
   Card,
   PresentationBadge,
 } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 import { displaySubmissionStatus } from "@/modules/submissions/status";
 import type {
   DirectSubmissionStatus,
@@ -35,7 +36,7 @@ export function SubmissionDetail({ id }: { id: string }) {
   const [error, setError] = useState<string>();
 
   useEffect(() => {
-    fetch("/api/submissions", { cache: "no-store" })
+    appFetch("/api/submissions", { cache: "no-store" })
       .then(async (response) => {
         if (!response.ok) throw new Error("投递加载失败");
         const payload = (await response.json()) as {
@@ -59,7 +60,7 @@ export function SubmissionDetail({ id }: { id: string }) {
   }
   if (!detail) {
     return (
-      <div className="h-72 animate-pulse rounded-[18px] border border-[#dce5dd] bg-white/60" />
+      <div className="h-72 animate-pulse rounded-[18px] border border-border bg-white/60" />
     );
   }
 
@@ -79,18 +80,18 @@ export function SubmissionDetail({ id }: { id: string }) {
     <>
       <Link
         href="/app/submissions"
-        className="inline-flex items-center gap-2 text-sm text-[#687269] hover:text-[#27764b]"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft size={15} />
         返回投递
       </Link>
       <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-[#687269]">{detail.companyName}</p>
+          <p className="text-sm text-muted-foreground">{detail.companyName}</p>
           <h1 className="mt-1 font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
             {detail.positionName}
           </h1>
-          <p className="mt-2 text-sm text-[#879088]">
+          <p className="mt-2 text-sm text-muted-foreground">
             岗位概念：{detail.positionConcept}
           </p>
         </div>
@@ -109,7 +110,7 @@ export function SubmissionDetail({ id }: { id: string }) {
           ["工作地点", detail.location ?? "未填写"],
         ].map(([label, value]) => (
           <div key={label} className="bg-white p-5">
-            <p className="text-xs text-[#879088]">{label}</p>
+            <p className="text-xs text-muted-foreground">{label}</p>
             <p className="mt-2 text-sm font-medium">{value}</p>
           </div>
         ))}
@@ -119,7 +120,7 @@ export function SubmissionDetail({ id }: { id: string }) {
           href={detail.jdUrl}
           target="_blank"
           rel="noreferrer"
-          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-[#27764b] hover:underline"
+          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-foreground hover:underline"
         >
           打开职位页面
           <ExternalLink size={14} />
@@ -129,7 +130,7 @@ export function SubmissionDetail({ id }: { id: string }) {
         <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
           选拔进程
         </h2>
-        <p className="mt-8 text-center text-sm text-[#879088]">
+        <p className="mt-8 text-center text-sm text-muted-foreground">
           还没有选拔事件。后续可在这里添加测评、笔试和每一轮面试。
         </p>
       </Card>

@@ -61,15 +61,15 @@ export function DashboardMetrics({
       {items.map(({ label, value, note, icon: Icon }) => (
         <Card key={label} className="p-5 shadow-none">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-[#687269]">{label}</span>
-            <span className="grid size-8 place-items-center rounded-lg bg-[#eef4ee] text-[#27764b]">
+            <span className="text-sm text-muted-foreground">{label}</span>
+            <span className="grid size-8 place-items-center rounded-lg bg-muted text-foreground">
               <Icon size={15} />
             </span>
           </div>
           <p className="mt-5 font-[var(--font-data)] text-[2.35rem] font-semibold leading-none tracking-[-0.07em]">
             {value}
           </p>
-          <p className="mt-2 text-xs text-[#879088]">{note}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{note}</p>
         </Card>
       ))}
     </section>

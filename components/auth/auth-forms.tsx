@@ -45,7 +45,7 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-[#4f5951]">
+      <span className="mb-2 block text-sm font-medium text-muted-foreground">
         {label}
       </span>
       <Input
@@ -75,7 +75,7 @@ function FormMessage({
       className={
         error
           ? "rounded-xl border border-[#ebc3c8] bg-[#fbecef] px-3 py-2.5 text-sm text-[#9d4450]"
-          : "rounded-xl border border-[#baddc6] bg-[#e7f6ec] px-3 py-2.5 text-sm text-[#27764b]"
+          : "rounded-xl border border-[#baddc6] bg-[#e7f6ec] px-3 py-2.5 text-sm text-foreground"
       }
     >
       {message}
@@ -83,7 +83,7 @@ function FormMessage({
   );
 }
 
-export function LoginForm() {
+export function LoginForm({ nextPath = "/app" }: { nextPath?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
@@ -98,7 +98,7 @@ export function LoginForm() {
         email: String(data.get("email")),
         password: String(data.get("password")),
       });
-      router.replace("/app");
+      router.replace(nextPath);
       router.refresh();
     } catch (submissionError) {
       setError((submissionError as Error).message);
@@ -126,7 +126,7 @@ export function LoginForm() {
       <div className="flex justify-end">
         <a
           href="/forgot-password"
-          className="text-xs font-medium text-[#27764b] hover:underline"
+          className="text-xs font-medium text-foreground hover:underline"
         >
           忘记密码？
         </a>
@@ -139,7 +139,7 @@ export function LoginForm() {
   );
 }
 
-export function RegisterForm() {
+export function RegisterForm({ nextPath = "/app" }: { nextPath?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [codePending, setCodePending] = useState(false);
@@ -177,7 +177,7 @@ export function RegisterForm() {
         code: String(data.get("code")),
         password: String(data.get("password")),
       });
-      router.replace("/app");
+      router.replace(nextPath);
       router.refresh();
     } catch (submissionError) {
       setError((submissionError as Error).message);
@@ -202,7 +202,7 @@ export function RegisterForm() {
         placeholder="you@example.com"
       />
       <div>
-        <span className="mb-2 block text-sm font-medium text-[#4f5951]">
+        <span className="mb-2 block text-sm font-medium text-muted-foreground">
           邮箱验证码
         </span>
         <div className="grid grid-cols-[1fr_auto] gap-2">

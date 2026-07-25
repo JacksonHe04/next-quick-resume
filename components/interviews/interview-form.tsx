@@ -3,6 +3,7 @@
 import { type FormEvent, useState } from "react";
 
 import { Button, Input } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 
 export function InterviewForm({
   submissions,
@@ -26,7 +27,7 @@ export function InterviewForm({
     const duration = String(data.get("durationMinutes") ?? "");
     const scheduledAt = String(data.get("scheduledAt") ?? "");
     try {
-      const response = await fetch("/api/interviews", {
+      const response = await appFetch("/api/interviews", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -63,7 +64,7 @@ export function InterviewForm({
           name="submissionId"
           defaultValue={defaultSubmissionId ?? submissions[0]?.id ?? ""}
           required
-          className="min-h-11 w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+          className="min-h-11 w-full rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
         >
           {submissions.map((submission) => (
             <option key={submission.id} value={submission.id}>
@@ -78,7 +79,7 @@ export function InterviewForm({
           <select
             name="stageId"
             required
-            className="min-h-11 w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+            className="min-h-11 w-full rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
           >
             {stages.map((stage) => (
               <option key={stage.id} value={stage.id}>
@@ -93,7 +94,7 @@ export function InterviewForm({
             aria-label="状态"
             name="status"
             defaultValue="pending_interview"
-            className="min-h-11 w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+            className="min-h-11 w-full rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
           >
             <option value="pending_interview">待进行</option>
             <option value="pending_result">待结果</option>
@@ -131,7 +132,7 @@ export function InterviewForm({
         <textarea
           name="reviewMarkdown"
           rows={6}
-          className="w-full rounded-xl border border-[#dce5dd] bg-white px-3.5 py-3 font-[var(--font-data)] text-xs leading-6 outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+          className="w-full rounded-xl border border-border bg-white px-3.5 py-3 font-[var(--font-data)] text-xs leading-6 outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
           placeholder="可以在面试后继续补充 Markdown 复盘"
         />
       </label>

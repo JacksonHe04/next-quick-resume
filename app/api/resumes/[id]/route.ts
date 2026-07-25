@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { getReadDatabaseContext } from "@/modules/auth/action-context";
+import { createResumeRepository } from "@/modules/resumes/repository";
 import {
   getResumeActionContext,
   resumeErrorResponse,
@@ -16,10 +18,9 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const context = await getResumeActionContext(request);
-    if (!context) return unauthenticatedResponse();
-    const resume = await context.repository.find(
-      context.user.id,
+    const context = await getReadDatabaseContext(request);
+    const resume = await createResumeRepository(context.database).find(
+      context.userId,
       (await params).id,
     );
     if (!resume) {

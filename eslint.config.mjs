@@ -49,6 +49,7 @@ const eslintConfig = [
       "playwright-report/**/*",
       "test-results/**/*",
       "data_import/**/*",
+      ".wrangler/**/*",
       "cloudflare-env.d.ts",
     ],
   },

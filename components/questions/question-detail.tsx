@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import type { InterviewView } from "@/components/interviews/interview-manager";
 import { Button, Card, Input, MarkdownEditor } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 
 type Question = {
   id: string;
@@ -39,8 +40,8 @@ export function QuestionDetail({ id }: { id: string }) {
 
   const load = useCallback(async () => {
     const [questionResponse, interviewResponse] = await Promise.all([
-      fetch(`/api/questions/${id}`, { cache: "no-store" }),
-      fetch("/api/interviews", { cache: "no-store" }),
+      appFetch(`/api/questions/${id}`, { cache: "no-store" }),
+      appFetch("/api/interviews", { cache: "no-store" }),
     ]);
     if (!questionResponse.ok) throw new Error("问题不存在");
     if (!interviewResponse.ok) throw new Error("选拔事件加载失败");
@@ -83,7 +84,7 @@ export function QuestionDetail({ id }: { id: string }) {
     setPending(true);
     setMessage(undefined);
     try {
-      const response = await fetch(`/api/questions/${id}`, {
+      const response = await appFetch(`/api/questions/${id}`, {
         method: "PATCH",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -103,7 +104,7 @@ export function QuestionDetail({ id }: { id: string }) {
   }
 
   async function changeLink(interviewId: string, method: "POST" | "DELETE") {
-    const response = await fetch(`/api/questions/${id}/links`, {
+    const response = await appFetch(`/api/questions/${id}/links`, {
       method,
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ interviewId }),
@@ -118,7 +119,7 @@ export function QuestionDetail({ id }: { id: string }) {
 
   if (!question) {
     return (
-      <div className="h-72 animate-pulse rounded-[18px] border border-[#dce5dd] bg-white/60" />
+      <div className="h-72 animate-pulse rounded-[18px] border border-border bg-white/60" />
     );
   }
 
@@ -126,13 +127,13 @@ export function QuestionDetail({ id }: { id: string }) {
     <>
       <Link
         href="/app/questions"
-        className="inline-flex items-center gap-2 text-sm text-[#687269] hover:text-[#27764b]"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft size={15} />
         返回题库
       </Link>
       <div className="mt-6">
-        <p className="text-sm text-[#687269]">持续迭代标准答案</p>
+        <p className="text-sm text-muted-foreground">持续迭代标准答案</p>
         <h1 className="mt-1 font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
           {question.questionText}
         </h1>
@@ -140,14 +141,14 @@ export function QuestionDetail({ id }: { id: string }) {
 
       <Card className="mt-7 grid gap-4 p-5 shadow-none sm:grid-cols-[1fr_220px]">
         <label>
-          <span className="mb-2 block text-xs text-[#879088]">问题</span>
+          <span className="mb-2 block text-xs text-muted-foreground">问题</span>
           <Input
             value={questionText}
             onChange={(event) => setQuestionText(event.target.value)}
           />
         </label>
         <label>
-          <span className="mb-2 block text-xs text-[#879088]">分类</span>
+          <span className="mb-2 block text-xs text-muted-foreground">分类</span>
           <Input
             value={category}
             onChange={(event) => setCategory(event.target.value)}
@@ -172,7 +173,7 @@ export function QuestionDetail({ id }: { id: string }) {
             className={
               message.error
                 ? "text-sm text-[#9d4450]"
-                : "text-sm text-[#27764b]"
+                : "text-sm text-foreground"
             }
           >
             {message.text}
@@ -192,7 +193,7 @@ export function QuestionDetail({ id }: { id: string }) {
             <h2 className="font-[var(--font-display)] text-lg font-semibold">
               关联选拔
             </h2>
-            <p className="mt-1 text-xs text-[#879088]">
+            <p className="mt-1 text-xs text-muted-foreground">
               同一个问题可以出现在多场测评或面试中。
             </p>
           </div>
@@ -202,7 +203,7 @@ export function QuestionDetail({ id }: { id: string }) {
                 aria-label="选择选拔事件"
                 value={selectedInterview}
                 onChange={(event) => setSelectedInterview(event.target.value)}
-                className="min-h-10 max-w-72 rounded-xl border border-[#dce5dd] bg-white px-3 text-sm outline-none"
+                className="min-h-10 max-w-72 rounded-xl border border-border bg-white px-3 text-sm outline-none"
               >
                 {availableInterviews.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -229,11 +230,11 @@ export function QuestionDetail({ id }: { id: string }) {
               <div>
                 <Link
                   href={`/app/interviews/${item.id}`}
-                  className="text-sm font-medium hover:text-[#27764b]"
+                  className="text-sm font-medium hover:text-foreground"
                 >
                   {item.name}
                 </Link>
-                <p className="mt-1 text-xs text-[#879088]">
+                <p className="mt-1 text-xs text-muted-foreground">
                   {item.positionName} · {item.stageName}
                 </p>
               </div>
@@ -241,14 +242,14 @@ export function QuestionDetail({ id }: { id: string }) {
                 type="button"
                 aria-label="取消关联"
                 onClick={() => changeLink(item.id, "DELETE")}
-                className="grid size-8 place-items-center rounded-lg text-[#879088] hover:bg-[#fbecef] hover:text-[#9d4450]"
+                className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-[#fbecef] hover:text-[#9d4450]"
               >
                 <Unlink size={14} />
               </button>
             </div>
           ))}
           {links.length === 0 ? (
-            <p className="py-5 text-sm text-[#879088]">
+            <p className="py-5 text-sm text-muted-foreground">
               暂未关联任何选拔事件。
             </p>
           ) : null}

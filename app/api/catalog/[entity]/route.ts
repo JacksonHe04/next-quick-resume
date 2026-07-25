@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 
+import { getReadDatabaseContext } from "@/modules/auth/action-context";
 import {
   catalogErrorResponse,
   getCatalogActionContext,
@@ -9,6 +10,7 @@ import {
   catalogEntitySchema,
   searchCatalogInputSchema,
 } from "@/modules/catalog/schemas";
+import { createCatalogRepository } from "@/modules/catalog/repository";
 import {
   createPrivateCatalogEntry,
   searchCatalog,
@@ -19,15 +21,14 @@ export async function GET(
   { params }: { params: Promise<{ entity: string }> },
 ) {
   try {
-    const context = await getCatalogActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getReadDatabaseContext(request);
     const entity = catalogEntitySchema.parse((await params).entity);
     const { query } = searchCatalogInputSchema.parse({
       query: new URL(request.url).searchParams.get("q") ?? "",
     });
     const options = await searchCatalog(
-      context.repository,
-      context.user.id,
+      createCatalogRepository(context.database),
+      context.userId,
       entity,
       query,
     );

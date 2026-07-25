@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 
+import { getReadDatabaseContext } from "@/modules/auth/action-context";
+import { createQuestionRepository } from "@/modules/questions/repository";
 import {
   getQuestionActionContext,
   questionErrorResponse,
@@ -16,13 +18,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const context = await getQuestionActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getReadDatabaseContext(request);
     const id = (await params).id;
-    const question = await context.repository.findQuestion(
-      context.user.id,
-      id,
-    );
+    const repository = createQuestionRepository(context.database);
+    const question = await repository.findQuestion(context.userId, id);
     if (!question) {
       return NextResponse.json(
         {
@@ -36,7 +35,7 @@ export async function GET(
     }
     const interviews = await listQuestionInterviewLinks(
       context.database,
-      context.user.id,
+      context.userId,
       id,
     );
     return NextResponse.json({ question, interviews });

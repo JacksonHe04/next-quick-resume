@@ -24,6 +24,7 @@ import {
   Input,
   PresentationBadge,
 } from "@/components/ui";
+import { appFetch } from "@/lib/app-fetch";
 import {
   filterInterviews,
   groupInterviews,
@@ -79,7 +80,7 @@ function InterviewCard({
           <div className="flex flex-wrap items-center gap-2">
             <Link
               href={`/app/interviews/${interview.id}`}
-              className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-[#27764b]"
+              className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-foreground"
             >
               {interview.name}
             </Link>
@@ -88,10 +89,10 @@ function InterviewCard({
               tone={status.tone}
             />
           </div>
-          <p className="mt-2 text-sm text-[#687269]">
+          <p className="mt-2 text-sm text-muted-foreground">
             {interview.companyName} · {interview.positionName}
           </p>
-          <p className="mt-1 text-xs text-[#879088]">
+          <p className="mt-1 text-xs text-muted-foreground">
             {interview.stageName}
           </p>
         </div>
@@ -100,8 +101,8 @@ function InterviewCard({
           className="shrink-0 text-[#55a572]"
         />
       </div>
-      <div className="mt-5 flex items-center justify-between border-t border-[#edf0ed] pt-4">
-        <p className="font-[var(--font-data)] text-[10px] text-[#687269]">
+      <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
+        <p className="font-[var(--font-data)] text-[10px] text-muted-foreground">
           {formatSchedule(interview.scheduledAt)}
           {interview.durationMinutes
             ? ` · ${interview.durationMinutes} 分钟`
@@ -114,7 +115,7 @@ function InterviewCard({
               target="_blank"
               rel="noreferrer"
               aria-label="打开会议链接"
-              className="grid size-8 place-items-center rounded-lg text-[#687269] hover:bg-[#eef4ee] hover:text-[#27764b]"
+              className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
             >
               <ExternalLink size={14} />
             </a>
@@ -123,7 +124,7 @@ function InterviewCard({
             type="button"
             aria-label="删除选拔事件"
             onClick={() => onRemove(interview.id)}
-            className="grid size-8 place-items-center rounded-lg text-[#879088] hover:bg-[#fbecef] hover:text-[#9d4450]"
+            className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-[#fbecef] hover:text-[#9d4450]"
           >
             <Trash2 size={14} />
           </button>
@@ -168,9 +169,9 @@ export function InterviewManager() {
   const load = useCallback(async () => {
     const [interviewResponse, submissionResponse, stageResponse] =
       await Promise.all([
-        fetch("/api/interviews", { cache: "no-store" }),
-        fetch("/api/submissions", { cache: "no-store" }),
-        fetch("/api/stages", { cache: "no-store" }),
+        appFetch("/api/interviews", { cache: "no-store" }),
+        appFetch("/api/submissions", { cache: "no-store" }),
+        appFetch("/api/stages", { cache: "no-store" }),
       ]);
     if (
       !interviewResponse.ok ||
@@ -237,7 +238,7 @@ export function InterviewManager() {
   );
 
   async function remove(id: string) {
-    const response = await fetch(`/api/interviews/${id}`, {
+    const response = await appFetch(`/api/interviews/${id}`, {
       method: "DELETE",
     });
     if (!response.ok) {
@@ -336,7 +337,7 @@ export function InterviewManager() {
           需要先{" "}
           <Link
             href="/app/submissions"
-            className="font-medium text-[#27764b] underline"
+            className="font-medium text-foreground underline"
           >
             记录投递
           </Link>
@@ -349,7 +350,7 @@ export function InterviewManager() {
           {[0, 1].map((item) => (
             <div
               key={item}
-              className="h-48 animate-pulse rounded-[18px] border border-[#dce5dd] bg-white/60"
+              className="h-48 animate-pulse rounded-[18px] border border-border bg-white/60"
             />
           ))}
         </div>
@@ -381,11 +382,11 @@ export function InterviewManager() {
                   <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
                     {section.title}
                   </h2>
-                  <p className="mt-1 text-xs text-[#879088]">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     {section.description}
                   </p>
                 </div>
-                <span className="font-[var(--font-data)] text-xs text-[#687269]">
+                <span className="font-[var(--font-data)] text-xs text-muted-foreground">
                   {section.records.length}
                 </span>
               </div>
@@ -410,7 +411,7 @@ export function InterviewManager() {
               className="mx-auto text-[#55a572]"
             />
             <p className="mt-4 text-sm font-medium">还没有选拔事件</p>
-            <p className="mt-1 text-xs text-[#879088]">
+            <p className="mt-1 text-xs text-muted-foreground">
               {hasFilters
                 ? "没有符合当前筛选条件的选拔事件。"
                 : "从测评、笔试到 HR 面，都可以按实际发生顺序添加。"}

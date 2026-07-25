@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { ResumeEditor } from "@/components/resumes/resume-editor";
+import { appFetch } from "@/lib/app-fetch";
 import type { ResumeRecord } from "@/modules/resumes/service";
 
 export function ResumeEditorLoader({ id }: { id: string }) {
@@ -10,7 +11,7 @@ export function ResumeEditorLoader({ id }: { id: string }) {
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
-    const response = await fetch(`/api/resumes/${id}`, {
+    const response = await appFetch(`/api/resumes/${id}`, {
       cache: "no-store",
     });
     const payload = (await response.json().catch(() => ({}))) as {
