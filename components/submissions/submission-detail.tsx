@@ -9,6 +9,7 @@ import {
   Card,
   PresentationBadge,
 } from "@/components/ui";
+import { CompanyResourceLink } from "@/components/catalog/company-resource-link";
 import { appFetch } from "@/lib/app-fetch";
 import {
   DIRECT_SUBMISSION_STATUS_OPTIONS,
@@ -209,28 +210,24 @@ export function SubmissionDetail({ id }: { id: string }) {
       </Card>
       <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
         {detail.companyCareersUrl ? (
-          <a
+          <CompanyResourceLink
+            companyName={detail.companyName}
             href={detail.companyCareersUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`打开 ${detail.companyName} 招聘网站`}
+            resource="careers"
             className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:underline"
           >
             公司招聘网站
-            <ExternalLink size={14} />
-          </a>
+          </CompanyResourceLink>
         ) : null}
         {detail.companyProcessUrl ? (
-          <a
+          <CompanyResourceLink
+            companyName={detail.companyName}
             href={detail.companyProcessUrl}
-            target="_blank"
-            rel="noreferrer"
-            aria-label={`查看 ${detail.companyName} 投递进度`}
+            resource="process"
             className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:underline"
           >
             查询投递进度
-            <ExternalLink size={14} />
-          </a>
+          </CompanyResourceLink>
         ) : null}
         {detail.jdUrl ? (
           <a

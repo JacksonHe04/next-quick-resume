@@ -27,7 +27,7 @@ describe("CompanyGrid", () => {
     expect(screen.getByText("OpenAI")).toBeVisible();
     expect(screen.queryByText("Private Co")).not.toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: "查看 OpenAI 招聘页面" }),
+      screen.getByRole("link", { name: "打开 OpenAI 招聘网站" }),
     ).toHaveAttribute("href", "https://openai.com/careers");
     expect(
       screen.getByRole("link", { name: "查看 OpenAI 投递进度" }),

@@ -16,6 +16,7 @@ import {
 } from "react";
 
 import { SubmissionForm } from "@/components/submissions/submission-form";
+import { CompanyResourceLink } from "@/components/catalog/company-resource-link";
 import {
   Button,
   Card,
@@ -42,6 +43,8 @@ type SubmissionView = {
   batchId: string;
   batchName: string;
   companyName: string;
+  companyCareersUrl: string | null;
+  companyProcessUrl: string | null;
   positionConcept: string;
   positionName: string;
   jdUrl: string | null;
@@ -351,6 +354,16 @@ export function SubmissionManager() {
       className: "w-24 text-right",
       render: (submission) => (
         <div className="flex justify-end gap-1">
+          {submission.companyProcessUrl ? (
+            <CompanyResourceLink
+              companyName={submission.companyName}
+              href={submission.companyProcessUrl}
+              resource="process"
+              className="grid size-8 place-items-center gap-0 rounded-lg hover:bg-muted [&>svg]:size-3.5"
+            >
+              <span className="sr-only">投递进度</span>
+            </CompanyResourceLink>
+          ) : null}
           {submission.jdUrl ? (
             <a
               href={submission.jdUrl}

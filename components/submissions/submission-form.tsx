@@ -1,12 +1,12 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
 import { type FormEvent, useState } from "react";
 
 import {
   EntityPicker,
   type EntityPickerOption,
 } from "@/components/app/entity-picker";
+import { CompanyResourceLink } from "@/components/catalog/company-resource-link";
 import { Button, Input } from "@/components/ui";
 import { appFetch } from "@/lib/app-fetch";
 
@@ -94,28 +94,24 @@ export function SubmissionForm({
       (company.careersUrl || company.processUrl) ? (
         <div className="flex flex-wrap gap-4 rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-xs">
           {company.careersUrl ? (
-            <a
+            <CompanyResourceLink
+              companyName={company.name}
               href={company.careersUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`打开 ${company.name} 招聘网站`}
+              resource="careers"
               className="inline-flex items-center gap-1 font-medium text-foreground hover:underline"
             >
               公司招聘网站
-              <ExternalLink size={12} />
-            </a>
+            </CompanyResourceLink>
           ) : null}
           {company.processUrl ? (
-            <a
+            <CompanyResourceLink
+              companyName={company.name}
               href={company.processUrl}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`查看 ${company.name} 投递进度`}
+              resource="process"
               className="inline-flex items-center gap-1 font-medium text-foreground hover:underline"
             >
               查询投递进度
-              <ExternalLink size={12} />
-            </a>
+            </CompanyResourceLink>
           ) : null}
         </div>
       ) : null}

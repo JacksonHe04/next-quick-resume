@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  ArrowUpRight,
   Building2,
   ExternalLink,
   MapPin,
 } from "lucide-react";
 
+import { CompanyResourceLink } from "@/components/catalog/company-resource-link";
 import {
   Card,
   DataTable,
@@ -19,26 +19,25 @@ function companyInitial(name: string) {
   return name.trim().slice(0, 1).toUpperCase();
 }
 
-function CompanyLink({
+function OptionalCompanyLink({
+  companyName,
   href,
-  label,
+  resource,
   children,
 }: {
+  companyName: string;
   href: string | null;
-  label: string;
+  resource: "careers" | "process";
   children: string;
 }) {
   return href ? (
-    <a
+    <CompanyResourceLink
+      companyName={companyName}
       href={href}
-      target="_blank"
-      rel="noreferrer"
-      aria-label={label}
-      className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground"
+      resource={resource}
     >
       {children}
-      <ArrowUpRight size={13} />
-    </a>
+    </CompanyResourceLink>
   ) : (
     <span className="text-muted-foreground">未提供</span>
   );
@@ -102,12 +101,13 @@ export function CompanyManager({
       header: "招聘网站",
       className: "min-w-44",
       render: (company) => (
-        <CompanyLink
+        <OptionalCompanyLink
+          companyName={company.name}
           href={company.careersUrl}
-          label={`查看 ${company.name} 招聘页面`}
+          resource="careers"
         >
           打开招聘页
-        </CompanyLink>
+        </OptionalCompanyLink>
       ),
     },
     {
@@ -115,12 +115,13 @@ export function CompanyManager({
       header: "投递进度",
       className: "min-w-44",
       render: (company) => (
-        <CompanyLink
+        <OptionalCompanyLink
+          companyName={company.name}
           href={company.processUrl}
-          label={`查看 ${company.name} 投递进度`}
+          resource="process"
         >
           查询进度
-        </CompanyLink>
+        </OptionalCompanyLink>
       ),
     },
   ];
@@ -167,18 +168,20 @@ export function CompanyManager({
               {company.submissionCount} 条关联投递
             </p>
             <div className="mt-3 grid grid-cols-2 gap-2 border-t border-border pt-4">
-              <CompanyLink
+              <OptionalCompanyLink
+                companyName={company.name}
                 href={company.careersUrl}
-                label={`查看 ${company.name} 招聘页面`}
+                resource="careers"
               >
                 招聘网站
-              </CompanyLink>
-              <CompanyLink
+              </OptionalCompanyLink>
+              <OptionalCompanyLink
+                companyName={company.name}
                 href={company.processUrl}
-                label={`查看 ${company.name} 投递进度`}
+                resource="process"
               >
                 投递进度
-              </CompanyLink>
+              </OptionalCompanyLink>
             </div>
           </Card>
         )}
