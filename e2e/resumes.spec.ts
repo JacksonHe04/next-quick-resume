@@ -16,8 +16,16 @@ test("creates, edits, and clones an independent resume", async ({
   await page.getByRole("button", { name: "新建简历" }).click();
   await expect(page).toHaveURL(/\/app\/resumes\/[^/]+$/u);
 
+  await page
+    .getByRole("button", { name: `编辑简历名称：${resumeName}` })
+    .click();
   await page.getByLabel("简历名称").fill(editedName);
-  await page.getByLabel("姓名").fill(candidateName);
+  await page.getByRole("button", { name: "确认" }).click();
+  await page.getByRole("button", { name: "内容" }).click();
+  const jsonEditor = page.getByLabel("简历内容 JSON");
+  const resumeData = JSON.parse(await jsonEditor.inputValue());
+  resumeData.header.name = candidateName;
+  await jsonEditor.fill(JSON.stringify(resumeData, null, 2));
   await expect(page.getByRole("status")).toHaveText("保存中…");
   await expect(page.getByRole("status")).toContainText("已保存");
 

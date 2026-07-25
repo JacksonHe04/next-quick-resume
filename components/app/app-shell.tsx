@@ -16,11 +16,17 @@ export function AppShell({
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const immersiveResumeEditor =
+    /^\/app\/resumes\/[^/]+\/?$/u.test(pathname);
 
   async function logout() {
     await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/login");
     router.refresh();
+  }
+
+  if (immersiveResumeEditor) {
+    return <main className="min-h-screen">{children}</main>;
   }
 
   return (

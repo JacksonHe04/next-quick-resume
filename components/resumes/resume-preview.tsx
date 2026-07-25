@@ -1,12 +1,436 @@
 import Image from "next/image";
 
-import type { ResumeDocumentV1, ResumeSectionKey } from "@/types";
+import { renderSafeMarkdown } from "@/lib/markdown";
+import { cn } from "@/lib/utils";
+import type {
+  HeaderButtonConfig,
+  ResumeDocumentV1,
+  ResumeSectionKey,
+} from "@/types";
 
-function Title({ children }: { children: React.ReactNode }) {
+const sectionTitleClass =
+  "mb-2 border-b border-black py-1 text-lg font-bold text-black sm:text-xl";
+const sectionClass = "mb-3";
+const itemClass = "mb-3";
+const bodyTextClass = "text-sm sm:text-base";
+const mutedTextClass = "text-sm text-gray-600 sm:text-base";
+const orderedListClass =
+  "ml-0 list-inside list-decimal space-y-1 text-sm sm:text-base";
+
+function Markdown({
+  value,
+  className,
+}: {
+  value: string;
+  className?: string;
+}) {
   return (
-    <h2 className="mb-3 border-b border-[#202620] pb-1 text-lg font-bold">
+    <span
+      className={cn("[&_p]:inline", className)}
+      dangerouslySetInnerHTML={{ __html: renderSafeMarkdown(value) }}
+    />
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return <h2 className={sectionTitleClass}>{children}</h2>;
+}
+
+function ResumeLink({
+  href,
+  children,
+  className,
+  underline = true,
+}: {
+  href: string;
+  children: React.ReactNode;
+  className?: string;
+  underline?: boolean;
+}) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        "text-sm text-black sm:text-base",
+        underline ? "underline" : "no-underline",
+        className,
+      )}
+    >
       {children}
-    </h2>
+    </a>
+  );
+}
+
+function normalizeButtonUrl(button: HeaderButtonConfig): string {
+  if (!button.url) return "#";
+  if (/^https?:\/\//u.test(button.url)) return button.url;
+  return `https://${button.url}`;
+}
+
+function HeaderSection({
+  document,
+}: {
+  document: ResumeDocumentV1;
+}) {
+  const { data, displayConfig } = document;
+  const { contact, jobInfo, name } = data.header;
+  const alignment = displayConfig.headerAlignment ?? "left";
+  const button = displayConfig.headerButton;
+  const alignmentClasses =
+    alignment === "center"
+      ? "items-center text-center"
+      : "items-start text-left";
+
+  const headerButton =
+    button?.enabled && button.text ? (
+      <a
+        href={normalizeButtonUrl(button)}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center rounded-lg border-2 border-transparent bg-transparent px-4 py-1.5 text-sm font-medium text-gray-700 transition-all duration-200 hover:opacity-80"
+        style={{
+          background:
+            "linear-gradient(white, white) padding-box, linear-gradient(135deg, #2f59b6 0%, #3a8eff 33%, #00cad3 66%, #7ae7df 100%) border-box",
+        }}
+      >
+        {button.text}
+      </a>
+    ) : null;
+
+  return (
+    <header className="mb-0">
+      <div
+        className={cn(
+          "flex flex-col-reverse justify-between gap-4 sm:flex-row sm:gap-8",
+          alignment === "center" && "sm:justify-center",
+        )}
+      >
+        <div
+          className={cn(
+            "flex w-full flex-1 flex-col sm:w-auto",
+            alignmentClasses,
+          )}
+        >
+          <div className="mb-3 sm:mb-4">
+            <h1 className="m-0 font-serif text-2xl font-bold sm:text-3xl md:text-4xl">
+              {name}
+            </h1>
+            <p className="mt-2 font-[Georgia] text-base text-gray-600 sm:mt-4 sm:text-lg md:text-xl">
+              <b>{jobInfo.position}</b>
+            </p>
+          </div>
+
+          <div className="space-y-2 sm:space-y-3">
+            <div
+              className={cn(
+                "flex flex-col gap-2 sm:flex-row sm:gap-8",
+                alignment === "center" && "sm:justify-center",
+              )}
+            >
+              <p className={bodyTextClass}>
+                <b>电话 / 微信：</b>
+                {contact.phone}
+              </p>
+              <p className={bodyTextClass}>
+                <b>邮箱：</b>
+                <ResumeLink
+                  href={`mailto:${contact.email}`}
+                  underline={false}
+                >
+                  {contact.email}
+                </ResumeLink>
+              </p>
+            </div>
+
+            {alignment === "center" && headerButton ? (
+              <div className="flex flex-col gap-2 sm:flex-row sm:gap-4">
+                <div
+                  className="hidden w-full sm:grid"
+                  style={{
+                    gridTemplateColumns: "1fr auto 1fr",
+                    gap: "1rem",
+                  }}
+                >
+                  <div className="flex items-center justify-end">
+                    {contact.homepage ? (
+                      <p className={bodyTextClass}>
+                        <b>主页：</b>
+                        <ResumeLink href={contact.homepage.url}>
+                          {contact.homepage.text}
+                        </ResumeLink>
+                      </p>
+                    ) : null}
+                  </div>
+                  <div className="flex items-center justify-center">
+                    {headerButton}
+                  </div>
+                  <div className="flex items-center justify-start">
+                    {contact.github ? (
+                      <p className={bodyTextClass}>
+                        <b>GitHub:</b>&nbsp;
+                        <ResumeLink href={contact.github.url}>
+                          {contact.github.text}
+                        </ResumeLink>
+                      </p>
+                    ) : null}
+                  </div>
+                </div>
+                <div className="space-y-2 sm:hidden">
+                  {contact.homepage ? (
+                    <p className={bodyTextClass}>
+                      <b>主页：</b>
+                      <ResumeLink href={contact.homepage.url}>
+                        {contact.homepage.text}
+                      </ResumeLink>
+                    </p>
+                  ) : null}
+                  {contact.github ? (
+                    <p className={bodyTextClass}>
+                      <b>GitHub:</b>&nbsp;
+                      <ResumeLink href={contact.github.url}>
+                        {contact.github.text}
+                      </ResumeLink>
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "flex flex-col gap-2 sm:flex-row sm:gap-4",
+                  alignment === "center" && "sm:justify-center",
+                )}
+              >
+                <div className="flex flex-col gap-2 sm:flex-row sm:gap-8">
+                  {contact.homepage ? (
+                    <p className={bodyTextClass}>
+                      <b>主页：</b>
+                      <ResumeLink href={contact.homepage.url}>
+                        {contact.homepage.text}
+                      </ResumeLink>
+                    </p>
+                  ) : null}
+                  {contact.github ? (
+                    <p className={bodyTextClass}>
+                      <b>GitHub:</b>&nbsp;
+                      <ResumeLink href={contact.github.url}>
+                        {contact.github.text}
+                      </ResumeLink>
+                    </p>
+                  ) : null}
+                </div>
+                {headerButton ? (
+                  <div className="hidden flex-1 justify-center sm:flex">
+                    {headerButton}
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {headerButton ? (
+              <div className="mt-2 flex justify-center sm:hidden">
+                {headerButton}
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        {displayConfig.photo.showPhoto ? (
+          <div className="shrink-0 self-center sm:self-start">
+            <div className="h-32 w-24 overflow-hidden rounded-lg p-px sm:h-40 sm:w-32">
+              {displayConfig.photo.photoData ? (
+                <Image
+                  src={displayConfig.photo.photoData}
+                  alt="个人照片"
+                  width={128}
+                  height={160}
+                  unoptimized
+                  className="h-full w-full rounded-lg border border-gray-200 object-contain"
+                />
+              ) : (
+                <div className="grid h-full w-full place-items-center rounded-lg border border-gray-200 bg-gray-50 text-xs text-gray-400">
+                  个人照片
+                </div>
+              )}
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </header>
+  );
+}
+
+function EducationSection({
+  document,
+}: {
+  document: ResumeDocumentV1;
+}) {
+  const education = document.data.education;
+  if (!education) return null;
+  return (
+    <section className={sectionClass}>
+      <SectionTitle>{education.title}</SectionTitle>
+      <div className={itemClass}>
+        <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
+          <div className="flex flex-wrap items-center gap-2">
+            {education.image ? (
+              <Image
+                src={education.image}
+                alt={`${education.school} logo`}
+                width={36}
+                height={36}
+                unoptimized
+                className="shrink-0 object-contain"
+              />
+            ) : null}
+            <h3 className="text-base font-bold leading-none sm:text-lg">
+              {education.school}
+            </h3>
+          </div>
+          <div className="flex flex-wrap items-center gap-1">
+            <span className={mutedTextClass}>{education.base}</span>
+            <span className={mutedTextClass}>｜{education.period}</span>
+          </div>
+        </div>
+        <p className={bodyTextClass}>{education.details}</p>
+      </div>
+    </section>
+  );
+}
+
+function InternSection({ document }: { document: ResumeDocumentV1 }) {
+  const intern = document.data.intern;
+  if (!intern) return null;
+  return (
+    <section className={sectionClass}>
+      <SectionTitle>{intern.title}</SectionTitle>
+      {intern.items
+        .filter((item) => item.show !== false)
+        .map((item, index) => (
+          <div className={itemClass} key={`${item.company}-${index}`}>
+            <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
+              <div className="flex flex-wrap items-center gap-2">
+                {item.image ? (
+                  <Image
+                    src={item.image}
+                    alt={`${item.company} logo`}
+                    width={36}
+                    height={36}
+                    unoptimized
+                    className="shrink-0 object-contain"
+                  />
+                ) : null}
+                <h3 className="text-base font-bold leading-none sm:text-lg">
+                  {item.company}
+                </h3>
+                <span className={cn(mutedTextClass, "leading-none")}>
+                  {item.position}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-1">
+                <span className={mutedTextClass}>{item.base}</span>
+                <span className={mutedTextClass}>｜{item.period}</span>
+              </div>
+            </div>
+            {item.description ? (
+              <p className="mb-1.5 text-sm text-gray-700 sm:text-base">
+                <Markdown value={item.description} />
+              </p>
+            ) : null}
+            <ol className={orderedListClass}>
+              {item.responsibilities.map((responsibility, itemIndex) => (
+                <li key={itemIndex}>
+                  <Markdown value={responsibility} />
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+    </section>
+  );
+}
+
+function ProjectsSection({
+  document,
+}: {
+  document: ResumeDocumentV1;
+}) {
+  const projects = document.data.projects;
+  if (!projects) return null;
+  return (
+    <section className={sectionClass}>
+      <SectionTitle>{projects.title}</SectionTitle>
+      {projects.items
+        .filter((item) => item.show !== false)
+        .map((item, index) => (
+          <div className={itemClass} key={`${item.name}-${index}`}>
+            <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
+              <h3 className="text-base font-bold sm:text-lg">{item.name}</h3>
+              <ResumeLink
+                href={item.github}
+                className="break-all sm:break-normal"
+              >
+                {item.github}
+              </ResumeLink>
+            </div>
+            {item.description ? (
+              <p className="mb-1.5 text-sm text-gray-700 sm:text-base">
+                {item.description}
+              </p>
+            ) : null}
+            <ol className={orderedListClass}>
+              {item.features.map((feature, itemIndex) => (
+                <li key={itemIndex}>
+                  <Markdown value={feature} />
+                </li>
+              ))}
+            </ol>
+          </div>
+        ))}
+    </section>
+  );
+}
+
+function SkillsSection({ document }: { document: ResumeDocumentV1 }) {
+  const skills = document.data.skills;
+  if (!skills) return null;
+  return (
+    <section className={sectionClass}>
+      <SectionTitle>{skills.title}</SectionTitle>
+      <ol className={orderedListClass}>
+        {skills.items.map((skill, index) => (
+          <li key={index}>
+            <Markdown value={skill} />
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
+}
+
+function AboutSection({ document }: { document: ResumeDocumentV1 }) {
+  const about = document.data.about;
+  if (!about?.content) return null;
+  const paragraphs = about.content
+    .split("\n")
+    .map((line) => line.trim())
+    .filter(Boolean);
+  return (
+    <section className={sectionClass}>
+      <SectionTitle>{about.title}</SectionTitle>
+      <ol className={orderedListClass}>
+        {paragraphs.map((paragraph, index) => (
+          <li
+            key={index}
+            className="leading-relaxed text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-900"
+          >
+            <Markdown value={paragraph} />
+          </li>
+        ))}
+      </ol>
+    </section>
   );
 }
 
@@ -15,165 +439,27 @@ export function ResumePreview({
 }: {
   document: ResumeDocumentV1;
 }) {
-  const { data, displayConfig } = document;
   const visible = new Set(
-    displayConfig.sections
+    document.displayConfig.sections
       .filter((section) => section.visible)
       .map((section) => section.key),
   );
-
-  const sections: Partial<Record<ResumeSectionKey, React.ReactNode>> = {
-    header: (
-      <header
-        className={`flex gap-8 ${
-          displayConfig.photo.showPhoto
-            ? "items-start justify-between"
-            : ""
-        }`}
-      >
-        <div
-          className={`min-w-0 flex-1 ${
-            displayConfig.headerAlignment === "center"
-              ? "text-center"
-              : "text-left"
-          }`}
-        >
-          <h1 className="font-serif text-4xl font-bold">
-            {data.header.name}
-          </h1>
-          <p className="mt-2 text-lg text-[#687269]">
-            {data.header.jobInfo.position}
-          </p>
-          <div
-            className={`mt-4 flex flex-wrap gap-x-7 gap-y-1 text-sm ${
-              displayConfig.headerAlignment === "center"
-                ? "justify-center"
-                : ""
-            }`}
-          >
-            {data.header.contact.phone ? (
-              <span>电话 / 微信：{data.header.contact.phone}</span>
-            ) : null}
-            {data.header.contact.email ? (
-              <span>邮箱：{data.header.contact.email}</span>
-            ) : null}
-            {data.header.contact.github ? (
-              <span>GitHub：{data.header.contact.github.text}</span>
-            ) : null}
-            {data.header.contact.homepage ? (
-              <span>主页：{data.header.contact.homepage.text}</span>
-            ) : null}
-          </div>
-        </div>
-        {displayConfig.photo.showPhoto ? (
-          <div className="grid h-36 w-28 shrink-0 place-items-center overflow-hidden rounded-md border border-[#dfe4dd] bg-[#f4f6f2] text-xs text-[#879087]">
-            {displayConfig.photo.photoData ? (
-              <Image
-                src={displayConfig.photo.photoData}
-                alt={`${data.header.name}的头像`}
-                width={112}
-                height={144}
-                unoptimized
-                className="size-full object-cover"
-              />
-            ) : (
-              "头像"
-            )}
-          </div>
-        ) : null}
-      </header>
-    ),
-    education: data.education ? (
-      <section>
-        <Title>{data.education.title}</Title>
-        <div className="flex flex-wrap justify-between gap-2 font-medium">
-          <span>{data.education.school}</span>
-          <span className="text-sm text-[#687269]">
-            {data.education.base} · {data.education.period}
-          </span>
-        </div>
-        <p className="mt-1 text-sm">{data.education.details}</p>
-      </section>
-    ) : null,
-    skills: data.skills ? (
-      <section>
-        <Title>{data.skills.title}</Title>
-        <ul className="list-inside list-disc space-y-1 text-sm">
-          {data.skills.items.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-      </section>
-    ) : null,
-    intern: data.intern ? (
-      <section>
-        <Title>{data.intern.title}</Title>
-        <div className="space-y-4">
-          {data.intern.items
-            .filter((item) => item.show !== false)
-            .map((item, index) => (
-              <article key={`${item.company}-${index}`}>
-                <div className="flex flex-wrap justify-between gap-2">
-                  <strong>
-                    {item.company} · {item.position}
-                  </strong>
-                  <span className="text-sm text-[#687269]">
-                    {item.base} · {item.period}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm">{item.description}</p>
-                <ul className="mt-1 list-inside list-disc text-sm">
-                  {item.responsibilities.map((responsibility) => (
-                    <li key={responsibility}>{responsibility}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-        </div>
-      </section>
-    ) : null,
-    projects: data.projects ? (
-      <section>
-        <Title>{data.projects.title}</Title>
-        <div className="space-y-4">
-          {data.projects.items
-            .filter((item) => item.show !== false)
-            .map((item, index) => (
-              <article key={`${item.name}-${index}`}>
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <strong>{item.name}</strong>
-                  <span className="text-xs text-[#687269]">
-                    {item.techStack}
-                  </span>
-                </div>
-                <p className="mt-1 text-sm">{item.description}</p>
-                <ul className="mt-1 list-inside list-disc text-sm">
-                  {item.features.map((feature) => (
-                    <li key={feature}>{feature}</li>
-                  ))}
-                </ul>
-              </article>
-            ))}
-        </div>
-      </section>
-    ) : null,
-    about: data.about ? (
-      <section>
-        <Title>{data.about.title}</Title>
-        <p className="whitespace-pre-wrap text-sm">{data.about.content}</p>
-      </section>
-    ) : null,
+  const sections: Record<ResumeSectionKey, React.ReactNode> = {
+    header: <HeaderSection document={document} />,
+    education: <EducationSection document={document} />,
+    intern: <InternSection document={document} />,
+    projects: <ProjectsSection document={document} />,
+    skills: <SkillsSection document={document} />,
+    about: <AboutSection document={document} />,
   };
 
   return (
     <article
       id="resume-preview"
-      className="mx-auto min-h-[1120px] w-full max-w-[794px] space-y-6 bg-white px-10 py-12 text-[#202620] shadow-[0_16px_48px_rgb(38_48_39/0.12)] print:min-h-0 print:max-w-none print:shadow-none"
+      className="min-w-0 text-black print:bg-white"
     >
-      {displayConfig.sectionOrder.map((key) =>
-        visible.has(key) ? (
-          <div key={key}>{sections[key]}</div>
-        ) : null,
+      {document.displayConfig.sectionOrder.map((key) =>
+        visible.has(key) ? <div key={key}>{sections[key]}</div> : null,
       )}
     </article>
   );

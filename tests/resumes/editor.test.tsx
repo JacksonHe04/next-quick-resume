@@ -4,7 +4,16 @@ import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { ResumeEditor } from "@/components/resumes/resume-editor";
+import { ResumePreview } from "@/components/resumes/resume-preview";
 import type { ResumeRecord } from "@/modules/resumes/service";
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    replace: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}));
 
 const initial: ResumeRecord = {
   id: "resume-a",
@@ -36,7 +45,8 @@ const initial: ResumeRecord = {
 afterEach(cleanup);
 
 describe("resume editor", () => {
-  it("restores the configuration, preview, and resume switcher columns", () => {
+  it("restores the configuration, preview, and resume switcher columns", async () => {
+    const user = userEvent.setup();
     render(
       <ResumeEditor
         initial={initial}
@@ -58,6 +68,7 @@ describe("resume editor", () => {
     expect(
       screen.getByRole("complementary", { name: "切换简历" }),
     ).toBeVisible();
+    await user.click(screen.getByRole("switch", { name: "显示照片" }));
     expect(screen.getByLabelText("上传头像")).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "切换到市场简历" }),
@@ -69,10 +80,11 @@ describe("resume editor", () => {
     const save = vi.fn().mockRejectedValue(new Error("offline"));
     render(<ResumeEditor initial={initial} save={save} autosaveDelay={10} />);
 
-    await user.type(screen.getByLabelText("姓名"), "何");
+    const photoSwitch = screen.getByRole("switch", { name: "显示照片" });
+    await user.click(photoSwitch);
 
     expect(await screen.findByText("保存失败，重试")).toBeVisible();
-    expect(screen.getByLabelText("姓名")).toHaveValue("Jackson何");
+    expect(photoSwitch).toHaveAttribute("aria-checked", "true");
   });
 
   it("does not save an unchanged resume when Strict Mode replays effects", async () => {
@@ -86,5 +98,35 @@ describe("resume editor", () => {
 
     await new Promise((resolve) => window.setTimeout(resolve, 20));
     expect(save).not.toHaveBeenCalled();
+  });
+
+  it("uses the resume-only preview typography instead of the later A4 card", () => {
+    const document = structuredClone(initial.document);
+    document.data.skills = {
+      title: "专业技能",
+      items: ["熟悉 **React**"],
+    };
+    document.displayConfig.sections.push({
+      key: "skills",
+      label: "专业技能",
+      visible: true,
+    });
+    document.displayConfig.sectionOrder.push("skills");
+
+    const { container } = render(<ResumePreview document={document} />);
+    const preview = container.querySelector("#resume-preview");
+    const title = screen.getByRole("heading", { name: "专业技能" });
+    const list = title.nextElementSibling;
+
+    expect(preview).not.toHaveClass("max-w-[794px]");
+    expect(preview).not.toHaveClass(
+      "shadow-[0_16px_48px_rgb(38_48_39/0.12)]",
+    );
+    expect(screen.getByRole("heading", { name: "Jackson" })).toHaveClass(
+      "font-serif",
+    );
+    expect(title).toHaveClass("border-black");
+    expect(list).toHaveClass("list-decimal");
+    expect(screen.getByText("React").tagName).toBe("STRONG");
   });
 });
