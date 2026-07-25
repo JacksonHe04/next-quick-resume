@@ -23,3 +23,21 @@ export async function appFetch(
 
   return response;
 }
+
+export async function patchJson<T = unknown>(
+  url: string,
+  body: unknown,
+): Promise<T> {
+  const response = await appFetch(url, {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const payload = (await response.json().catch(() => ({}))) as T & {
+    error?: { message?: string };
+  };
+  if (!response.ok) {
+    throw new Error(payload.error?.message ?? "保存失败，请稍后重试");
+  }
+  return payload;
+}

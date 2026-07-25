@@ -1,12 +1,25 @@
 import { describe, expect, it } from "vitest";
 
-import {
+import * as catalogService from "@/modules/catalog/service";
+
+const {
   createPrivateCatalogEntry,
   searchCatalog,
-  type CatalogEntity,
-  type CatalogRepository,
-  type CatalogRow,
-} from "@/modules/catalog/service";
+} = catalogService;
+const renamePrivateCatalogEntry = (
+  catalogService as typeof catalogService & {
+    renamePrivateCatalogEntry(
+      repository: CatalogRepository,
+      userId: string,
+      entity: CatalogEntity,
+      id: string,
+      input: unknown,
+    ): Promise<void>;
+  }
+).renamePrivateCatalogEntry;
+type CatalogEntity = catalogService.CatalogEntity;
+type CatalogRepository = catalogService.CatalogRepository;
+type CatalogRow = catalogService.CatalogRow;
 
 class MemoryCatalogRepository implements CatalogRepository {
   official: Record<CatalogEntity, CatalogRow[]> = {
@@ -68,6 +81,20 @@ class MemoryCatalogRepository implements CatalogRepository {
   ) {
     this.private[entity].push(row);
   }
+
+  async updatePrivate(
+    entity: CatalogEntity,
+    userId: string,
+    id: string,
+    changes: Pick<CatalogRow, "name" | "normalizedName">,
+  ) {
+    const row = this.private[entity].find(
+      (item) => item.userId === userId && item.id === id,
+    );
+    if (!row) return false;
+    Object.assign(row, changes);
+    return true;
+  }
 }
 
 describe("catalog service", () => {
@@ -126,5 +153,38 @@ describe("catalog service", () => {
 
     expect(repeated).toEqual(first);
     expect(repository.private.position).toHaveLength(1);
+  });
+
+  it("allows only the owner to rename a private company", async () => {
+    const repository = new MemoryCatalogRepository();
+    const company = await createPrivateCatalogEntry(
+      repository,
+      "user-a",
+      "company",
+      { name: "Original Company" },
+    );
+
+    await expect(
+      renamePrivateCatalogEntry(
+        repository,
+        "user-b",
+        "company",
+        company.id,
+        { name: "Stolen Name" },
+      ),
+    ).rejects.toThrow("自定义公司不存在");
+
+    await renamePrivateCatalogEntry(
+      repository,
+      "user-a",
+      "company",
+      company.id,
+      { name: "Renamed Company" },
+    );
+    await expect(
+      searchCatalog(repository, "user-a", "company", "renamed"),
+    ).resolves.toMatchObject([
+      { source: "private", name: "Renamed Company" },
+    ]);
   });
 });

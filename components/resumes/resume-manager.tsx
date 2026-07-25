@@ -4,10 +4,24 @@ import { Copy, FileText, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 
-import { Button, Card, Input } from "@/components/ui";
-import { appFetch } from "@/lib/app-fetch";
+import {
+  Button,
+  Card,
+  DataTable,
+  Input,
+  type DataTableColumn,
+} from "@/components/ui";
+import { appFetch, patchJson } from "@/lib/app-fetch";
 import { createDefaultResumeDocument } from "@/modules/resumes/defaults";
 import type { ResumeRecord } from "@/modules/resumes/service";
+
+function formatDate(value: Date | string) {
+  return new Intl.DateTimeFormat("zh-CN", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date(value));
+}
 
 export function ResumeManager() {
   const [resumes, setResumes] = useState<ResumeRecord[]>([]);
@@ -57,6 +71,16 @@ export function ResumeManager() {
     }
   }
 
+  async function rename(resume: ResumeRecord, value: string) {
+    await patchJson(`/api/resumes/${resume.id}`, {
+      id: resume.id,
+      version: resume.version,
+      name: value,
+      document: resume.document,
+    });
+    await load();
+  }
+
   async function mutate(id: string, action: "clone" | "delete") {
     const response = await appFetch(
       `/api/resumes/${id}${action === "clone" ? "/clone" : ""}`,
@@ -69,54 +93,139 @@ export function ResumeManager() {
     await load();
   }
 
+  const columns: DataTableColumn<ResumeRecord>[] = [
+    {
+      key: "name",
+      header: "简历名称",
+      className: "min-w-56",
+      render: (resume) => (
+        <span className="inline-flex items-center gap-2 font-medium">
+          <FileText size={14} className="text-[#55a572]" />
+          {resume.name}
+        </span>
+      ),
+      editable: {
+        label: "简历名称",
+        value: (resume) => resume.name,
+        onSave: rename,
+      },
+    },
+    {
+      key: "person",
+      header: "姓名",
+      render: (resume) => (
+        <span>{resume.document.data.header.name || "未填写"}</span>
+      ),
+    },
+    {
+      key: "direction",
+      header: "求职方向",
+      render: (resume) => (
+        <span className="text-muted-foreground">
+          {resume.document.data.header.jobInfo.position || "未填写"}
+        </span>
+      ),
+    },
+    {
+      key: "version",
+      header: "版本",
+      render: (resume) => (
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
+          v{resume.version}
+        </span>
+      ),
+    },
+    {
+      key: "updated",
+      header: "更新时间",
+      render: (resume) => (
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
+          {formatDate(resume.updatedAt)}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: <span className="sr-only">操作</span>,
+      className: "w-24 text-right",
+      render: (resume) => (
+        <div className="flex justify-end gap-1">
+          <Link
+            href={`/app/resumes/${resume.id}`}
+            aria-label="打开简历编辑器"
+            className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <FileText size={14} />
+          </Link>
+          <button
+            type="button"
+            aria-label="克隆简历"
+            onClick={() => void mutate(resume.id, "clone")}
+            className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <Copy size={14} />
+          </button>
+          <button
+            type="button"
+            aria-label="删除简历"
+            onClick={() => void mutate(resume.id, "delete")}
+            className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   return (
     <>
-      <Card className="mt-7 p-5 shadow-none">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-          <label className="flex-1">
-            <span className="mb-2 block text-sm font-medium">新简历名称</span>
-            <Input
-              value={newName}
-              onChange={(event) => setNewName(event.target.value)}
-              maxLength={120}
-            />
-          </label>
-          <Button
-            onClick={create}
-            loading={pending}
-            disabled={!newName.trim()}
-          >
-            <Plus size={16} />
-            新建简历
-          </Button>
-        </div>
-      </Card>
+      <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <label className="w-full max-w-sm">
+          <span className="mb-2 block text-sm font-medium">新简历名称</span>
+          <Input
+            value={newName}
+            onChange={(event) => setNewName(event.target.value)}
+            maxLength={120}
+          />
+        </label>
+        <Button
+          onClick={create}
+          loading={pending}
+          disabled={!newName.trim()}
+        >
+          <Plus size={16} />
+          新建简历
+        </Button>
+      </div>
 
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-xl border border-[#ebc3c8] bg-[#fbecef] px-4 py-3 text-sm text-[#9d4450]"
+          className="mt-4 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {loading
-          ? [0, 1, 2].map((item) => (
-              <div
-                key={item}
-                className="h-44 animate-pulse rounded-[18px] border border-border bg-white/60"
-              />
-            ))
-          : resumes.map((resume) => (
-              <Card key={resume.id} className="p-5 shadow-none">
+      <div className="mt-5">
+        {loading ? (
+          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
+        ) : (
+          <DataTable
+            columns={columns}
+            rows={resumes}
+            rowKey={(resume) => resume.id}
+            viewStorageKey="resumes"
+            empty="还没有简历，先创建第一份结构化简历"
+            gridCard={(resume) => (
+              <Card className="h-full p-5 shadow-none">
                 <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <FileText size={19} className="text-[#55a572]" />
+                  <div className="min-w-0">
+                    <FileText size={18} className="text-[#55a572]" />
                     <Link
                       href={`/app/resumes/${resume.id}`}
-                      className="mt-4 block font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-foreground"
+                      className="mt-4 block truncate text-base font-semibold"
                     >
                       {resume.name}
                     </Link>
@@ -129,36 +238,26 @@ export function ResumeManager() {
                     <button
                       type="button"
                       aria-label="克隆简历"
-                      onClick={() => mutate(resume.id, "clone")}
-                      className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground"
+                      onClick={() => void mutate(resume.id, "clone")}
+                      className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted"
                     >
                       <Copy size={14} />
                     </button>
                     <button
                       type="button"
                       aria-label="删除简历"
-                      onClick={() => mutate(resume.id, "delete")}
-                      className="grid size-8 place-items-center rounded-lg text-muted-foreground hover:bg-[#fbecef] hover:text-[#9d4450]"
+                      onClick={() => void mutate(resume.id, "delete")}
+                      className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                     >
                       <Trash2 size={14} />
                     </button>
                   </div>
                 </div>
               </Card>
-            ))}
+            )}
+          />
+        )}
       </div>
-
-      {!loading && resumes.length === 0 ? (
-        <Card className="mt-5 grid min-h-60 place-items-center p-8 text-center shadow-none">
-          <div>
-            <FileText size={24} className="mx-auto text-[#55a572]" />
-            <p className="mt-4 text-sm font-medium">还没有简历</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              创建第一份简历后，内容会安全保存在个人空间中。
-            </p>
-          </div>
-        </Card>
-      ) : null}
     </>
   );
 }

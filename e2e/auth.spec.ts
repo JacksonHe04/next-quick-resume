@@ -12,8 +12,11 @@ test("lets visitors browse, requires login on write, and supports login", async 
 
   await page.goto("/app/batches");
   await page.getByRole("button", { name: "新建批次" }).first().click();
-  await page.getByLabel("批次名称").fill("访客不可写");
-  await page.getByRole("button", { name: "创建批次" }).click();
+  const batchDialog = page.getByRole("dialog", { name: "新建批次" });
+  await batchDialog
+    .getByRole("textbox", { name: "批次名称", exact: true })
+    .fill("访客不可写");
+  await batchDialog.getByRole("button", { name: "创建批次" }).click();
   await expect(page).toHaveURL(
     /\/login\?next=%2Fapp%2Fbatches$/,
   );

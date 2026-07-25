@@ -1,4 +1,7 @@
-import { createPrivateCatalogInputSchema } from "@/modules/catalog/schemas";
+import {
+  createPrivateCatalogInputSchema,
+  renamePrivateCatalogInputSchema,
+} from "@/modules/catalog/schemas";
 
 export type CatalogEntity = "company" | "position";
 
@@ -35,6 +38,24 @@ export interface CatalogRepository {
       updatedAt: Date;
     },
   ): Promise<void>;
+  updatePrivate(
+    entity: CatalogEntity,
+    userId: string,
+    id: string,
+    changes: Pick<CatalogRow, "name" | "normalizedName"> & {
+      updatedAt: Date;
+    },
+  ): Promise<boolean>;
+}
+
+export class CatalogError extends Error {
+  constructor(
+    public readonly code: "PRIVATE_CATALOG_NOT_FOUND",
+    message: string,
+  ) {
+    super(message);
+    this.name = "CatalogError";
+  }
 }
 
 export function normalizeCatalogName(value: string): string {
@@ -104,4 +125,28 @@ export async function createPrivateCatalogEntry(
   await repository.insertPrivate(entity, row);
 
   return { source: "private", id: row.id, name: row.name };
+}
+
+export async function renamePrivateCatalogEntry(
+  repository: CatalogRepository,
+  userId: string,
+  entity: CatalogEntity,
+  id: string,
+  input: unknown,
+  now = new Date(),
+): Promise<void> {
+  const { name } = renamePrivateCatalogInputSchema.parse(input);
+  const saved = await repository.updatePrivate(entity, userId, id, {
+    name: name.replace(/\s+/gu, " "),
+    normalizedName: normalizeCatalogName(name),
+    updatedAt: now,
+  });
+  if (!saved) {
+    throw new CatalogError(
+      "PRIVATE_CATALOG_NOT_FOUND",
+      entity === "company"
+        ? "自定义公司不存在"
+        : "自定义岗位不存在",
+    );
+  }
 }

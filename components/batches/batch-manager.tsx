@@ -18,11 +18,13 @@ import {
 import {
   Button,
   Card,
+  DataTable,
   FormDrawer,
   Input,
   StatusBadge,
+  type DataTableColumn,
 } from "@/components/ui";
-import { appFetch } from "@/lib/app-fetch";
+import { appFetch, patchJson } from "@/lib/app-fetch";
 
 type Batch = {
   id: string;
@@ -57,6 +59,10 @@ async function api(
   }
 }
 
+function dateInput(value: string | null) {
+  return value ? value.slice(0, 10) : "";
+}
+
 function formatDate(value: string | null) {
   return value
     ? new Intl.DateTimeFormat("zh-CN", {
@@ -64,7 +70,7 @@ function formatDate(value: string | null) {
         month: "short",
         day: "numeric",
       }).format(new Date(value))
-    : null;
+    : "未设置";
 }
 
 export function BatchManager() {
@@ -112,9 +118,7 @@ export function BatchManager() {
     }
   }
 
-  async function perform(
-    action: () => Promise<void>,
-  ) {
+  async function perform(action: () => Promise<void>) {
     setError(undefined);
     try {
       await action();
@@ -124,16 +128,191 @@ export function BatchManager() {
     }
   }
 
-  if (loading) {
+  async function update(id: string, changes: Record<string, unknown>) {
+    await patchJson(`/api/batches/${id}`, changes);
+    await load();
+  }
+
+  const columns: DataTableColumn<Batch>[] = [
+    {
+      key: "name",
+      header: "批次名称",
+      className: "min-w-48",
+      render: (batch) => <span className="font-medium">{batch.name}</span>,
+      editable: {
+        label: "批次名称",
+        value: (batch) => batch.name,
+        onSave: (batch, value) => update(batch.id, { name: value }),
+      },
+    },
+    {
+      key: "status",
+      header: "状态",
+      render: (batch) =>
+        batch.id === data.currentBatchId ? (
+          <StatusBadge value="current" />
+        ) : batch.archivedAt ? (
+          <StatusBadge value="archived" />
+        ) : (
+          <StatusBadge value="active" />
+        ),
+    },
+    {
+      key: "description",
+      header: "说明",
+      className: "min-w-64 whitespace-normal",
+      render: (batch) => (
+        <span className="line-clamp-2 text-muted-foreground">
+          {batch.description || "未填写"}
+        </span>
+      ),
+      editable: {
+        label: "批次说明",
+        type: "textarea",
+        value: (batch) => batch.description,
+        onSave: (batch, value) =>
+          update(batch.id, { description: value || null }),
+      },
+    },
+    {
+      key: "strategy",
+      header: "投递策略",
+      className: "min-w-72 whitespace-normal",
+      render: (batch) => (
+        <span className="line-clamp-2 text-muted-foreground">
+          {batch.strategyMarkdown || "未填写"}
+        </span>
+      ),
+      editable: {
+        label: "投递策略",
+        type: "textarea",
+        value: (batch) => batch.strategyMarkdown,
+        onSave: (batch, value) =>
+          update(batch.id, { strategyMarkdown: value || null }),
+      },
+    },
+    {
+      key: "start",
+      header: "开始日期",
+      render: (batch) => (
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
+          {formatDate(batch.startDate)}
+        </span>
+      ),
+      editable: {
+        label: "开始日期",
+        type: "date",
+        value: (batch) => dateInput(batch.startDate),
+        onSave: (batch, value) =>
+          update(batch.id, { startDate: value || null }),
+      },
+    },
+    {
+      key: "end",
+      header: "结束日期",
+      render: (batch) => (
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
+          {formatDate(batch.endDate)}
+        </span>
+      ),
+      editable: {
+        label: "结束日期",
+        type: "date",
+        value: (batch) => dateInput(batch.endDate),
+        onSave: (batch, value) =>
+          update(batch.id, { endDate: value || null }),
+      },
+    },
+    {
+      key: "actions",
+      header: <span className="sr-only">操作</span>,
+      className: "w-40 text-right",
+      render: (batch) => {
+        const current = batch.id === data.currentBatchId;
+        const archived = Boolean(batch.archivedAt);
+        return (
+          <div className="flex justify-end gap-1">
+            {!archived && !current ? (
+              <button
+                type="button"
+                aria-label="设为当前批次"
+                onClick={() =>
+                  void perform(() =>
+                    api(`/api/batches/${batch.id}/current`, "POST"),
+                  )
+                }
+                className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+              >
+                <Check size={14} />
+              </button>
+            ) : null}
+            <button
+              type="button"
+              aria-label={archived ? "恢复批次" : "归档批次"}
+              onClick={() =>
+                void perform(() =>
+                  api(`/api/batches/${batch.id}/archive`, "POST", {
+                    archived: !archived,
+                  }),
+                )
+              }
+              className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              {archived ? <RotateCcw size={14} /> : <Archive size={14} />}
+            </button>
+            <button
+              type="button"
+              aria-label="删除批次"
+              onClick={() =>
+                void perform(() =>
+                  api(`/api/batches/${batch.id}`, "DELETE"),
+                )
+              }
+              className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        );
+      },
+    },
+  ];
+
+  function batchCard(batch: Batch) {
+    const current = batch.id === data.currentBatchId;
+    const archived = Boolean(batch.archivedAt);
     return (
-      <div className="mt-7 grid gap-3 sm:grid-cols-2">
-        {[0, 1].map((item) => (
-          <div
-            key={item}
-            className="h-48 animate-pulse rounded-[18px] border border-border bg-white/60"
-          />
-        ))}
-      </div>
+      <Card
+        className={
+          current
+            ? "h-full border-[#9fd1ae] p-5 shadow-[0_15px_45px_rgb(39_118_75/0.08)]"
+            : "h-full p-5 shadow-none"
+        }
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h2 className="truncate text-base font-semibold">
+                {batch.name}
+              </h2>
+              {current ? (
+                <StatusBadge value="current" />
+              ) : archived ? (
+                <StatusBadge value="archived" />
+              ) : (
+                <StatusBadge value="active" />
+              )}
+            </div>
+            <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+              {batch.description || "未填写说明"}
+            </p>
+            <p className="mt-3 font-[var(--font-data)] text-[10px] text-muted-foreground">
+              {formatDate(batch.startDate)} — {formatDate(batch.endDate)}
+            </p>
+          </div>
+          <CalendarRange size={18} className="shrink-0 text-[#55a572]" />
+        </div>
+      </Card>
     );
   }
 
@@ -148,136 +327,30 @@ export function BatchManager() {
           新建批次
         </Button>
       </div>
+
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-xl border border-[#ebc3c8] bg-[#fbecef] px-4 py-3 text-sm text-[#9d4450]"
+          className="mt-4 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      {data.batches.length === 0 ? (
-        <Card className="mt-5 grid min-h-64 place-items-center p-8 text-center shadow-none">
-          <div>
-            <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-[#e7f6ec] text-foreground">
-              <CalendarRange size={21} />
-            </span>
-            <h2 className="mt-4 font-medium">先建立第一个求职批次</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              例如“2026 夏季产品岗”或“毕业前冲刺阶段”。
-            </p>
-            <Button
-              className="mt-5"
-              onClick={() => setDrawerOpen(true)}
-            >
-              新建批次
-            </Button>
-          </div>
-        </Card>
-      ) : (
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
-          {data.batches.map((batch) => {
-            const current = batch.id === data.currentBatchId;
-            const archived = Boolean(batch.archivedAt);
-            const start = formatDate(batch.startDate);
-            const end = formatDate(batch.endDate);
-            return (
-              <Card
-                key={batch.id}
-                className={
-                  current
-                    ? "border-[#9fd1ae] p-5 shadow-[0_15px_45px_rgb(39_118_75/0.08)]"
-                    : "p-5 shadow-none"
-                }
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="truncate font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
-                        {batch.name}
-                      </h2>
-                      {current ? (
-                        <StatusBadge value="current" />
-                      ) : archived ? (
-                        <StatusBadge value="archived" />
-                      ) : (
-                        <StatusBadge value="active" />
-                      )}
-                    </div>
-                    {batch.description ? (
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
-                        {batch.description}
-                      </p>
-                    ) : null}
-                    {start || end ? (
-                      <p className="mt-3 font-[var(--font-data)] text-[10px] text-muted-foreground">
-                        {start ?? "未设置"} — {end ?? "至今"}
-                      </p>
-                    ) : null}
-                  </div>
-                  <CalendarRange
-                    size={18}
-                    className="shrink-0 text-[#55a572]"
-                  />
-                </div>
-
-                <div className="mt-5 flex flex-wrap gap-2 border-t border-border pt-4">
-                  {!archived && !current ? (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() =>
-                        perform(() =>
-                          api(
-                            `/api/batches/${batch.id}/current`,
-                            "POST",
-                          ),
-                        )
-                      }
-                    >
-                      <Check size={14} />
-                      设为当前
-                    </Button>
-                  ) : null}
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() =>
-                      perform(() =>
-                        api(
-                          `/api/batches/${batch.id}/archive`,
-                          "POST",
-                          { archived: !archived },
-                        ),
-                      )
-                    }
-                  >
-                    {archived ? (
-                      <RotateCcw size={14} />
-                    ) : (
-                      <Archive size={14} />
-                    )}
-                    {archived ? "恢复" : "归档"}
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() =>
-                      perform(() =>
-                        api(`/api/batches/${batch.id}`, "DELETE"),
-                      )
-                    }
-                  >
-                    <Trash2 size={14} />
-                    删除
-                  </Button>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      )}
+      <div className="mt-5">
+        {loading ? (
+          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
+        ) : (
+          <DataTable
+            columns={columns}
+            rows={data.batches}
+            rowKey={(batch) => batch.id}
+            viewStorageKey="batches"
+            empty="先建立第一个求职批次"
+            gridCard={batchCard}
+          />
+        )}
+      </div>
 
       <FormDrawer
         open={drawerOpen}
@@ -309,9 +382,7 @@ export function BatchManager() {
           className="space-y-5"
         >
           <label className="block">
-            <span className="mb-2 block text-sm font-medium">
-              批次名称
-            </span>
+            <span className="mb-2 block text-sm font-medium">批次名称</span>
             <Input
               name="name"
               placeholder="例如：2026 夏季产品岗"
@@ -319,38 +390,30 @@ export function BatchManager() {
             />
           </label>
           <label className="block">
-            <span className="mb-2 block text-sm font-medium">
-              简短说明
-            </span>
+            <span className="mb-2 block text-sm font-medium">简短说明</span>
             <textarea
               name="description"
               rows={3}
-              className="w-full rounded-xl border border-border bg-white px-3.5 py-3 text-sm outline-none transition focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
               placeholder="这个阶段的目标是什么？"
             />
           </label>
           <div className="grid grid-cols-2 gap-3">
             <label>
-              <span className="mb-2 block text-sm font-medium">
-                开始日期
-              </span>
+              <span className="mb-2 block text-sm font-medium">开始日期</span>
               <Input name="startDate" type="date" />
             </label>
             <label>
-              <span className="mb-2 block text-sm font-medium">
-                结束日期
-              </span>
+              <span className="mb-2 block text-sm font-medium">结束日期</span>
               <Input name="endDate" type="date" />
             </label>
           </div>
           <label className="block">
-            <span className="mb-2 block text-sm font-medium">
-              投递策略
-            </span>
+            <span className="mb-2 block text-sm font-medium">投递策略</span>
             <textarea
               name="strategyMarkdown"
               rows={7}
-              className="w-full rounded-xl border border-border bg-white px-3.5 py-3 font-[var(--font-data)] text-xs leading-6 outline-none transition focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+              className="w-full rounded-md border border-input bg-background px-3 py-2 font-[var(--font-data)] text-xs leading-6 outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
               placeholder="- 这一阶段优先投递什么岗位&#10;- 每周投递和复盘节奏"
             />
           </label>

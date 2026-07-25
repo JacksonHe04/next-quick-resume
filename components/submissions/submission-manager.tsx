@@ -18,6 +18,7 @@ import {
 import { SubmissionForm } from "@/components/submissions/submission-form";
 import {
   Button,
+  Card,
   DataTable,
   FilterSelect,
   FormDrawer,
@@ -25,7 +26,7 @@ import {
   PresentationBadge,
   type DataTableColumn,
 } from "@/components/ui";
-import { appFetch } from "@/lib/app-fetch";
+import { appFetch, patchJson } from "@/lib/app-fetch";
 import {
   filterSubmissions,
   submissionStatusLabel,
@@ -59,6 +60,20 @@ type BatchOption = {
   name: string;
   archivedAt: string | null;
 };
+
+const DIRECT_STATUS_OPTIONS: Array<{
+  value: DirectSubmissionStatus;
+  label: string;
+}> = [
+  { value: "submitted", label: "已投递" },
+  { value: "screening", label: "筛选中" },
+  { value: "resume_passed", label: "简历通过" },
+  { value: "resume_failed", label: "简历未通过" },
+  { value: "offer", label: "Offer" },
+  { value: "cancelled", label: "已取消" },
+  { value: "closed", label: "已结束" },
+  { value: "expired", label: "已过期" },
+];
 
 export function SubmissionManager() {
   const [submissions, setSubmissions] = useState<SubmissionView[]>([]);
@@ -193,26 +208,44 @@ export function SubmissionManager() {
     await load();
   }
 
+  async function update(id: string, changes: Record<string, unknown>) {
+    await patchJson(`/api/submissions/${id}`, changes);
+    await load();
+  }
+
   const columns: DataTableColumn<SubmissionView>[] = [
     {
       key: "company",
-      header: "公司与岗位",
+      header: "公司",
       render: (submission) => (
-        <div className="min-w-52">
-          <Link
-            href={`/app/submissions/${submission.id}`}
-            className="font-medium text-foreground hover:text-foreground"
-          >
-            {submission.companyName}
-          </Link>
-          <p className="mt-1 text-xs text-muted-foreground">
-            {submission.positionName}
-          </p>
-          <p className="mt-1 text-[10px] text-[#98a099]">
-            岗位：{submission.positionConcept}
-          </p>
-        </div>
+        <Link
+          href={`/app/submissions/${submission.id}`}
+          className="font-medium"
+        >
+          {submission.companyName}
+        </Link>
       ),
+    },
+    {
+      key: "positionConcept",
+      header: "岗位",
+      render: (submission) => (
+        <span className="text-muted-foreground">
+          {submission.positionConcept}
+        </span>
+      ),
+    },
+    {
+      key: "positionName",
+      header: "岗位名称",
+      className: "min-w-48",
+      render: (submission) => submission.positionName,
+      editable: {
+        label: "岗位名称",
+        value: (submission) => submission.positionName,
+        onSave: (submission, value) =>
+          update(submission.id, { positionName: value }),
+      },
     },
     {
       key: "status",
@@ -236,6 +269,14 @@ export function SubmissionManager() {
           />
         );
       },
+      editable: {
+        label: "当前状态",
+        type: "select",
+        value: (submission) => submission.directStatus,
+        options: DIRECT_STATUS_OPTIONS,
+        onSave: (submission, value) =>
+          update(submission.id, { directStatus: value }),
+      },
     },
     {
       key: "batch",
@@ -243,6 +284,47 @@ export function SubmissionManager() {
       render: (submission) => (
         <span className="text-muted-foreground">{submission.batchName}</span>
       ),
+      editable: {
+        label: "批次",
+        type: "select",
+        value: (submission) => submission.batchId,
+        options: batches.map((batch) => ({
+          value: batch.id,
+          label: batch.name,
+        })),
+        onSave: (submission, value) =>
+          update(submission.id, { batchId: value }),
+      },
+    },
+    {
+      key: "location",
+      header: "地点",
+      render: (submission) => (
+        <span className="text-muted-foreground">
+          {submission.location || "未填写"}
+        </span>
+      ),
+      editable: {
+        label: "地点",
+        value: (submission) => submission.location,
+        onSave: (submission, value) =>
+          update(submission.id, { location: value || null }),
+      },
+    },
+    {
+      key: "channel",
+      header: "渠道",
+      render: (submission) => (
+        <span className="text-muted-foreground">
+          {submission.channel || "未填写"}
+        </span>
+      ),
+      editable: {
+        label: "渠道",
+        value: (submission) => submission.channel,
+        onSave: (submission, value) =>
+          update(submission.id, { channel: value || null }),
+      },
     },
     {
       key: "date",
@@ -255,6 +337,13 @@ export function SubmissionManager() {
           }).format(new Date(submission.appliedAt))}
         </span>
       ),
+      editable: {
+        label: "投递日期",
+        type: "date",
+        value: (submission) => submission.appliedAt.slice(0, 10),
+        onSave: (submission, value) =>
+          update(submission.id, { appliedAt: value }),
+      },
     },
     {
       key: "actions",
@@ -408,11 +497,54 @@ export function SubmissionManager() {
             columns={columns}
             rows={filtered}
             rowKey={(row) => row.id}
+            viewStorageKey="submissions"
             empty={
               hasFilters
                 ? "没有符合当前搜索的投递"
                 : "还没有投递记录，记录第一条已发生的投递"
             }
+            gridCard={(submission) => {
+              const presentation = displaySubmissionStatus({
+                statusSource: submission.statusSource,
+                directStatus: submission.directStatus,
+                currentInterview:
+                  submission.stageName && submission.interviewStatus
+                    ? {
+                        stageName: submission.stageName,
+                        status: submission.interviewStatus,
+                      }
+                    : null,
+              });
+              return (
+                <Card className="h-full p-5 shadow-none">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <Link
+                        href={`/app/submissions/${submission.id}`}
+                        className="block truncate text-base font-semibold"
+                      >
+                        {submission.companyName}
+                      </Link>
+                      <p className="mt-1 truncate text-sm text-muted-foreground">
+                        {submission.positionName}
+                      </p>
+                    </div>
+                    <PresentationBadge
+                      label={presentation.label}
+                      tone={presentation.tone}
+                    />
+                  </div>
+                  <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
+                    <span>{submission.batchName}</span>
+                    <span className="text-right">
+                      {new Intl.DateTimeFormat("zh-CN").format(
+                        new Date(submission.appliedAt),
+                      )}
+                    </span>
+                  </div>
+                </Card>
+              );
+            }}
           />
         )}
       </div>

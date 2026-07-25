@@ -5,8 +5,15 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { QuestionForm } from "@/components/questions/question-form";
-import { Button, Card, FormDrawer, Input } from "@/components/ui";
-import { appFetch } from "@/lib/app-fetch";
+import {
+  Button,
+  Card,
+  DataTable,
+  FormDrawer,
+  Input,
+  type DataTableColumn,
+} from "@/components/ui";
+import { appFetch, patchJson } from "@/lib/app-fetch";
 
 type QuestionView = {
   id: string;
@@ -65,6 +72,11 @@ export function QuestionManager() {
     );
   }, [category, query, questions]);
 
+  async function update(id: string, changes: Record<string, unknown>) {
+    await patchJson(`/api/questions/${id}`, changes);
+    await load();
+  }
+
   async function remove(id: string) {
     const response = await appFetch(`/api/questions/${id}`, {
       method: "DELETE",
@@ -75,6 +87,100 @@ export function QuestionManager() {
     }
     await load();
   }
+
+  const columns: DataTableColumn<QuestionView>[] = [
+    {
+      key: "question",
+      header: "问题",
+      className: "min-w-72 whitespace-normal",
+      render: (question) => (
+        <span className="font-medium">{question.questionText}</span>
+      ),
+      editable: {
+        label: "问题",
+        value: (question) => question.questionText,
+        onSave: (question, value) =>
+          update(question.id, { questionText: value }),
+      },
+    },
+    {
+      key: "category",
+      header: "分类",
+      className: "min-w-36",
+      render: (question) => (
+        <span className="text-muted-foreground">
+          {question.category || "未分类"}
+        </span>
+      ),
+      editable: {
+        label: "分类",
+        value: (question) => question.category,
+        onSave: (question, value) =>
+          update(question.id, { category: value || null }),
+      },
+    },
+    {
+      key: "answer",
+      header: "标准答案",
+      className: "min-w-96 whitespace-normal",
+      render: (question) => (
+        <span className="line-clamp-2 max-w-xl text-sm leading-5 text-muted-foreground">
+          {question.answerMarkdown || "还没有标准答案"}
+        </span>
+      ),
+      editable: {
+        label: "标准答案",
+        type: "textarea",
+        value: (question) => question.answerMarkdown,
+        onSave: (question, value) =>
+          update(question.id, { answerMarkdown: value }),
+      },
+    },
+    {
+      key: "links",
+      header: "关联面试",
+      render: (question) => (
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
+          {question.interviewCount}
+        </span>
+      ),
+    },
+    {
+      key: "updated",
+      header: "更新时间",
+      render: (question) => (
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
+          {new Intl.DateTimeFormat("zh-CN").format(
+            new Date(question.updatedAt),
+          )}
+        </span>
+      ),
+    },
+    {
+      key: "actions",
+      header: <span className="sr-only">操作</span>,
+      className: "w-24 text-right",
+      render: (question) => (
+        <div className="flex justify-end gap-1">
+          <Link
+            href={`/app/questions/${question.id}`}
+            aria-label="打开问题详情"
+            className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <BookOpenText size={14} />
+          </Link>
+          <button
+            type="button"
+            aria-label="删除问题"
+            onClick={() => void remove(question.id)}
+            className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -97,7 +203,7 @@ export function QuestionManager() {
             aria-label="按分类筛选"
             value={category}
             onChange={(event) => setCategory(event.target.value)}
-            className="min-h-11 rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
+            className="min-h-9 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
           >
             {categories.map((item) => (
               <option key={item}>{item}</option>
@@ -113,73 +219,58 @@ export function QuestionManager() {
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-xl border border-[#ebc3c8] bg-[#fbecef] px-4 py-3 text-sm text-[#9d4450]"
+          className="mt-4 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-2">
-        {loading
-          ? [0, 1].map((item) => (
-              <div
-                key={item}
-                className="h-44 animate-pulse rounded-[18px] border border-border bg-white/60"
-              />
-            ))
-          : filtered.map((question) => (
-              <Card key={question.id} className="p-5 shadow-none">
+      <div className="mt-5">
+        {loading ? (
+          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
+        ) : (
+          <DataTable
+            columns={columns}
+            rows={filtered}
+            rowKey={(question) => question.id}
+            viewStorageKey="questions"
+            empty={
+              questions.length === 0
+                ? "还没有问题"
+                : "没有匹配的问题"
+            }
+            gridCard={(question) => (
+              <Card className="h-full p-5 shadow-none">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      {question.category ? (
-                        <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-foreground">
-                          {question.category}
-                        </span>
-                      ) : null}
-                      <span className="text-[11px] text-muted-foreground">
-                        关联 {question.interviewCount} 场选拔
-                      </span>
-                    </div>
+                    <span className="text-[11px] text-muted-foreground">
+                      {question.category || "未分类"} · 关联{" "}
+                      {question.interviewCount} 场
+                    </span>
                     <Link
                       href={`/app/questions/${question.id}`}
-                      className="mt-3 block font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-foreground"
+                      className="mt-3 block line-clamp-2 text-base font-semibold"
                     >
                       {question.questionText}
                     </Link>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
                       {question.answerMarkdown || "还没有标准答案"}
                     </p>
                   </div>
                   <button
                     type="button"
                     aria-label="删除问题"
-                    onClick={() => remove(question.id)}
-                    className="grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground hover:bg-[#fbecef] hover:text-[#9d4450]"
+                    onClick={() => void remove(question.id)}
+                    className="grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
                   >
                     <Trash2 size={14} />
                   </button>
                 </div>
               </Card>
-            ))}
+            )}
+          />
+        )}
       </div>
-
-      {!loading && filtered.length === 0 ? (
-        <Card className="mt-5 grid min-h-60 place-items-center p-8 text-center shadow-none">
-          <div>
-            <BookOpenText
-              size={24}
-              className="mx-auto text-[#55a572]"
-            />
-            <p className="mt-4 text-sm font-medium">
-              {questions.length === 0 ? "还没有问题" : "没有匹配的问题"}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              提前准备高频问题，也可以从具体面试中沉淀。
-            </p>
-          </div>
-        </Card>
-      ) : null}
 
       <FormDrawer
         open={drawerOpen}

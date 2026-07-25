@@ -1,4 +1,4 @@
-import { CompanyGrid } from "@/components/catalog/company-grid";
+import { CompanyManager } from "@/components/catalog/company-grid";
 import { getDb } from "@/db/client";
 import { listOfficialCompanies } from "@/modules/catalog/repository";
 
@@ -12,10 +12,10 @@ export default async function CompaniesPage() {
       <p className="mt-2 text-sm text-muted-foreground">
         浏览 SAYLESS 官方维护、全站共享的公司目录。
       </p>
-      <div className="mt-5 rounded-xl border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
-        搜索不到的公司可以在记录投递时自定义；自定义公司只属于你，不会进入这个官方目录。
+      <div className="mt-5 rounded-md border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+        官方公司由 SAYLESS 维护并全站共享；你添加的公司只属于个人空间，可以直接改名，不会自动进入官方公司池。
       </div>
-      <CompanyGrid companies={companies} />
+      <CompanyManager companies={companies} />
     </div>
   );
 }

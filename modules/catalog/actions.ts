@@ -7,6 +7,7 @@ import {
   unauthenticatedResponse,
 } from "@/modules/auth/action-context";
 import { createCatalogRepository } from "@/modules/catalog/repository";
+import { CatalogError } from "@/modules/catalog/service";
 
 export async function getCatalogActionContext(request: Request) {
   const context = await getAuthenticatedDatabaseContext(request);
@@ -18,6 +19,17 @@ export async function getCatalogActionContext(request: Request) {
 }
 
 export function catalogErrorResponse(error: unknown) {
+  if (error instanceof CatalogError) {
+    return NextResponse.json(
+      {
+        error: {
+          code: error.code,
+          message: error.message,
+        },
+      },
+      { status: 404 },
+    );
+  }
   if (error instanceof ZodError) {
     const details = error.flatten().fieldErrors;
     return NextResponse.json(

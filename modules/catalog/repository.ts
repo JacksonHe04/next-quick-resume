@@ -14,7 +14,7 @@ import type {
 } from "@/modules/catalog/service";
 
 type Database = DrizzleD1Database<typeof schema>;
-const RESULT_LIMIT = 20;
+const RESULT_LIMIT = 200;
 
 export type OfficialCompany = {
   id: string;
@@ -149,6 +149,32 @@ export function createCatalogRepository(
         return;
       }
       await database.insert(privatePositions).values(row).run();
+    },
+
+    async updatePrivate(entity, userId, id, changes) {
+      const result =
+        entity === "company"
+          ? await database
+              .update(privateCompanies)
+              .set(changes)
+              .where(
+                and(
+                  eq(privateCompanies.id, id),
+                  eq(privateCompanies.userId, userId),
+                ),
+              )
+              .run()
+          : await database
+              .update(privatePositions)
+              .set(changes)
+              .where(
+                and(
+                  eq(privatePositions.id, id),
+                  eq(privatePositions.userId, userId),
+                ),
+              )
+              .run();
+      return result.meta.changes > 0;
     },
   };
 }

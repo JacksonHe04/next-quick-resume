@@ -25,8 +25,10 @@ test("opens the Chinese product navigation on mobile", async ({ page }) => {
   ]);
 
   await page.goto("/app/submissions");
-  await expect(page.getByRole("table")).toBeHidden();
-  await expect(page.locator("article").first()).toBeVisible();
+  await expect(page.getByRole("table")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "卡片视图" }),
+  ).toBeVisible();
 });
 
 test("creates and filters a question on mobile", async ({ page }) => {

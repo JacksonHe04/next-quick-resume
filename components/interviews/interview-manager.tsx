@@ -19,15 +19,16 @@ import { InterviewForm } from "@/components/interviews/interview-form";
 import {
   Button,
   Card,
+  DataTable,
   FilterSelect,
   FormDrawer,
   Input,
   PresentationBadge,
+  type DataTableColumn,
 } from "@/components/ui";
-import { appFetch } from "@/lib/app-fetch";
+import { appFetch, patchJson } from "@/lib/app-fetch";
 import {
   filterInterviews,
-  groupInterviews,
 } from "@/modules/interviews/filter";
 import type { InterviewStatus } from "@/modules/submissions/service";
 
@@ -62,6 +63,14 @@ function formatSchedule(value: string | null) {
     hour: "2-digit",
     minute: "2-digit",
   }).format(new Date(value));
+}
+
+function toDateTimeInput(value: string | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+    .toISOString()
+    .slice(0, 16);
 }
 
 function InterviewCard({
@@ -220,10 +229,6 @@ export function InterviewManager() {
       }),
     [companyName, from, interviews, stageId, status, to],
   );
-  const grouped = useMemo(
-    () => groupInterviews(filtered),
-    [filtered],
-  );
   const companies = useMemo(
     () =>
       Array.from(
@@ -250,6 +255,167 @@ export function InterviewManager() {
     }
     await load();
   }
+
+  async function update(id: string, changes: Record<string, unknown>) {
+    await patchJson(`/api/interviews/${id}`, changes);
+    await load();
+  }
+
+  const columns: DataTableColumn<InterviewView>[] = [
+    {
+      key: "name",
+      header: "选拔名称",
+      className: "min-w-48",
+      render: (interview) => (
+        <span className="font-medium">{interview.name}</span>
+      ),
+      editable: {
+        label: "选拔名称",
+        value: (interview) => interview.name,
+        onSave: (interview, value) =>
+          update(interview.id, { name: value }),
+      },
+    },
+    {
+      key: "company",
+      header: "公司与岗位",
+      render: (interview) => (
+        <span className="text-muted-foreground">
+          {interview.companyName} · {interview.positionName}
+        </span>
+      ),
+    },
+    {
+      key: "stage",
+      header: "阶段",
+      render: (interview) => interview.stageName,
+      editable: {
+        label: "阶段",
+        type: "select",
+        value: (interview) => interview.stageId,
+        options: stages.map((stage) => ({
+          value: stage.id,
+          label: stage.name,
+        })),
+        onSave: (interview, value) =>
+          update(interview.id, { stageId: value }),
+      },
+    },
+    {
+      key: "status",
+      header: "状态",
+      render: (interview) => {
+        const presentation = STATUS[interview.status];
+        return (
+          <PresentationBadge
+            label={presentation.label}
+            tone={presentation.tone}
+          />
+        );
+      },
+      editable: {
+        label: "状态",
+        type: "select",
+        value: (interview) => interview.status,
+        options: Object.entries(STATUS).map(([value, item]) => ({
+          value,
+          label: item.label,
+        })),
+        onSave: (interview, value) =>
+          update(interview.id, { status: value }),
+      },
+    },
+    {
+      key: "scheduledAt",
+      header: "时间",
+      className: "min-w-52",
+      render: (interview) => (
+        <span className="font-[var(--font-data)] text-xs text-muted-foreground">
+          {formatSchedule(interview.scheduledAt)}
+        </span>
+      ),
+      editable: {
+        label: "面试时间",
+        type: "datetime-local",
+        value: (interview) => toDateTimeInput(interview.scheduledAt),
+        onSave: (interview, value) =>
+          update(interview.id, {
+            scheduledAt: value ? new Date(value).toISOString() : null,
+          }),
+      },
+    },
+    {
+      key: "duration",
+      header: "时长",
+      render: (interview) => (
+        <span className="text-muted-foreground">
+          {interview.durationMinutes
+            ? `${interview.durationMinutes} 分钟`
+            : "未填写"}
+        </span>
+      ),
+      editable: {
+        label: "时长（分钟）",
+        type: "number",
+        value: (interview) => interview.durationMinutes,
+        onSave: (interview, value) =>
+          update(interview.id, {
+            durationMinutes: value ? Number(value) : null,
+          }),
+      },
+    },
+    {
+      key: "meetingUrl",
+      header: "会议链接",
+      className: "min-w-44",
+      render: (interview) => (
+        <span className="block max-w-52 truncate text-muted-foreground">
+          {interview.meetingUrl || "未填写"}
+        </span>
+      ),
+      editable: {
+        label: "会议链接",
+        value: (interview) => interview.meetingUrl,
+        onSave: (interview, value) =>
+          update(interview.id, { meetingUrl: value || null }),
+      },
+    },
+    {
+      key: "actions",
+      header: <span className="sr-only">操作</span>,
+      className: "w-24 text-right",
+      render: (interview) => (
+        <div className="flex justify-end gap-1">
+          <Link
+            href={`/app/interviews/${interview.id}`}
+            aria-label="打开选拔详情"
+            className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+          >
+            <CalendarClock size={14} />
+          </Link>
+          {interview.meetingUrl ? (
+            <a
+              href={interview.meetingUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label="打开会议链接"
+              className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              <ExternalLink size={14} />
+            </a>
+          ) : null}
+          <button
+            type="button"
+            aria-label="删除选拔事件"
+            onClick={() => void remove(interview.id)}
+            className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+          >
+            <Trash2 size={14} />
+          </button>
+        </div>
+      ),
+    },
+  ];
 
   return (
     <>
@@ -345,80 +511,29 @@ export function InterviewManager() {
         </p>
       ) : null}
 
-      {loading ? (
-        <div className="mt-5 grid gap-4 lg:grid-cols-2">
-          {[0, 1].map((item) => (
-            <div
-              key={item}
-              className="h-48 animate-pulse rounded-[18px] border border-border bg-white/60"
-            />
-          ))}
-        </div>
-      ) : (
-        [
-          {
-            key: "upcoming",
-            title: "近期",
-            description: "已经排期、等待进行的选拔",
-            records: grouped.upcoming,
-          },
-          {
-            key: "pending-result",
-            title: "待结果",
-            description: "已经结束、等待公司反馈的选拔",
-            records: grouped.pendingResult,
-          },
-          {
-            key: "history",
-            title: "历史",
-            description: "已经通过或未通过的选拔",
-            records: grouped.history,
-          },
-        ].map((section) =>
-          section.records.length > 0 ? (
-            <section key={section.key} className="mt-7">
-              <div className="mb-3 flex items-end justify-between gap-4">
-                <div>
-                  <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
-                    {section.title}
-                  </h2>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {section.description}
-                  </p>
-                </div>
-                <span className="font-[var(--font-data)] text-xs text-muted-foreground">
-                  {section.records.length}
-                </span>
-              </div>
-              <div className="grid gap-4 lg:grid-cols-2">
-                {section.records.map((interview) => (
-                  <InterviewCard
-                    key={interview.id}
-                    interview={interview}
-                    onRemove={(id) => void remove(id)}
-                  />
-                ))}
-              </div>
-            </section>
-          ) : null,
-        )
-      )}
-      {!loading && filtered.length === 0 ? (
-        <Card className="mt-5 grid min-h-60 place-items-center p-8 text-center shadow-none">
-          <div>
-            <CalendarClock
-              size={24}
-              className="mx-auto text-[#55a572]"
-            />
-            <p className="mt-4 text-sm font-medium">还没有选拔事件</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {hasFilters
-                ? "没有符合当前筛选条件的选拔事件。"
-                : "从测评、笔试到 HR 面，都可以按实际发生顺序添加。"}
-            </p>
-          </div>
-        </Card>
-      ) : null}
+      <div className="mt-5">
+        {loading ? (
+          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
+        ) : (
+          <DataTable
+            columns={columns}
+            rows={filtered}
+            rowKey={(interview) => interview.id}
+            viewStorageKey="interviews"
+            empty={
+              hasFilters
+                ? "没有符合当前筛选条件的选拔事件"
+                : "还没有选拔事件"
+            }
+            gridCard={(interview) => (
+              <InterviewCard
+                interview={interview}
+                onRemove={(id) => void remove(id)}
+              />
+            )}
+          />
+        )}
+      </div>
 
       <FormDrawer
         open={drawerOpen}

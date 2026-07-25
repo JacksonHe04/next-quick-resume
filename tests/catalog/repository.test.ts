@@ -68,4 +68,19 @@ describe("D1 catalog repository", () => {
       repository.searchPrivate("company", "user-b", "openai"),
     ).resolves.toEqual([]);
   });
+
+  it("returns the full personal company directory", async () => {
+    for (let index = 0; index < 25; index += 1) {
+      await createPrivateCatalogEntry(
+        repository,
+        "user-a",
+        "company",
+        { name: `Company ${String(index).padStart(2, "0")}` },
+      );
+    }
+
+    await expect(
+      repository.searchPrivate("company", "user-a", ""),
+    ).resolves.toHaveLength(25);
+  });
 });
