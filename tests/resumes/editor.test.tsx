@@ -45,6 +45,7 @@ const initial: ResumeRecord = {
 afterEach(() => {
   cleanup();
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("resume editor", () => {
@@ -119,6 +120,14 @@ describe("resume editor", () => {
     const user = userEvent.setup();
     const writeText = vi.fn().mockResolvedValue(undefined);
     const print = vi.spyOn(window, "print").mockImplementation(() => {});
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    );
     Object.defineProperty(window.navigator, "clipboard", {
       configurable: true,
       value: { writeText },
@@ -127,7 +136,14 @@ describe("resume editor", () => {
     render(<ResumeEditor initial={initial} />);
 
     expect(screen.queryByRole("button", { name: "导出" })).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "复制 Markdown" }));
+    const copyMarkdownButton = screen.getByRole("button", {
+      name: "复制为 Markdown",
+    });
+    await user.hover(copyMarkdownButton);
+    expect(await screen.findByRole("tooltip")).toHaveTextContent(
+      "复制为 Markdown",
+    );
+    await user.click(copyMarkdownButton);
     expect(writeText).toHaveBeenCalledWith(
       expect.stringContaining("# Jackson"),
     );
@@ -138,7 +154,7 @@ describe("resume editor", () => {
       screen.getByRole("button", { name: "已复制 Markdown" }),
     ).toHaveAttribute("data-state", "copied");
 
-    await user.click(screen.getByRole("button", { name: "打印 PDF" }));
+    await user.click(screen.getByRole("button", { name: "导出为 PDF" }));
     expect(print).toHaveBeenCalledOnce();
   });
 

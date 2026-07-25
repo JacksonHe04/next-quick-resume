@@ -1,11 +1,17 @@
 "use client";
 
-import { Check, Menu, Pencil } from "lucide-react";
+import { Check, Copy, Download, Menu, Pencil } from "lucide-react";
 import { type KeyboardEvent, useEffect, useState } from "react";
 
 import { AppTopbarPortal } from "@/components/app/app-topbar";
 import { ResumeWorkspaceSwitch } from "@/components/resumes/resume-workspace-switch";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export function ResumeTopbar({
@@ -130,39 +136,54 @@ export function ResumeTopbar({
         </div>
       </div>
 
-      <div className="flex shrink-0 items-center gap-1.5">
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          aria-label={markdownCopied ? "已复制 Markdown" : "复制 Markdown"}
-          title={markdownCopied ? "已复制 Markdown" : "复制 Markdown"}
-          data-state={markdownCopied ? "copied" : "idle"}
-          onClick={() => void copyMarkdown()}
-          className={cn(
-            "font-[var(--font-data)] text-[10px] font-semibold tracking-[-0.04em]",
-            markdownCopied &&
-              "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700",
-          )}
-        >
-          {markdownCopied ? (
-            <Check aria-hidden="true" className="size-3.5" />
-          ) : (
-            "MD"
-          )}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          size="icon"
-          aria-label="打印 PDF"
-          title="打印 PDF"
-          onClick={onExportPdf}
-          className="font-[var(--font-data)] text-[9px] font-semibold tracking-[-0.06em]"
-        >
-          PDF
-        </Button>
-      </div>
+      <TooltipProvider delayDuration={250}>
+        <div className="flex shrink-0 items-center gap-1.5">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                data-state={markdownCopied ? "copied" : "idle"}
+                onClick={() => void copyMarkdown()}
+                className={cn(
+                  markdownCopied &&
+                    "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700",
+                )}
+              >
+                {markdownCopied ? (
+                  <Check aria-hidden="true" className="size-3.5" />
+                ) : (
+                  <Copy aria-hidden="true" className="size-3.5" />
+                )}
+                <span className="sr-only">
+                  {markdownCopied ? "已复制 Markdown" : "复制为 Markdown"}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={8}>
+              {markdownCopied ? "已复制 Markdown" : "复制为 Markdown"}
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={onExportPdf}
+              >
+                <Download aria-hidden="true" className="size-3.5" />
+                <span className="sr-only">导出为 PDF</span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" sideOffset={8}>
+              导出为 PDF
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
     </AppTopbarPortal>
   );
 }
