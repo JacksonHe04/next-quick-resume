@@ -17,14 +17,14 @@ describe("application shell", () => {
   it("keeps the primary sidebar around the resume editor route", () => {
     render(
       <AppShell account={<span>Jackson</span>}>
-        <div>三栏简历编辑器</div>
+        <div>简历编辑器</div>
       </AppShell>,
     );
 
     expect(
       screen.getByRole("navigation", { name: "主要导航" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("三栏简历编辑器")).toBeInTheDocument();
+    expect(screen.getByText("简历编辑器")).toBeInTheDocument();
   });
 
   it("aligns a persistent page toolbar with the sidebar brand area", async () => {
@@ -49,5 +49,29 @@ describe("application shell", () => {
     expect(appHeader).toHaveClass("h-16", "border-b");
     expect(appHeader).not.toHaveClass("lg:hidden");
     expect(brandArea).toHaveClass("h-16", "border-b");
+  });
+
+  it("locks the application to the viewport and scrolls only its content", () => {
+    render(
+      <AppShell account={<span>Jackson</span>}>
+        <div>页面内容</div>
+      </AppShell>,
+    );
+
+    const main = screen.getByRole("main");
+    expect(main).toHaveClass(
+      "min-h-0",
+      "flex-1",
+      "overflow-y-auto",
+      "overscroll-y-none",
+    );
+    expect(main.parentElement).toHaveClass(
+      "h-dvh",
+      "overflow-hidden",
+    );
+    expect(main.parentElement?.parentElement).toHaveClass(
+      "h-dvh",
+      "overflow-hidden",
+    );
   });
 });

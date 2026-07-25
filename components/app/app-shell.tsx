@@ -78,8 +78,8 @@ export function AppShell({
     <div
       className={
         resizingSidebar
-          ? "min-h-screen bg-background print:block lg:grid"
-          : "min-h-screen bg-background transition-[grid-template-columns] duration-200 ease-out print:block lg:grid"
+          ? "h-dvh overflow-hidden bg-background print:block print:h-auto print:overflow-visible lg:grid"
+          : "h-dvh overflow-hidden bg-background transition-[grid-template-columns] duration-200 ease-out print:block print:h-auto print:overflow-visible lg:grid"
       }
       style={{
         gridTemplateColumns: `${renderedSidebarWidth}px minmax(0, 1fr)`,
@@ -123,8 +123,8 @@ export function AppShell({
         </div>
       ) : null}
 
-      <div className="min-w-0 print:block lg:col-start-2">
-        <header className="sticky top-0 z-30 flex h-16 min-w-0 items-center border-b border-border bg-background/95 backdrop-blur-xl print:hidden">
+      <div className="flex h-dvh min-w-0 flex-col overflow-hidden print:block print:h-auto print:overflow-visible lg:col-start-2">
+        <header className="relative z-30 flex h-16 min-w-0 shrink-0 items-center border-b border-border bg-background/95 backdrop-blur-xl print:hidden">
           <button
             type="button"
             aria-label={menuOpen ? "关闭导航" : "打开导航"}
@@ -138,7 +138,9 @@ export function AppShell({
             className="h-full min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           />
         </header>
-        <main className="min-h-screen">{children}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto overscroll-y-none print:overflow-visible">
+          {children}
+        </main>
       </div>
     </div>
   );
