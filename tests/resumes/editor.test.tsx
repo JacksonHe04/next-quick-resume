@@ -45,7 +45,7 @@ const initial: ResumeRecord = {
 afterEach(cleanup);
 
 describe("resume editor", () => {
-  it("restores the configuration, preview, and resume switcher columns", async () => {
+  it("uses one sidebar for layout, content, and resume switching", async () => {
     const user = userEvent.setup();
     render(
       <ResumeEditor
@@ -66,31 +66,37 @@ describe("resume editor", () => {
     ).toBeVisible();
     expect(screen.getByRole("main", { name: "简历预览" })).toBeVisible();
     expect(
-      screen.getByRole("complementary", { name: "切换简历" }),
-    ).toBeVisible();
+      screen.queryByRole("complementary", { name: "切换简历" }),
+    ).not.toBeInTheDocument();
     const workspaceSwitch = screen.getByRole("navigation", {
       name: "简历视图",
     });
     expect(
-      within(workspaceSwitch).getByRole("link", { name: "管理" }),
+      within(workspaceSwitch).getByRole("link", { name: "管理简历" }),
     ).toHaveAttribute("href", "/app/resumes");
     expect(
-      within(workspaceSwitch).getByRole("link", { name: "编辑" }),
+      within(workspaceSwitch).getByRole("link", { name: "编辑简历" }),
     ).toHaveAttribute(
       "href",
       "/app/resumes/resume-a",
     );
     expect(
-      within(workspaceSwitch).getByRole("link", { name: "编辑" }),
+      within(workspaceSwitch).getByRole("link", { name: "编辑简历" }),
     ).toHaveAttribute("aria-current", "page");
+    expect(screen.queryByText("头部样式设置")).not.toBeInTheDocument();
+    expect(screen.queryByText("对齐方式")).not.toBeInTheDocument();
+    expect(screen.queryByText("模块管理")).not.toBeInTheDocument();
+    expect(screen.queryByText("保存简历")).not.toBeInTheDocument();
     await user.click(screen.getByRole("switch", { name: "显示照片" }));
     expect(screen.getByLabelText("上传头像")).toBeInTheDocument();
     expect(
       screen.queryByRole("switch", { name: "显示头部按钮" }),
     ).not.toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: "切换到市场简历" }),
-    ).toHaveAttribute("href", "/app/resumes/resume-b");
+    await user.click(screen.getByRole("button", { name: "简历列表" }));
+    expect(screen.getByRole("link", { name: "切换到市场简历" })).toHaveAttribute(
+      "href",
+      "/app/resumes/resume-b",
+    );
   });
 
   it("keeps the editor toolbar inside the application content area", () => {
@@ -106,7 +112,7 @@ describe("resume editor", () => {
     ).toBeInTheDocument();
   });
 
-  it("keeps the local draft and offers retry after a save failure", async () => {
+  it("keeps autosave invisible while preserving a local draft on failure", async () => {
     const user = userEvent.setup();
     const save = vi.fn().mockRejectedValue(new Error("offline"));
     render(<ResumeEditor initial={initial} save={save} autosaveDelay={10} />);
@@ -114,8 +120,33 @@ describe("resume editor", () => {
     const photoSwitch = screen.getByRole("switch", { name: "显示照片" });
     await user.click(photoSwitch);
 
-    expect(await screen.findByText("保存失败，重试")).toBeVisible();
+    await vi.waitFor(() => expect(save).toHaveBeenCalledTimes(1));
+    expect(screen.queryByText(/保存/)).not.toBeInTheDocument();
     expect(photoSwitch).toHaveAttribute("aria-checked", "true");
+  });
+
+  it("edits structured content and autosaves the same document", async () => {
+    const user = userEvent.setup();
+    const save = vi.fn().mockResolvedValue({ version: 2 });
+    render(<ResumeEditor initial={initial} save={save} autosaveDelay={10} />);
+
+    await user.click(screen.getByRole("button", { name: "内容" }));
+    const nameInput = screen.getByLabelText("姓名");
+    await user.clear(nameInput);
+    await user.type(nameInput, "何锦诚");
+
+    expect(screen.getByRole("heading", { name: "何锦诚" })).toBeVisible();
+    await vi.waitFor(() =>
+      expect(save).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          document: expect.objectContaining({
+            data: expect.objectContaining({
+              header: expect.objectContaining({ name: "何锦诚" }),
+            }),
+          }),
+        }),
+      ),
+    );
   });
 
   it("does not save an unchanged resume when Strict Mode replays effects", async () => {

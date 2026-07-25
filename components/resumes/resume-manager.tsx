@@ -190,7 +190,7 @@ export function ResumeManager({
   return (
     <>
       <AppTopbarPortal>
-        <ResumeWorkspaceSwitch mode="manage" editorHref={editorHref} compact />
+        <ResumeWorkspaceSwitch mode="manage" editorHref={editorHref} />
         <div className="ml-auto flex items-center gap-2">
           <DataViewSwitch view={view} onChange={setView} />
           <Button onClick={() => setDrawerOpen(true)}>

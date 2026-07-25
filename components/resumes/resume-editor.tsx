@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
   type ChangeEvent,
   useCallback,
@@ -9,13 +8,12 @@ import {
   useState,
 } from "react";
 
-import { ResumeConfigSidebar } from "@/components/resumes/resume-config-sidebar";
-import { ResumeListSidebar } from "@/components/resumes/resume-list-sidebar";
-import { ResumePreview } from "@/components/resumes/resume-preview";
 import {
-  ResumeTopbar,
-  type ResumeViewMode,
-} from "@/components/resumes/resume-topbar";
+  ResumeConfigSidebar,
+  type ResumeSidebarMode,
+} from "@/components/resumes/resume-config-sidebar";
+import { ResumePreview } from "@/components/resumes/resume-preview";
+import { ResumeTopbar } from "@/components/resumes/resume-topbar";
 import { appFetch } from "@/lib/app-fetch";
 import { cn } from "@/lib/utils";
 import { getResumePhotoValidationError } from "@/modules/resumes/photo";
@@ -133,54 +131,52 @@ export function ResumeEditor({
   save?: (input: SaveInput) => Promise<SaveResult>;
   autosaveDelay?: number;
 }) {
-  const router = useRouter();
   const [name, setName] = useState(initial.name);
   const [document, setDocument] = useState<ResumeDocumentV1>(() =>
     structuredClone(initial.document),
   );
-  const [syncState, setSyncState] = useState<
-    "saved" | "saving" | "error"
-  >("saved");
-  const [viewMode, setViewMode] = useState<ResumeViewMode>("preview");
+  const [sidebarMode, setSidebarMode] =
+    useState<ResumeSidebarMode>("layout");
   const [jsonText, setJsonText] = useState(() =>
     JSON.stringify(initial.document.data, null, 2),
   );
   const [jsonError, setJsonError] = useState<string>();
   const [photoError, setPhotoError] = useState<string>();
-  const [cloning, setCloning] = useState(false);
-  const [leftSidebarWidth, setLeftSidebarWidth] = useState(280);
-  const [rightSidebarWidth, setRightSidebarWidth] = useState(260);
-  const [resizing, setResizing] = useState<"left" | "right">();
+  const [leftSidebarWidth, setLeftSidebarWidth] = useState(320);
+  const [resizing, setResizing] = useState(false);
   const [showLeftSidebar, setShowLeftSidebar] = useState(false);
-  const [showRightSidebar, setShowRightSidebar] = useState(false);
   const containerRef = useRef<HTMLElement>(null);
   const latestVersion = useRef(initial.version);
+  const saveQueue = useRef(Promise.resolve(true));
   const persistedDraft = useRef(
     serializeDraft(initial.name, initial.document),
   );
 
   const persist = useCallback(async () => {
-    setSyncState("saving");
-    try {
-      const result = await save({
-        id: initial.id,
-        version: latestVersion.current,
-        name,
-        document,
-      });
-      latestVersion.current = result.version;
-      persistedDraft.current = serializeDraft(name, document);
-      setSyncState("saved");
-      return true;
-    } catch {
-      setSyncState("error");
-      return false;
-    }
+    const draftName = name;
+    const draftDocument = structuredClone(document);
+    const serialized = serializeDraft(draftName, draftDocument);
+    saveQueue.current = saveQueue.current.then(async () => {
+      if (serialized === persistedDraft.current) return true;
+      try {
+        const result = await save({
+          id: initial.id,
+          version: latestVersion.current,
+          name: draftName,
+          document: draftDocument,
+        });
+        latestVersion.current = result.version;
+        persistedDraft.current = serialized;
+        return true;
+      } catch {
+        return false;
+      }
+    });
+    return saveQueue.current;
   }, [document, initial.id, name, save]);
 
   useEffect(() => {
     if (serializeDraft(name, document) === persistedDraft.current) return;
-    setSyncState("saving");
     const timer = window.setTimeout(() => void persist(), autosaveDelay);
     return () => window.clearTimeout(timer);
   }, [autosaveDelay, document, name, persist]);
@@ -188,21 +184,13 @@ export function ResumeEditor({
   useEffect(() => {
     function move(event: MouseEvent) {
       if (!resizing || !containerRef.current) return;
-      if (resizing === "left") {
-        const left =
-          event.clientX -
-          containerRef.current.getBoundingClientRect().left;
-        setLeftSidebarWidth(
-          Math.min(380, Math.max(224, left)),
-        );
-        return;
-      }
-      const right =
-        containerRef.current.getBoundingClientRect().right - event.clientX;
-      setRightSidebarWidth(Math.min(360, Math.max(224, right)));
+      const left =
+        event.clientX -
+        containerRef.current.getBoundingClientRect().left;
+      setLeftSidebarWidth(Math.min(440, Math.max(260, left)));
     }
     function stop() {
-      setResizing(undefined);
+      setResizing(false);
     }
     if (resizing) {
       window.document.body.style.cursor = "col-resize";
@@ -220,6 +208,12 @@ export function ResumeEditor({
 
   function updateConfig(config: ResumeDisplayConfig) {
     setDocument((current) => ({ ...current, displayConfig: config }));
+  }
+
+  function updateData(data: ResumeData) {
+    setDocument((current) => ({ ...current, data }));
+    setJsonText(JSON.stringify(data, null, 2));
+    setJsonError(undefined);
   }
 
   function changeJson(value: string) {
@@ -270,42 +264,16 @@ export function ResumeEditor({
     URL.revokeObjectURL(url);
   }
 
-  async function cloneCurrentResume() {
-    if (serializeDraft(name, document) !== persistedDraft.current) {
-      const saved = await persist();
-      if (!saved) return;
-    }
-    setCloning(true);
-    const response = await appFetch(`/api/resumes/${initial.id}/clone`, {
-      method: "POST",
-    });
-    const payload = (await response.json().catch(() => ({}))) as {
-      resume?: ResumeRecord;
-    };
-    setCloning(false);
-    if (!response.ok || !payload.resume) return;
-    router.push(`/app/resumes/${payload.resume.id}`);
-    router.refresh();
-  }
-
   return (
     <div className="relative flex h-[calc(100dvh-4rem)] flex-col overflow-hidden bg-background print:h-auto print:overflow-visible">
       <ResumeTopbar
         editorHref={`/app/resumes/${initial.id}`}
         name={name}
-        viewMode={viewMode}
-        syncState={syncState}
-        showLeftSidebar={showLeftSidebar}
         onNameChange={setName}
-        onViewModeChange={setViewMode}
-        onRetry={() => void persist()}
         onExportPdf={() => window.print()}
         onExportMarkdown={exportMarkdown}
         onToggleLeftSidebar={() =>
           setShowLeftSidebar((current) => !current)
-        }
-        onToggleRightSidebar={() =>
-          setShowRightSidebar((current) => !current)
         }
       />
 
@@ -313,13 +281,12 @@ export function ResumeEditor({
         ref={containerRef}
         className="relative flex min-h-0 flex-1 overflow-hidden print:block print:overflow-visible"
       >
-        {showLeftSidebar || showRightSidebar ? (
+        {showLeftSidebar ? (
           <button
             type="button"
             aria-label="关闭侧边栏"
             onClick={() => {
               setShowLeftSidebar(false);
-              setShowRightSidebar(false);
             }}
             className="absolute inset-0 z-30 bg-black/20 backdrop-blur-[1px] lg:hidden"
           />
@@ -334,26 +301,26 @@ export function ResumeEditor({
           style={{ width: leftSidebarWidth }}
         >
           <ResumeConfigSidebar
+            currentResumeId={initial.id}
+            resumes={availableResumes}
             data={document.data}
             config={document.displayConfig}
-            viewMode={viewMode}
+            mode={sidebarMode}
             jsonText={jsonText}
             jsonError={jsonError}
             photoError={photoError}
-            syncState={syncState}
-            cloning={cloning}
+            onModeChange={setSidebarMode}
+            onDataChange={updateData}
             onConfigChange={updateConfig}
             onJsonChange={changeJson}
             onPhotoChange={changePhoto}
-            onSave={() => void persist()}
-            onClone={() => void cloneCurrentResume()}
           />
         </aside>
 
         <button
           type="button"
           aria-label="调整左侧边栏宽度"
-          onMouseDown={() => setResizing("left")}
+          onMouseDown={() => setResizing(true)}
           className="z-20 hidden w-1 cursor-col-resize bg-border transition-colors hover:bg-foreground/25 lg:block print:hidden"
         />
 
@@ -366,27 +333,6 @@ export function ResumeEditor({
             <ResumePreview document={document} />
           </div>
         </section>
-
-        <button
-          type="button"
-          aria-label="调整右侧边栏宽度"
-          onMouseDown={() => setResizing("right")}
-          className="z-20 hidden w-1 cursor-col-resize bg-border transition-colors hover:bg-foreground/25 lg:block print:hidden"
-        />
-
-        <aside
-          aria-label="切换简历"
-          className={cn(
-            "absolute inset-y-0 right-0 z-40 h-full shrink-0 border-l border-border bg-background shadow-xl transition-transform duration-200 ease-out lg:relative lg:translate-x-0 lg:shadow-none print:hidden",
-            showRightSidebar ? "translate-x-0" : "translate-x-full",
-          )}
-          style={{ width: rightSidebarWidth }}
-        >
-          <ResumeListSidebar
-            currentId={initial.id}
-            resumes={availableResumes}
-          />
-        </aside>
       </main>
     </div>
   );

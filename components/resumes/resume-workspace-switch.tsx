@@ -1,4 +1,4 @@
-import { Columns3, Table2 } from "lucide-react";
+import { FilePenLine, Files } from "lucide-react";
 
 import { IntentLink } from "@/components/app/intent-link";
 import { cn } from "@/lib/utils";
@@ -6,14 +6,12 @@ import { cn } from "@/lib/utils";
 export function ResumeWorkspaceSwitch({
   mode,
   editorHref,
-  compact = false,
 }: {
   mode: "manage" | "edit";
   editorHref?: string;
-  compact?: boolean;
 }) {
   const itemClass =
-    "inline-flex h-8 items-center justify-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors";
+    "inline-flex size-8 items-center justify-center rounded-md transition-colors";
 
   return (
     <nav
@@ -22,6 +20,8 @@ export function ResumeWorkspaceSwitch({
     >
       <IntentLink
         href="/app/resumes"
+        aria-label="管理简历"
+        title="管理简历"
         aria-current={mode === "manage" ? "page" : undefined}
         className={cn(
           itemClass,
@@ -30,12 +30,13 @@ export function ResumeWorkspaceSwitch({
             : "text-muted-foreground hover:text-foreground",
         )}
       >
-        <Table2 aria-hidden="true" />
-        <span className={compact ? "hidden sm:inline" : undefined}>管理</span>
+        <Files className="size-4" aria-hidden="true" />
       </IntentLink>
       {editorHref ? (
         <IntentLink
           href={editorHref}
+          aria-label="编辑简历"
+          title="编辑简历"
           aria-current={mode === "edit" ? "page" : undefined}
           className={cn(
             itemClass,
@@ -44,17 +45,16 @@ export function ResumeWorkspaceSwitch({
               : "text-muted-foreground hover:text-foreground",
           )}
         >
-          <Columns3 aria-hidden="true" />
-          <span className={compact ? "hidden sm:inline" : undefined}>编辑</span>
+          <FilePenLine className="size-4" aria-hidden="true" />
         </IntentLink>
       ) : (
         <span
           aria-disabled="true"
           title="先创建一份简历"
+          aria-label="编辑简历"
           className={cn(itemClass, "cursor-not-allowed text-muted-foreground/45")}
         >
-          <Columns3 aria-hidden="true" />
-          <span className={compact ? "hidden sm:inline" : undefined}>编辑</span>
+          <FilePenLine className="size-4" aria-hidden="true" />
         </span>
       )}
     </nav>

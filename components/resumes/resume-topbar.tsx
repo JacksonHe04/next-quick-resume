@@ -3,8 +3,6 @@
 import {
   ChevronDown,
   Download,
-  Edit3,
-  Eye,
   Menu,
   Pencil,
 } from "lucide-react";
@@ -19,75 +17,21 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
-
-export type ResumeViewMode = "preview" | "edit";
-
-function ModeToggle({
-  mode,
-  onChange,
-}: {
-  mode: ResumeViewMode;
-  onChange: (mode: ResumeViewMode) => void;
-}) {
-  return (
-    <div className="flex rounded-lg bg-muted p-0.5">
-      <button
-        type="button"
-        onClick={() => onChange("preview")}
-        className={cn(
-          "flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors",
-          mode === "preview"
-            ? "bg-background text-foreground shadow-xs"
-            : "text-muted-foreground hover:text-foreground",
-        )}
-      >
-        <Eye className="size-4" />
-        版式
-      </button>
-      <button
-        type="button"
-        onClick={() => onChange("edit")}
-        className={cn(
-          "flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md px-2.5 text-sm font-medium transition-colors",
-          mode === "edit"
-            ? "bg-background text-foreground shadow-xs"
-            : "text-muted-foreground hover:text-foreground",
-        )}
-      >
-        <Edit3 className="size-4" />
-        内容
-      </button>
-    </div>
-  );
-}
 
 export function ResumeTopbar({
   editorHref,
   name,
-  viewMode,
-  syncState,
-  showLeftSidebar,
   onNameChange,
-  onViewModeChange,
-  onRetry,
   onExportPdf,
   onExportMarkdown,
   onToggleLeftSidebar,
-  onToggleRightSidebar,
 }: {
   editorHref: string;
   name: string;
-  viewMode: ResumeViewMode;
-  syncState: "saved" | "saving" | "error";
-  showLeftSidebar: boolean;
   onNameChange: (name: string) => void;
-  onViewModeChange: (mode: ResumeViewMode) => void;
-  onRetry: () => void;
   onExportPdf: () => void;
   onExportMarkdown: () => void;
   onToggleLeftSidebar: () => void;
-  onToggleRightSidebar: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState(name);
@@ -129,23 +73,11 @@ export function ResumeTopbar({
         <ResumeWorkspaceSwitch
           mode="edit"
           editorHref={editorHref}
-          compact
         />
 
-        <div
-          className={cn(
-            "h-7 w-px shrink-0 bg-border",
-            showLeftSidebar ? "block" : "hidden lg:block",
-          )}
-        />
+        <div className="hidden h-7 w-px shrink-0 bg-border lg:block" />
 
-        <div className={showLeftSidebar ? "block" : "hidden lg:block"}>
-          <ModeToggle mode={viewMode} onChange={onViewModeChange} />
-        </div>
-
-        <div className="hidden h-7 w-px shrink-0 bg-border xl:block" />
-
-        <div className="hidden min-w-0 items-center gap-2 xl:flex">
+        <div className="hidden min-w-0 items-center gap-2 lg:flex">
           {editing ? (
             <>
               <input
@@ -189,45 +121,10 @@ export function ResumeTopbar({
             </button>
           )}
 
-          <span
-            role="status"
-            className={cn(
-              "text-xs",
-              syncState === "error"
-                ? "text-destructive"
-                : syncState === "saved"
-                  ? "text-[#3d8c5a]"
-                  : "text-muted-foreground",
-            )}
-          >
-            {syncState === "saved"
-              ? "已保存"
-              : syncState === "saving"
-                ? "保存中…"
-                : "保存失败，重试"}
-          </span>
-          {syncState === "error" ? (
-            <button
-              type="button"
-              onClick={onRetry}
-              className="text-xs text-destructive underline"
-            >
-              重试
-            </button>
-          ) : null}
         </div>
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5">
-        <button
-          type="button"
-          onClick={onToggleRightSidebar}
-          className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
-          aria-label="切换右侧边栏"
-        >
-          <Menu className="size-4" />
-        </button>
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="sm">
