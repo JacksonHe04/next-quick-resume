@@ -18,6 +18,35 @@ import {
 import { createPrivateCatalogEntry } from "@/modules/catalog/service";
 import { createTestD1Binding } from "@/tests/db/d1-test-binding";
 
+function limitStatementParameters(
+  binding: D1Database,
+  maximum: number,
+): D1Database {
+  function wrap(statement: D1PreparedStatement): D1PreparedStatement {
+    return {
+      bind(...values: unknown[]) {
+        if (values.length > maximum) {
+          throw new Error(
+            `statement has ${values.length} parameters; maximum is ${maximum}`,
+          );
+        }
+        return wrap(statement.bind(...values));
+      },
+      run: () => statement.run(),
+      all: () => statement.all(),
+      first: (column?: string) => statement.first(column),
+      raw: (options?: { columnNames?: boolean }) =>
+        statement.raw(options),
+    } as D1PreparedStatement;
+  }
+
+  return {
+    prepare: (sql: string) => wrap(binding.prepare(sql)),
+    batch: (statements: D1PreparedStatement[]) =>
+      binding.batch(statements),
+  } as D1Database;
+}
+
 describe("D1 catalog repository", () => {
   const now = new Date("2026-07-25T00:00:00.000Z");
   let close: () => void;
@@ -151,5 +180,31 @@ describe("D1 catalog repository", () => {
         submissionCount: 1,
       }),
     ]);
+  });
+
+  it("lists a large official directory without exceeding the D1 statement parameter limit", async () => {
+    await database.insert(officialCompanies).values(
+      Array.from({ length: 100 }, (_, index) => ({
+        id: `official-${index}`,
+        name: `Company ${index}`,
+        normalizedName: `company ${index}`,
+        isActive: true,
+        createdAt: now,
+        updatedAt: now,
+      })),
+    );
+
+    const limitedDatabase = drizzle(
+      limitStatementParameters(
+        (database as unknown as { session: { client: D1Database } })
+          .session.client,
+        100,
+      ),
+      { schema },
+    );
+
+    await expect(listOfficialCompanies(limitedDatabase)).resolves.toHaveLength(
+      101,
+    );
   });
 });

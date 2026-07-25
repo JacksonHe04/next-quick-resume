@@ -3,7 +3,6 @@ import {
   asc,
   count,
   eq,
-  inArray,
   like,
 } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
@@ -215,7 +214,6 @@ export async function listOfficialCompanies(
 
   if (companies.length === 0) return [];
 
-  const companyIds = companies.map(({ id }) => id);
   const [cityRows, submissionRows] = await Promise.all([
     database
       .select({
@@ -227,7 +225,6 @@ export async function listOfficialCompanies(
         officialCities,
         eq(companyCities.cityId, officialCities.id),
       )
-      .where(inArray(companyCities.companyId, companyIds))
       .orderBy(asc(officialCities.name)),
     database
       .select({
@@ -235,7 +232,6 @@ export async function listOfficialCompanies(
         submissionCount: count(),
       })
       .from(submissions)
-      .where(inArray(submissions.officialCompanyId, companyIds))
       .groupBy(submissions.officialCompanyId),
   ]);
 
