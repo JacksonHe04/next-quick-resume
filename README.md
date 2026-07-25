@@ -62,7 +62,7 @@ Batch 不是预设的“秋招”或“春招”，而是由你定义的求职�
 
 ## 技术概览
 
-SAYLESS 使用 Next.js 和 React 构建并部署在 Vercel，数据通过 Cloudflare Worker 网关写入 Cloudflare D1，账户邮件由 Resend 发送。浏览器不会直接访问数据库，认证、业务规则和数据访问均在服务端完成。
+SAYLESS 使用 Next.js 和 React 构建并部署在 Vercel，数据通过 Cloudflare Worker 网关写入 Cloudflare D1，登录由 iNon 统一账号提供。浏览器不会直接访问数据库，认证、业务规则和数据访问均在服务端完成。
 
 如果你希望在本地运行、了解项目结构或参与维护，请阅读 [DEVELOPER.md](./DEVELOPER.md)。
 
