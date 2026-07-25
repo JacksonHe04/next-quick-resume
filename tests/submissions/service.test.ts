@@ -4,6 +4,7 @@ import {
   createSubmission,
   type SubmissionRecord,
   type SubmissionRepository,
+  updateSubmission,
 } from "@/modules/submissions/service";
 
 class MemorySubmissionRepository implements SubmissionRepository {
@@ -60,7 +61,14 @@ class MemorySubmissionRepository implements SubmissionRepository {
     this.submissions.push(record);
   }
 
-  async update() {}
+  async update(
+    userId: string,
+    id: string,
+    changes: Partial<SubmissionRecord>,
+  ) {
+    const submission = await this.findById(userId, id);
+    if (submission) Object.assign(submission, changes);
+  }
 
   async delete(userId: string, id: string) {
     this.submissions = this.submissions.filter(
@@ -129,5 +137,31 @@ describe("submission service", () => {
         },
       }),
     ).rejects.toMatchObject({ code: "INVALID_REFERENCE" });
+  });
+
+  it("lets a manual status update override interview-derived progress", async () => {
+    const repository = new MemorySubmissionRepository();
+    const submission = await createSubmission(
+      repository,
+      "user-a",
+      input,
+      new Date("2026-07-25T00:00:00.000Z"),
+    );
+    submission.statusSource = "interview";
+    submission.currentInterviewId = "interview-a";
+
+    await updateSubmission(
+      repository,
+      "user-a",
+      submission.id,
+      { directStatus: "offer" },
+      new Date("2026-07-25T01:00:00.000Z"),
+    );
+
+    expect(submission).toMatchObject({
+      directStatus: "offer",
+      statusSource: "direct",
+      currentInterviewId: null,
+    });
   });
 });

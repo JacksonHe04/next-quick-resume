@@ -4,19 +4,30 @@ import type {
   InterviewStatus,
 } from "@/modules/submissions/service";
 
-const DIRECT_PRESENTATION: Record<
+export const DIRECT_SUBMISSION_STATUS_OPTIONS = [
+  { value: "submitted", label: "已投递", tone: "neutral" },
+  { value: "screening", label: "筛选中", tone: "info" },
+  { value: "resume_passed", label: "简历通过", tone: "positive" },
+  { value: "resume_failed", label: "简历未通过", tone: "negative" },
+  { value: "offer", label: "Offer", tone: "positive" },
+  { value: "cancelled", label: "已取消", tone: "neutral" },
+  { value: "closed", label: "已关闭", tone: "negative" },
+  { value: "expired", label: "已过期", tone: "neutral" },
+] as const satisfies ReadonlyArray<{
+  value: DirectSubmissionStatus;
+  label: string;
+  tone: StatusTone;
+}>;
+
+const DIRECT_PRESENTATION = Object.fromEntries(
+  DIRECT_SUBMISSION_STATUS_OPTIONS.map(({ value, label, tone }) => [
+    value,
+    { label, tone },
+  ]),
+) as Record<
   DirectSubmissionStatus,
   { label: string; tone: StatusTone }
-> = {
-  submitted: { label: "已投递", tone: "neutral" },
-  screening: { label: "筛选中", tone: "info" },
-  resume_passed: { label: "简历通过", tone: "positive" },
-  resume_failed: { label: "简历未通过", tone: "negative" },
-  offer: { label: "Offer", tone: "positive" },
-  cancelled: { label: "已取消", tone: "neutral" },
-  closed: { label: "已关闭", tone: "negative" },
-  expired: { label: "已过期", tone: "neutral" },
-};
+>;
 
 const INTERVIEW_SUFFIX: Record<
   InterviewStatus,
