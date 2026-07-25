@@ -46,3 +46,20 @@ project-session encryption secret, and the public origin
 The central SSO creates the ordinary SAYLESS project membership on first
 authorization. Project administrator status remains centrally assigned by the
 global iNon super administrator.
+
+## Implemented
+
+- Published and pinned `@inon-ai/inon-sso@0.1.0` from the public npm registry.
+- Added the SAYLESS OAuth callback and project-session route at
+  `/api/auth/inon/[action]`.
+- Replaced server-component, route-handler, and server-action identity lookup
+  with the encrypted iNon project session and local owner mapping.
+- Redirected both `/login` and `/register` to the central OAuth flow.
+- Disabled every legacy registration, password login, password recovery,
+  development login, local logout, profile mutation, password mutation, and
+  account deletion endpoint with an explicit `410` migration response.
+- Replaced local password/profile/delete settings with a link to the central
+  iNon account page and project-scoped logout.
+
+The focused identity-mapping tests, TypeScript check, affected-file lint, and a
+full Next.js production build all completed successfully.

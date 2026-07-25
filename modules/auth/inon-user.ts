@@ -153,14 +153,12 @@ async function createProjectUser(
         updatedAt: now,
       }),
     ]);
-  } catch {
+  } catch (error) {
     const linked = await findByInonUserId(database, identity.id);
     if (linked) {
       return linked;
     }
-    throw new InonIdentityLinkError(
-      "The iNon account conflicts with an existing SAYLESS user.",
-    );
+    throw error;
   }
 
   const created = await findByInonUserId(database, identity.id);
