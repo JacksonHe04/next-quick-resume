@@ -10,10 +10,10 @@ export default async function CompaniesPage() {
         公司
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
-        浏览 SAYLESS 官方维护、全站共享的公司目录。
+        浏览 SAYLESS 官方维护、全站共享的公司目录与投递入口。
       </p>
       <div className="mt-5 rounded-md border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
-        官方公司由 SAYLESS 维护并全站共享；你添加的公司只属于个人空间，可以直接改名，不会自动进入官方公司池。
+        公司目录统一由 SAYLESS 维护。招聘网站用于浏览职位，投递进度用于查询已投递申请。
       </div>
       <CompanyManager companies={companies} />
     </div>

@@ -9,10 +9,18 @@ export type CatalogRow = {
   id: string;
   name: string;
   normalizedName: string;
+  careersUrl?: string | null;
+  processUrl?: string | null;
 };
 
 export type CatalogOption =
-  | { source: "official"; id: string; name: string }
+  | {
+      source: "official";
+      id: string;
+      name: string;
+      careersUrl?: string | null;
+      processUrl?: string | null;
+    }
   | { source: "private"; id: string; name: string };
 
 export interface CatalogRepository {
@@ -50,7 +58,9 @@ export interface CatalogRepository {
 
 export class CatalogError extends Error {
   constructor(
-    public readonly code: "PRIVATE_CATALOG_NOT_FOUND",
+    public readonly code:
+      | "PRIVATE_CATALOG_NOT_FOUND"
+      | "COMPANY_OFFICIAL_ONLY",
     message: string,
   ) {
     super(message);
@@ -73,16 +83,26 @@ export async function searchCatalog(
   query: string,
 ): Promise<CatalogOption[]> {
   const normalizedQuery = normalizeCatalogName(query);
-  const [official, privateRows] = await Promise.all([
-    repository.searchOfficial(entity, normalizedQuery),
-    repository.searchPrivate(entity, userId, normalizedQuery),
-  ]);
+  const official = await repository.searchOfficial(
+    entity,
+    normalizedQuery,
+  );
+  const privateRows =
+    entity === "company"
+      ? []
+      : await repository.searchPrivate(
+          entity,
+          userId,
+          normalizedQuery,
+        );
 
   return [
-    ...official.map(({ id, name }) => ({
+    ...official.map(({ id, name, careersUrl, processUrl }) => ({
       source: "official" as const,
       id,
       name,
+      careersUrl,
+      processUrl,
     })),
     ...privateRows.map(({ id, name }) => ({
       source: "private" as const,
@@ -99,6 +119,12 @@ export async function createPrivateCatalogEntry(
   input: unknown,
   now = new Date(),
 ): Promise<CatalogOption> {
+  if (entity === "company") {
+    throw new CatalogError(
+      "COMPANY_OFFICIAL_ONLY",
+      "公司只能从 SAYLESS 官方目录中选择",
+    );
+  }
   const { name } = createPrivateCatalogInputSchema.parse(input);
   const normalizedName = normalizeCatalogName(name);
   const existing = await repository.findPrivateByNormalizedName(
@@ -135,6 +161,12 @@ export async function renamePrivateCatalogEntry(
   input: unknown,
   now = new Date(),
 ): Promise<void> {
+  if (entity === "company") {
+    throw new CatalogError(
+      "COMPANY_OFFICIAL_ONLY",
+      "官方公司不支持个人修改",
+    );
+  }
   const { name } = renamePrivateCatalogInputSchema.parse(input);
   const saved = await repository.updatePrivate(entity, userId, id, {
     name: name.replace(/\s+/gu, " "),
@@ -144,9 +176,7 @@ export async function renamePrivateCatalogEntry(
   if (!saved) {
     throw new CatalogError(
       "PRIVATE_CATALOG_NOT_FOUND",
-      entity === "company"
-        ? "自定义公司不存在"
-        : "自定义岗位不存在",
+      "自定义岗位不存在",
     );
   }
 }

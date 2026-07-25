@@ -98,42 +98,34 @@ class MemoryCatalogRepository implements CatalogRepository {
 }
 
 describe("catalog service", () => {
-  it("never exposes another user's private company in search", async () => {
+  it("returns only the official company directory regardless of private rows", async () => {
     const repository = new MemoryCatalogRepository();
-    await createPrivateCatalogEntry(repository, "user-a", "company", {
+    repository.private.company.push({
+      id: "legacy-private-company",
+      userId: "user-a",
       name: "Private Co",
+      normalizedName: "private co",
     });
 
     await expect(
-      searchCatalog(repository, "user-b", "company", "Private"),
-    ).resolves.toEqual([]);
-    await expect(
-      searchCatalog(repository, "user-a", "company", "Private"),
-    ).resolves.toMatchObject([
-      { source: "private", name: "Private Co" },
-    ]);
-  });
-
-  it("combines active official results with only the current user's private fallback", async () => {
-    const repository = new MemoryCatalogRepository();
-    await createPrivateCatalogEntry(repository, "user-a", "company", {
-      name: "OpenAI APAC",
-    });
-
-    await expect(
-      searchCatalog(repository, "user-a", "company", "OPENAI"),
+      searchCatalog(repository, "user-a", "company", ""),
     ).resolves.toEqual([
       {
         source: "official",
         id: "official-company-a",
         name: "OpenAI",
       },
-      {
-        source: "private",
-        id: expect.any(String),
-        name: "OpenAI APAC",
-      },
     ]);
+  });
+
+  it("rejects creation of private companies", async () => {
+    const repository = new MemoryCatalogRepository();
+
+    await expect(
+      createPrivateCatalogEntry(repository, "user-a", "company", {
+        name: "OpenAI APAC",
+      }),
+    ).rejects.toThrow("公司只能从 SAYLESS 官方目录中选择");
   });
 
   it("reuses a user's existing normalized private entry", async () => {
@@ -155,36 +147,23 @@ describe("catalog service", () => {
     expect(repository.private.position).toHaveLength(1);
   });
 
-  it("allows only the owner to rename a private company", async () => {
+  it("rejects renaming legacy private companies", async () => {
     const repository = new MemoryCatalogRepository();
-    const company = await createPrivateCatalogEntry(
-      repository,
-      "user-a",
-      "company",
-      { name: "Original Company" },
-    );
+    repository.private.company.push({
+      id: "legacy-company",
+      userId: "user-a",
+      name: "Original Company",
+      normalizedName: "original company",
+    });
 
     await expect(
       renamePrivateCatalogEntry(
         repository,
-        "user-b",
+        "user-a",
         "company",
-        company.id,
-        { name: "Stolen Name" },
+        "legacy-company",
+        { name: "Renamed Company" },
       ),
-    ).rejects.toThrow("自定义公司不存在");
-
-    await renamePrivateCatalogEntry(
-      repository,
-      "user-a",
-      "company",
-      company.id,
-      { name: "Renamed Company" },
-    );
-    await expect(
-      searchCatalog(repository, "user-a", "company", "renamed"),
-    ).resolves.toMatchObject([
-      { source: "private", name: "Renamed Company" },
-    ]);
+    ).rejects.toThrow("官方公司不支持个人修改");
   });
 });

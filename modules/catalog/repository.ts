@@ -1,12 +1,22 @@
-import { and, asc, eq, like } from "drizzle-orm";
+import {
+  and,
+  asc,
+  count,
+  eq,
+  inArray,
+  like,
+} from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 
 import * as schema from "@/db/schema";
 import {
+  companyCities,
+  officialCities,
   officialCompanies,
   officialPositions,
   privateCompanies,
   privatePositions,
+  submissions,
 } from "@/db/schema";
 import type {
   CatalogRepository,
@@ -22,7 +32,11 @@ export type OfficialCompany = {
   logoUrl: string | null;
   websiteUrl: string | null;
   careersUrl: string | null;
+  processUrl: string | null;
   industry: string | null;
+  priority: string | null;
+  cities: string[];
+  submissionCount: number;
 };
 
 export function createCatalogRepository(
@@ -37,6 +51,8 @@ export function createCatalogRepository(
             id: officialCompanies.id,
             name: officialCompanies.name,
             normalizedName: officialCompanies.normalizedName,
+            careersUrl: officialCompanies.careersUrl,
+            processUrl: officialCompanies.processUrl,
           })
           .from(officialCompanies)
           .where(
@@ -182,16 +198,64 @@ export function createCatalogRepository(
 export async function listOfficialCompanies(
   database: Database,
 ): Promise<OfficialCompany[]> {
-  return database
+  const companies = await database
     .select({
       id: officialCompanies.id,
       name: officialCompanies.name,
       logoUrl: officialCompanies.logoUrl,
       websiteUrl: officialCompanies.websiteUrl,
       careersUrl: officialCompanies.careersUrl,
+      processUrl: officialCompanies.processUrl,
       industry: officialCompanies.industry,
+      priority: officialCompanies.priority,
     })
     .from(officialCompanies)
     .where(eq(officialCompanies.isActive, true))
     .orderBy(asc(officialCompanies.name));
+
+  if (companies.length === 0) return [];
+
+  const companyIds = companies.map(({ id }) => id);
+  const [cityRows, submissionRows] = await Promise.all([
+    database
+      .select({
+        companyId: companyCities.companyId,
+        cityName: officialCities.name,
+      })
+      .from(companyCities)
+      .innerJoin(
+        officialCities,
+        eq(companyCities.cityId, officialCities.id),
+      )
+      .where(inArray(companyCities.companyId, companyIds))
+      .orderBy(asc(officialCities.name)),
+    database
+      .select({
+        companyId: submissions.officialCompanyId,
+        submissionCount: count(),
+      })
+      .from(submissions)
+      .where(inArray(submissions.officialCompanyId, companyIds))
+      .groupBy(submissions.officialCompanyId),
+  ]);
+
+  const citiesByCompany = new Map<string, string[]>();
+  for (const city of cityRows) {
+    const cities = citiesByCompany.get(city.companyId) ?? [];
+    cities.push(city.cityName);
+    citiesByCompany.set(city.companyId, cities);
+  }
+  const submissionsByCompany = new Map(
+    submissionRows.flatMap((row) =>
+      row.companyId
+        ? [[row.companyId, row.submissionCount] as const]
+        : [],
+    ),
+  );
+
+  return companies.map((company) => ({
+    ...company,
+    cities: citiesByCompany.get(company.id) ?? [],
+    submissionCount: submissionsByCompany.get(company.id) ?? 0,
+  }));
 }

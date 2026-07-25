@@ -27,7 +27,10 @@ export function catalogErrorResponse(error: unknown) {
           message: error.message,
         },
       },
-      { status: 404 },
+      {
+        status:
+          error.code === "PRIVATE_CATALOG_NOT_FOUND" ? 404 : 400,
+      },
     );
   }
   if (error instanceof ZodError) {

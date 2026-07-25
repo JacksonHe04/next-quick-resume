@@ -14,7 +14,11 @@ describe("CompanyGrid", () => {
             logoUrl: null,
             websiteUrl: "https://openai.com",
             careersUrl: "https://openai.com/careers",
+            processUrl: "https://openai.com/careers/applications",
             industry: "人工智能",
+            priority: "Top",
+            cities: ["San Francisco"],
+            submissionCount: 3,
           },
         ]}
       />,
@@ -25,5 +29,13 @@ describe("CompanyGrid", () => {
     expect(
       screen.getByRole("link", { name: "查看 OpenAI 招聘页面" }),
     ).toHaveAttribute("href", "https://openai.com/careers");
+    expect(
+      screen.getByRole("link", { name: "查看 OpenAI 投递进度" }),
+    ).toHaveAttribute(
+      "href",
+      "https://openai.com/careers/applications",
+    );
+    expect(screen.getByText("San Francisco")).toBeVisible();
+    expect(screen.getByText("3 条投递")).toBeVisible();
   });
 });
