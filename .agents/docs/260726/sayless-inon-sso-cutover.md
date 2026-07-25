@@ -63,3 +63,25 @@ global iNon super administrator.
 
 The focused identity-mapping tests, TypeScript check, affected-file lint, and a
 full Next.js production build all completed successfully.
+
+## Production deployment
+
+- Exported the pre-cutover SAYLESS D1 data into the ignored local
+  `.agents/backups/260726/` directory with `0600` permissions.
+- Applied `0003_curved_mandarin.sql` to the production D1 database and read
+  back the `users_inon_user_id_unique` index.
+- Confirmed that production D1 has no pending migrations.
+- Configured the dedicated SAYLESS client ID, client secret, project-session
+  secret, and `https://sayless.inon.space` origin in Vercel Production.
+- Deployed Vercel production deployment
+  `dpl_49aqGff8CQjWpBv3arctokUqLh97`, which reached `READY`.
+
+Online probes confirmed:
+
+- `https://sayless.inon.space/` returns `200`;
+- `/login` contains the expected Next.js redirect to the local iNon OAuth
+  start route;
+- the OAuth start route returns `303` to the canonical
+  `https://inon.space/api/sso/auth/oauth2/authorize` endpoint with the exact
+  SAYLESS callback;
+- the legacy password login endpoint returns `410 INON_SSO_REQUIRED`.
