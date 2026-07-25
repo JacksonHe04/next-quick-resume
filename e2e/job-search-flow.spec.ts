@@ -7,6 +7,7 @@ test("completes the job-search lifecycle", async ({ page }) => {
   const batchName = `E2E 批次 ${suffix}`;
   const positionName = `E2E 产品经理 ${suffix}`;
   const interviewName = `E2E 一面 ${suffix}`;
+  const questionText = `如何复盘 ${interviewName}`;
 
   await login(page);
 
@@ -15,16 +16,21 @@ test("completes the job-search lifecycle", async ({ page }) => {
   await page.getByLabel("批次名称").fill(batchName);
   await page.getByRole("button", { name: "创建批次" }).click();
   await expect(page.getByText(batchName)).toBeVisible();
-  const batchCard = page
-    .locator("article, div")
-    .filter({ hasText: batchName })
-    .last();
-  const currentButton = batchCard.getByRole("button", {
-    name: "设为当前",
+  const batchCard = page.locator('[data-slot="card"]').filter({
+    has: page.getByRole("heading", {
+      name: batchName,
+      exact: true,
+    }),
   });
-  if (await currentButton.isVisible().catch(() => false)) {
-    await currentButton.click();
-  }
+  await expect(batchCard).toHaveCount(1);
+  await batchCard.getByRole("button", { name: "设为当前" }).click();
+  await expect(
+    batchCard.getByText("当前批次", { exact: true }),
+  ).toBeVisible();
+  await page.goto("/app");
+  await expect(
+    page.getByText(`当前阶段：${batchName}`),
+  ).toBeVisible();
 
   await page.goto("/app/submissions");
   await page.getByRole("button", { name: "记录投递" }).click();
@@ -81,6 +87,33 @@ test("completes the job-search lifecycle", async ({ page }) => {
     .click();
   await expect(page.getByText(interviewName)).toBeVisible();
   await page
+    .getByRole("link", { name: interviewName, exact: true })
+    .click();
+  await page.getByRole("button", { name: "沉淀面试问题" }).click();
+  const questionDialog = page.getByRole("dialog", {
+    name: "沉淀面试问题",
+  });
+  await questionDialog
+    .getByRole("textbox", { name: "问题", exact: true })
+    .fill(questionText);
+  await questionDialog
+    .getByRole("textbox", { name: "标准答案" })
+    .fill("## 标准答案\n\n这是一份持续迭代的复盘答案。");
+  await questionDialog
+    .getByRole("button", { name: "创建并关联当前面试" })
+    .click();
+  await expect(questionDialog).toBeHidden();
+
+  await page.goto("/app/questions");
+  await page
+    .getByRole("link", { name: questionText, exact: true })
+    .click();
+  await expect(
+    page.getByRole("link", { name: interviewName, exact: true }),
+  ).toBeVisible();
+
+  await page.goto("/app/interviews");
+  await page
     .getByLabel("按选拔阶段筛选")
     .selectOption({ label: "一面" });
   await page
@@ -95,4 +128,27 @@ test("completes the job-search lifecycle", async ({ page }) => {
     hasText: positionName,
   });
   await expect(submissionRow.getByText("一面过")).toBeVisible();
+  await submissionRow
+    .getByRole("link", { name: "OpenAI", exact: true })
+    .click();
+  await page.getByLabel("手动投递状态").selectOption("offer");
+  await page
+    .getByRole("button", { name: "更新投递状态" })
+    .click();
+  await expect(page.getByRole("status")).toHaveText(
+    "投递状态已手动更新",
+  );
+  await expect(
+    page.locator("span").filter({ hasText: /^Offer$/ }),
+  ).toBeVisible();
+
+  await page.goto("/app/batches");
+  const archivedBatchCard = page.locator('[data-slot="card"]').filter({
+    has: page.getByRole("heading", {
+      name: batchName,
+      exact: true,
+    }),
+  });
+  await archivedBatchCard.getByRole("button", { name: "归档" }).click();
+  await expect(archivedBatchCard.getByText("已归档")).toBeVisible();
 });
