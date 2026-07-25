@@ -1,5 +1,6 @@
 "use client";
 
+import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
@@ -63,6 +64,8 @@ export function SettingsForms({
     text: string;
     error?: boolean;
   }>();
+  const [logoutPending, setLogoutPending] = useState(false);
+  const [logoutError, setLogoutError] = useState<string>();
   const [deletePending, setDeletePending] = useState(false);
   const [deleteError, setDeleteError] = useState<string>();
 
@@ -103,6 +106,22 @@ export function SettingsForms({
       });
     } finally {
       setPasswordPending(false);
+    }
+  }
+
+  async function logout() {
+    setLogoutPending(true);
+    setLogoutError(undefined);
+    try {
+      const response = await fetch("/api/auth/logout", { method: "POST" });
+      if (!response.ok) {
+        throw new Error("退出失败，请稍后再试");
+      }
+      router.replace("/login");
+      router.refresh();
+    } catch (error) {
+      setLogoutError((error as Error).message);
+      setLogoutPending(false);
     }
   }
 
@@ -201,6 +220,29 @@ export function SettingsForms({
             />
           </div>
         </form>
+      </Card>
+
+      <Card className="p-5 shadow-none sm:p-6">
+        <div className="border-b border-border pb-4">
+          <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
+            登录会话
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            退出当前设备上的 SAYLESS 账户。
+          </p>
+        </div>
+        <div className="mt-5">
+          <Button
+            type="button"
+            variant="outline"
+            loading={logoutPending}
+            onClick={() => void logout()}
+          >
+            {!logoutPending ? <LogOut aria-hidden="true" /> : null}
+            退出登录
+          </Button>
+          <Message value={logoutError} error />
+        </div>
       </Card>
 
       <Card className="border-[#ebc3c8] p-5 shadow-none sm:p-6">
