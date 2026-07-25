@@ -148,8 +148,8 @@ export function ResumeEditor({
   const [jsonError, setJsonError] = useState<string>();
   const [photoError, setPhotoError] = useState<string>();
   const [cloning, setCloning] = useState(false);
-  const [leftSidebarWidth, setLeftSidebarWidth] = useState(320);
-  const [rightSidebarWidth, setRightSidebarWidth] = useState(320);
+  const [leftSidebarWidth, setLeftSidebarWidth] = useState(280);
+  const [rightSidebarWidth, setRightSidebarWidth] = useState(260);
   const [resizing, setResizing] = useState<"left" | "right">();
   const [showLeftSidebar, setShowLeftSidebar] = useState(false);
   const [showRightSidebar, setShowRightSidebar] = useState(false);
@@ -189,14 +189,17 @@ export function ResumeEditor({
     function move(event: MouseEvent) {
       if (!resizing || !containerRef.current) return;
       if (resizing === "left") {
+        const left =
+          event.clientX -
+          containerRef.current.getBoundingClientRect().left;
         setLeftSidebarWidth(
-          Math.min(500, Math.max(240, event.clientX)),
+          Math.min(380, Math.max(224, left)),
         );
         return;
       }
       const right =
         containerRef.current.getBoundingClientRect().right - event.clientX;
-      setRightSidebarWidth(Math.min(500, Math.max(240, right)));
+      setRightSidebarWidth(Math.min(360, Math.max(224, right)));
     }
     function stop() {
       setResizing(undefined);
@@ -286,8 +289,9 @@ export function ResumeEditor({
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-white print:h-auto print:overflow-visible">
+    <div className="relative flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-background lg:h-dvh print:h-auto print:overflow-visible">
       <ResumeTopbar
+        editorHref={`/app/resumes/${initial.id}`}
         name={name}
         viewMode={viewMode}
         syncState={syncState}
@@ -307,7 +311,7 @@ export function ResumeEditor({
 
       <main
         ref={containerRef}
-        className="flex flex-1 overflow-hidden pt-16 print:block print:overflow-visible print:pt-0"
+        className="relative flex min-h-0 flex-1 overflow-hidden print:block print:overflow-visible"
       >
         {showLeftSidebar || showRightSidebar ? (
           <button
@@ -317,14 +321,14 @@ export function ResumeEditor({
               setShowLeftSidebar(false);
               setShowRightSidebar(false);
             }}
-            className="fixed inset-0 top-16 z-30 bg-black/50 lg:hidden"
+            className="absolute inset-0 z-30 bg-black/20 backdrop-blur-[1px] lg:hidden"
           />
         ) : null}
 
         <aside
           aria-label="简历配置"
           className={cn(
-            "fixed inset-y-0 left-0 top-16 z-40 flex h-[calc(100%-64px)] shrink-0 flex-col border-r border-gray-200 bg-white shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:top-0 lg:h-full lg:translate-x-0 print:hidden",
+            "absolute inset-y-0 left-0 z-40 flex h-full shrink-0 flex-col border-r border-border bg-background shadow-xl transition-transform duration-200 ease-out lg:relative lg:translate-x-0 lg:shadow-none print:hidden",
             showLeftSidebar ? "translate-x-0" : "-translate-x-full",
           )}
           style={{ width: leftSidebarWidth }}
@@ -350,13 +354,13 @@ export function ResumeEditor({
           type="button"
           aria-label="调整左侧边栏宽度"
           onMouseDown={() => setResizing("left")}
-          className="z-20 hidden w-1 cursor-col-resize bg-gray-300 transition-colors hover:bg-blue-500 lg:block print:hidden"
+          className="z-20 hidden w-1 cursor-col-resize bg-border transition-colors hover:bg-foreground/25 lg:block print:hidden"
         />
 
         <section
           role="main"
           aria-label="简历预览"
-          className="relative min-w-0 flex-1 overflow-y-auto bg-gray-50 print:overflow-visible print:bg-transparent"
+          className="relative min-w-0 flex-1 overflow-y-auto bg-muted/35 print:overflow-visible print:bg-transparent"
         >
           <div className="p-4 sm:p-6 md:p-8 print:p-0">
             <ResumePreview document={document} />
@@ -367,13 +371,13 @@ export function ResumeEditor({
           type="button"
           aria-label="调整右侧边栏宽度"
           onMouseDown={() => setResizing("right")}
-          className="z-20 hidden w-1 cursor-col-resize bg-gray-300 transition-colors hover:bg-blue-500 lg:block print:hidden"
+          className="z-20 hidden w-1 cursor-col-resize bg-border transition-colors hover:bg-foreground/25 lg:block print:hidden"
         />
 
         <aside
           aria-label="切换简历"
           className={cn(
-            "fixed inset-y-0 right-0 top-16 z-40 h-[calc(100%-64px)] shrink-0 border-l border-gray-200 bg-white shadow-lg transition-transform duration-300 ease-in-out lg:relative lg:top-0 lg:h-full lg:translate-x-0 print:hidden",
+            "absolute inset-y-0 right-0 z-40 h-full shrink-0 border-l border-border bg-background shadow-xl transition-transform duration-200 ease-out lg:relative lg:translate-x-0 lg:shadow-none print:hidden",
             showRightSidebar ? "translate-x-0" : "translate-x-full",
           )}
           style={{ width: rightSidebarWidth }}

@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { renderSafeMarkdown } from "@/lib/markdown";
+import {
+  renderSafeInlineMarkdown,
+  renderSafeMarkdown,
+} from "@/lib/markdown";
 
 describe("safe Markdown rendering", () => {
   it("removes scripts, raw HTML, and javascript URLs", () => {
@@ -21,5 +24,16 @@ describe("safe Markdown rendering", () => {
     expect(html).toContain("<h2>复盘</h2>");
     expect(html).toContain("<li>表达清楚</li>");
     expect(html).toContain('href="https://example.com"');
+  });
+
+  it("renders resume field Markdown without invalid paragraph nesting", () => {
+    const html = renderSafeInlineMarkdown(
+      "负责 **核心产品**，详见 [项目主页](https://example.com)",
+    );
+
+    expect(html).toBe(
+      '负责 <strong>核心产品</strong>，详见 <a href="https://example.com">项目主页</a>',
+    );
+    expect(html).not.toContain("<p>");
   });
 });

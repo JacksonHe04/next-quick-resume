@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-import { renderSafeMarkdown } from "@/lib/markdown";
+import { renderSafeInlineMarkdown } from "@/lib/markdown";
 import { cn } from "@/lib/utils";
 import type { ResumeDocumentV1, ResumeSectionKey } from "@/types";
 
@@ -23,7 +23,7 @@ function Markdown({
   return (
     <span
       className={cn("[&_p]:inline", className)}
-      dangerouslySetInnerHTML={{ __html: renderSafeMarkdown(value) }}
+      dangerouslySetInnerHTML={{ __html: renderSafeInlineMarkdown(value) }}
     />
   );
 }

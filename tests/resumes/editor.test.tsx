@@ -1,4 +1,4 @@
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -68,6 +68,21 @@ describe("resume editor", () => {
     expect(
       screen.getByRole("complementary", { name: "切换简历" }),
     ).toBeVisible();
+    const workspaceSwitch = screen.getByRole("navigation", {
+      name: "简历视图",
+    });
+    expect(
+      within(workspaceSwitch).getByRole("link", { name: "管理" }),
+    ).toHaveAttribute("href", "/app/resumes");
+    expect(
+      within(workspaceSwitch).getByRole("link", { name: "编辑" }),
+    ).toHaveAttribute(
+      "href",
+      "/app/resumes/resume-a",
+    );
+    expect(
+      within(workspaceSwitch).getByRole("link", { name: "编辑" }),
+    ).toHaveAttribute("aria-current", "page");
     await user.click(screen.getByRole("switch", { name: "显示照片" }));
     expect(screen.getByLabelText("上传头像")).toBeInTheDocument();
     expect(
@@ -76,6 +91,19 @@ describe("resume editor", () => {
     expect(
       screen.getByRole("link", { name: "切换到市场简历" }),
     ).toHaveAttribute("href", "/app/resumes/resume-b");
+  });
+
+  it("keeps the editor toolbar inside the application content area", () => {
+    render(<ResumeEditor initial={initial} />);
+
+    expect(
+      screen.getByRole("banner", { name: "简历编辑工具栏" }),
+    ).not.toHaveClass("fixed");
+    expect(
+      screen
+        .getByRole("main", { name: "简历预览" })
+        .querySelector("#resume-preview"),
+    ).toBeInTheDocument();
   });
 
   it("keeps the local draft and offers retry after a save failure", async () => {

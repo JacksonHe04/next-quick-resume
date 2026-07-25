@@ -46,21 +46,26 @@ export function ResumeListSidebar({
   }
 
   return (
-    <div className="flex h-full flex-col bg-white">
-      <div className="flex items-center justify-between border-b border-gray-200 bg-gray-50 p-4">
-        <h2 className="text-lg font-semibold text-gray-800">简历列表</h2>
+    <div className="flex h-full flex-col bg-background">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">所有简历</h2>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            选择一份继续编辑
+          </p>
+        </div>
         <button
           type="button"
           onClick={() => router.refresh()}
-          className="rounded-full p-2 transition-colors hover:bg-gray-200"
+          className="grid size-8 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           aria-label="刷新简历列表"
         >
-          <RefreshCw className="size-5 text-gray-600" />
+          <RefreshCw className="size-4" />
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="space-y-3">
+      <div className="flex-1 overflow-y-auto p-3">
+        <div className="space-y-2">
           {sorted.map((resume) => {
             const active = resume.id === currentId;
             return (
@@ -70,21 +75,21 @@ export function ResumeListSidebar({
                   aria-label={`切换到${resume.name}`}
                   aria-current={active ? "page" : undefined}
                   className={cn(
-                    "block cursor-pointer rounded-lg border-2 bg-white p-4 transition-all duration-200",
+                    "block cursor-pointer rounded-lg border bg-background p-3 transition-colors",
                     active
-                      ? "border-blue-500 bg-blue-50 shadow-md"
-                      : "border-gray-200 hover:border-gray-300 hover:shadow-sm",
+                      ? "border-[#55a572]/45 bg-[#55a572]/8"
+                      : "border-border hover:bg-muted/60",
                   )}
                 >
                   {active ? (
-                    <span className="absolute right-10 top-2 rounded-full bg-blue-500 p-1 text-white">
+                    <span className="absolute right-9 top-2.5 grid size-5 place-items-center rounded-full bg-[#4d9669] text-white">
                       <Check className="size-3" strokeWidth={3} />
                     </span>
                   ) : null}
-                  <h3 className="mb-1 truncate pr-16 font-medium text-gray-800">
+                  <h3 className="mb-1 truncate pr-14 text-sm font-medium text-foreground">
                     {resume.name}
                   </h3>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     更新于{" "}
                     {new Date(resume.updatedAt).toLocaleString("zh-CN", {
                       month: "short",
@@ -93,7 +98,7 @@ export function ResumeListSidebar({
                       minute: "2-digit",
                     })}
                   </p>
-                  <p className="mt-2 truncate text-xs text-gray-400">
+                  <p className="mt-2 truncate text-xs text-muted-foreground/75">
                     {resume.document.data.header.name || "未命名"}
                   </p>
                 </IntentLink>
@@ -104,18 +109,18 @@ export function ResumeListSidebar({
                       current === resume.id ? undefined : resume.id,
                     )
                   }
-                  className="absolute right-2 top-2 rounded-full p-1.5 text-gray-500 opacity-0 transition-colors hover:bg-gray-200 group-hover:opacity-100 focus:opacity-100"
+                  className="absolute right-1.5 top-1.5 grid size-8 place-items-center rounded-md text-muted-foreground opacity-0 transition-colors hover:bg-muted hover:text-foreground group-hover:opacity-100 focus:opacity-100"
                   aria-label={`更多操作：${resume.name}`}
                 >
-                  <MoreVertical className="size-5" />
+                  <MoreVertical className="size-4" />
                 </button>
                 {activeMenuId === resume.id ? (
-                  <div className="absolute right-2 top-10 z-50 w-32 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+                  <div className="absolute right-2 top-10 z-50 w-32 rounded-lg border border-border bg-popover p-1 shadow-md">
                     <button
                       type="button"
                       disabled={deletingId === resume.id}
                       onClick={() => void removeResume(resume)}
-                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
                     >
                       <Trash2 className="size-4" />
                       删除
@@ -128,8 +133,8 @@ export function ResumeListSidebar({
         </div>
       </div>
 
-      <div className="border-t border-gray-200 bg-gray-50 p-4">
-        <p className="text-center text-xs text-gray-500">
+      <div className="border-t border-border px-4 py-3">
+        <p className="text-center text-xs text-muted-foreground">
           共 {sorted.length} 份简历
         </p>
       </div>

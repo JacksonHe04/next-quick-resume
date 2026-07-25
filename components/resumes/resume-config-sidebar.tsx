@@ -40,7 +40,7 @@ function Switch({
       onClick={() => onChange(!checked)}
       className={cn(
         "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-        checked ? "bg-blue-600" : "bg-gray-200",
+        checked ? "bg-[#4d9669]" : "bg-muted-foreground/25",
       )}
     >
       <span
@@ -120,17 +120,17 @@ export function ResumeConfigSidebar({
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-white">
+    <div className="flex h-full w-full flex-col bg-background">
       <div className="flex-1 overflow-y-auto">
         {viewMode === "preview" ? (
           <>
-            <div className="border-t border-gray-200 p-4">
-              <h2 className="mb-4 text-sm font-medium text-gray-700">
+            <div className="border-b border-border p-4">
+              <h2 className="mb-4 text-sm font-medium text-foreground">
                 头部样式设置
               </h2>
 
               <div className="mb-6 space-y-3">
-                <h3 className="text-sm font-medium text-gray-700">
+                <h3 className="text-sm font-medium text-foreground">
                   对齐方式
                 </h3>
                 <div className="flex gap-2">
@@ -147,8 +147,8 @@ export function ResumeConfigSidebar({
                       className={cn(
                         "flex flex-1 items-center justify-center gap-2 rounded-lg border px-3 py-2 transition-all",
                         config.headerAlignment === value
-                          ? "border-blue-500 bg-blue-50 text-blue-700"
-                          : "border-gray-200 text-gray-600 hover:border-gray-300",
+                          ? "border-[#55a572]/50 bg-[#55a572]/10 text-[#34734c]"
+                          : "border-border text-muted-foreground hover:bg-muted hover:text-foreground",
                       )}
                     >
                       <Icon className="size-4" />
@@ -160,7 +160,7 @@ export function ResumeConfigSidebar({
 
               <div className="mb-6 space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-sm font-medium text-gray-700">
+                  <h3 className="text-sm font-medium text-foreground">
                     显示照片
                   </h3>
                   <Switch
@@ -175,8 +175,8 @@ export function ResumeConfigSidebar({
                   />
                 </div>
                 {config.photo.showPhoto ? (
-                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-gray-300 p-3 transition hover:border-blue-400 hover:bg-blue-50/40">
-                    <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-md bg-gray-100 text-gray-400">
+                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-border p-3 transition hover:border-[#55a572]/60 hover:bg-[#55a572]/5">
+                    <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-md bg-muted text-muted-foreground">
                       {config.photo.photoData ? (
                         <Image
                           src={config.photo.photoData}
@@ -190,7 +190,9 @@ export function ResumeConfigSidebar({
                         <ImagePlus className="size-5" />
                       )}
                     </span>
-                    <span className="text-sm text-gray-600">上传个人照片</span>
+                    <span className="text-sm text-muted-foreground">
+                      上传个人照片
+                    </span>
                     <input
                       aria-label="上传头像"
                       type="file"
@@ -201,19 +203,18 @@ export function ResumeConfigSidebar({
                   </label>
                 ) : null}
                 {photoError ? (
-                  <p role="alert" className="text-xs text-red-600">
+                  <p role="alert" className="text-xs text-destructive">
                     {photoError}
                   </p>
                 ) : null}
               </div>
-
             </div>
 
             <div className="p-4">
-              <h2 className="mb-3 text-sm font-medium text-gray-700">
+              <h2 className="mb-3 text-sm font-medium text-foreground">
                 模块管理
               </h2>
-              <p className="mb-4 text-xs text-gray-500">
+              <p className="mb-4 text-xs text-muted-foreground">
                 拖拽调整顺序，点击眼睛图标切换显隐
               </p>
               <div className="space-y-2">
@@ -233,18 +234,18 @@ export function ResumeConfigSidebar({
                         moveDraggedSection(index);
                       }}
                       className={cn(
-                        "flex cursor-move items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 transition-all duration-200",
+                        "flex cursor-move items-center gap-2 rounded-lg border border-border bg-muted/35 p-3 transition-all duration-200",
                         draggedIndex === index && "opacity-50",
-                        !section.visible && "bg-gray-100",
+                        !section.visible && "bg-muted/70",
                       )}
                     >
-                      <GripVertical className="size-4 shrink-0 text-gray-400" />
+                      <GripVertical className="size-4 shrink-0 text-muted-foreground" />
                       <span
                         className={cn(
                           "flex-1 text-sm font-medium",
                           section.visible
-                            ? "text-gray-800"
-                            : "text-gray-400",
+                            ? "text-foreground"
+                            : "text-muted-foreground/65",
                         )}
                       >
                         {section.label}
@@ -255,7 +256,7 @@ export function ResumeConfigSidebar({
                           aria-label={`上移${section.label}`}
                           disabled={index === 0}
                           onClick={() => moveSection(index, -1)}
-                          className="p-0.5 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="p-0.5 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           <ChevronUp className="size-3" />
                         </button>
@@ -264,7 +265,7 @@ export function ResumeConfigSidebar({
                           aria-label={`下移${section.label}`}
                           disabled={index === config.sectionOrder.length - 1}
                           onClick={() => moveSection(index, 1)}
-                          className="p-0.5 text-gray-400 hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="p-0.5 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           <ChevronDown className="size-3" />
                         </button>
@@ -276,8 +277,8 @@ export function ResumeConfigSidebar({
                         className={cn(
                           "rounded-md p-1.5 transition-colors",
                           section.visible
-                            ? "text-blue-600 hover:bg-blue-50"
-                            : "text-gray-400 hover:bg-gray-200",
+                            ? "text-[#3d8c5a] hover:bg-[#55a572]/10"
+                            : "text-muted-foreground hover:bg-muted",
                         )}
                       >
                         {section.visible ? (
@@ -290,8 +291,8 @@ export function ResumeConfigSidebar({
                   );
                 })}
               </div>
-              <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 p-3">
-                <p className="text-xs text-blue-700">
+              <div className="mt-4 rounded-lg border border-border bg-muted/45 p-3">
+                <p className="text-xs leading-5 text-muted-foreground">
                   <strong>提示：</strong>
                   隐藏的模块不会显示在简历中，但数据仍然保留。
                 </p>
@@ -301,13 +302,15 @@ export function ResumeConfigSidebar({
         ) : (
           <div className="flex h-full flex-col p-4">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-sm font-medium text-gray-700">JSON编辑</h2>
-              <span className="text-xs text-gray-500">{data.header.name}</span>
+              <h2 className="text-sm font-medium text-foreground">JSON编辑</h2>
+              <span className="text-xs text-muted-foreground">
+                {data.header.name}
+              </span>
             </div>
             {jsonError ? (
               <div
                 role="alert"
-                className="mb-3 rounded border border-red-200 bg-red-50 p-2 text-xs text-red-600"
+                className="mb-3 rounded-md border border-destructive/20 bg-destructive/5 p-2 text-xs text-destructive"
               >
                 {jsonError}
               </div>
@@ -317,21 +320,21 @@ export function ResumeConfigSidebar({
               value={jsonText}
               onChange={(event) => onJsonChange(event.target.value)}
               spellCheck={false}
-              className="min-h-96 flex-1 resize-none rounded-lg border border-gray-200 bg-gray-50 p-3 font-mono text-xs outline-none focus:border-transparent focus:ring-2 focus:ring-blue-500"
+              className="min-h-96 flex-1 resize-none rounded-lg border border-input bg-muted/35 p-3 font-[var(--font-data)] text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
             />
-            <p className="mt-3 text-xs text-gray-500">
+            <p className="mt-3 text-xs text-muted-foreground">
               直接编辑 JSON 数据，修改后会实时同步到简历预览。
             </p>
           </div>
         )}
       </div>
 
-      <div className="space-y-3 border-t border-gray-200 p-4">
+      <div className="space-y-2 border-t border-border p-4">
         <button
           type="button"
           onClick={onSave}
           disabled={syncState === "saving"}
-          className="h-9 w-full rounded-lg bg-gray-950 text-sm font-medium text-white transition hover:bg-gray-800 disabled:opacity-50"
+          className="h-9 w-full rounded-lg bg-foreground text-sm font-medium text-background transition-opacity hover:opacity-85 disabled:opacity-50"
         >
           {syncState === "saving" ? "保存中..." : "保存简历"}
         </button>
@@ -339,14 +342,14 @@ export function ResumeConfigSidebar({
           type="button"
           onClick={onClone}
           disabled={cloning}
-          className="h-9 w-full rounded-lg border border-gray-200 bg-gray-100 text-sm font-medium text-gray-800 transition hover:bg-gray-200 disabled:opacity-50"
+          className="h-9 w-full rounded-lg border border-border bg-background text-sm font-medium text-foreground transition hover:bg-muted disabled:opacity-50"
         >
           {cloning ? "克隆中..." : "克隆简历"}
         </button>
-        <div className="border-t border-gray-100 pt-2 text-center text-xs">
+        <div className="border-t border-border pt-2 text-center text-xs">
           <span
             className={cn(
-              syncState === "error" ? "text-red-600" : "text-green-600",
+              syncState === "error" ? "text-destructive" : "text-[#3d8c5a]",
             )}
           >
             {syncState === "error"
