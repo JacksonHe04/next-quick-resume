@@ -24,6 +24,9 @@ export type DashboardInterview = {
 
 export interface DashboardRepository {
   getCurrentBatchName(userId: string): Promise<string | null>;
+  getBatchCounts(
+    userId: string,
+  ): Promise<{ active: number; archived: number }>;
   listSubmissions(userId: string): Promise<DashboardSubmission[]>;
   listInterviews(userId: string): Promise<DashboardInterview[]>;
 }
@@ -46,9 +49,15 @@ export async function getDashboard(
   filters: { batchId?: string },
   now = new Date(),
 ) {
-  const [currentBatchName, allSubmissions, interviews] =
+  const [
+    currentBatchName,
+    batchCounts,
+    allSubmissions,
+    interviews,
+  ] =
     await Promise.all([
       repository.getCurrentBatchName(userId),
+      repository.getBatchCounts(userId),
       repository.listSubmissions(userId),
       repository.listInterviews(userId),
     ]);
@@ -75,7 +84,7 @@ export async function getDashboard(
         submission.currentInterviewStatus === "passed"),
   ).length;
   const futureLimit = new Date(now.getTime() + 7 * 24 * 3_600_000);
-  const upcomingInterviews = interviews
+  const futureInterviews = interviews
     .filter(
       (interview) =>
         interview.status === "pending_interview" &&
@@ -85,9 +94,9 @@ export async function getDashboard(
     .sort(
       (a, b) =>
         a.scheduledAt!.getTime() - b.scheduledAt!.getTime(),
-    )
-    .slice(0, 5);
-  const interviewsNextSevenDays = upcomingInterviews.filter(
+    );
+  const upcomingInterviews = futureInterviews.slice(0, 3);
+  const interviewsNextSevenDays = futureInterviews.filter(
     (interview) => interview.scheduledAt! <= futureLimit,
   ).length;
   const resumePassed = submissions.filter(
@@ -115,6 +124,7 @@ export async function getDashboard(
 
   return {
     currentBatchName,
+    batchCounts,
     totalSubmissions,
     activeSubmissions,
     successfulSubmissions,

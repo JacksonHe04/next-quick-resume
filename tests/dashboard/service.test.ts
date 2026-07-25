@@ -13,6 +13,9 @@ describe("dashboard service", () => {
       async getCurrentBatchName() {
         return "2026 夏季";
       },
+      async getBatchCounts() {
+        return { active: 2, archived: 1 };
+      },
       async listSubmissions() {
         return [
           {
@@ -62,8 +65,10 @@ describe("dashboard service", () => {
     );
 
     expect(dashboard.totalSubmissions).toBe(3);
-    expect(dashboard.upcomingInterviews).toHaveLength(5);
+    expect(dashboard.upcomingInterviews).toHaveLength(3);
     expect(dashboard.upcomingInterviews[0].id).toBe("interview-0");
+    expect(dashboard.interviewsNextSevenDays).toBe(6);
+    expect(dashboard.batchCounts).toEqual({ active: 2, archived: 1 });
     expect(dashboard.conversion).toMatchObject({
       submitted: 3,
       resumePassed: 2,
@@ -76,6 +81,9 @@ describe("dashboard service", () => {
     const repository: DashboardRepository = {
       async getCurrentBatchName() {
         return null;
+      },
+      async getBatchCounts() {
+        return { active: 0, archived: 0 };
       },
       async listSubmissions() {
         return [

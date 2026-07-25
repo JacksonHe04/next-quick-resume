@@ -32,6 +32,22 @@ export function createDashboardRepository(
       return batch?.name ?? null;
     },
 
+    async getBatchCounts(userId) {
+      const [counts] = await database
+        .select({
+          active:
+            sql<number>`coalesce(sum(case when ${batches.archivedAt} is null then 1 else 0 end), 0)`,
+          archived:
+            sql<number>`coalesce(sum(case when ${batches.archivedAt} is not null then 1 else 0 end), 0)`,
+        })
+        .from(batches)
+        .where(eq(batches.userId, userId));
+      return {
+        active: Number(counts?.active ?? 0),
+        archived: Number(counts?.archived ?? 0),
+      };
+    },
+
     async listSubmissions(userId) {
       return database
         .select({

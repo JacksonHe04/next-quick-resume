@@ -1,5 +1,6 @@
 import {
   CircleCheck,
+  Layers,
   Send,
   TrendingUp,
   Video,
@@ -46,6 +47,12 @@ export function DashboardMetrics({
       icon: Video,
     },
     {
+      label: "活跃批次",
+      value: dashboard.batchCounts.active,
+      note: `${dashboard.batchCounts.archived} 个已归档`,
+      icon: Layers,
+    },
+    {
       label: "已通过",
       value: dashboard.successfulSubmissions,
       note: `含 ${dashboard.conversion.finalPassed} 个 Offer`,
@@ -55,7 +62,7 @@ export function DashboardMetrics({
 
   return (
     <section
-      className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4"
+      className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-5"
       aria-label="求职数据概览"
     >
       {items.map(({ label, value, note, icon: Icon }) => (
