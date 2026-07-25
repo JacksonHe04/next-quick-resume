@@ -73,9 +73,11 @@ describe("D1 schema constraints", () => {
 
     expect(rows.map(({ name }) => name)).toEqual([
       "batches",
+      "company_cities",
       "email_verification_codes",
       "interview_questions",
       "interviews",
+      "official_cities",
       "official_companies",
       "official_positions",
       "password_reset_tokens",
