@@ -1,6 +1,7 @@
 import { ExternalLink, LogOut } from "lucide-react";
 
 import { Button, Card } from "@/components/ui";
+import { saylessLogoutPath } from "@/modules/auth/paths";
 
 export function SettingsForms({
   user,
@@ -45,7 +46,7 @@ export function SettingsForms({
         </div>
         <div className="mt-5">
           <Button asChild variant="outline">
-            <a href="/api/auth/inon/logout?returnTo=%2F">
+            <a href={saylessLogoutPath("/")}>
               <LogOut aria-hidden="true" />
               退出 SAYLESS
             </a>

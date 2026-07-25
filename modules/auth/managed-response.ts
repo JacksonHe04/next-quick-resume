@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getInonProjectSso } from "@/modules/auth/inon-sso";
+import { saylessLoginPath } from "@/modules/auth/paths";
 
 export function legacyAuthDisabledResponse(): NextResponse {
   return NextResponse.json(
@@ -9,7 +9,7 @@ export function legacyAuthDisabledResponse(): NextResponse {
         code: "INON_SSO_REQUIRED",
         message: "SAYLESS 已改用 iNon 统一账号登录。",
       },
-      loginUrl: getInonProjectSso().loginUrl("/app"),
+      loginUrl: saylessLoginPath("/app"),
     },
     { status: 410 },
   );

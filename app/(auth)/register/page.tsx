@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
-import { getInonProjectSso } from "@/modules/auth/inon-sso";
 import { safePostAuthPath } from "@/modules/auth/navigation";
+import { saylessLoginPath } from "@/modules/auth/paths";
 
 export default async function RegisterPage({
   searchParams,
@@ -9,5 +9,5 @@ export default async function RegisterPage({
   searchParams: Promise<{ next?: string }>;
 }) {
   const nextPath = safePostAuthPath((await searchParams).next);
-  redirect(getInonProjectSso().loginUrl(nextPath));
+  redirect(saylessLoginPath(nextPath));
 }
