@@ -97,8 +97,8 @@ Worker Secret 保持一致。
 
 如果同时配置两个 `SAYLESS_DEV_LOGIN_*` 变量，开发环境访问
 `/login` 时会自动创建该账号的本地会话。快捷登录接口在
-Production 构建中始终关闭，密码不会发送到浏览器。建议将个人配置
-放在优先级更高且同样被忽略的 `.env.development.local` 中。
+Production 构建中始终关闭，密码不会发送到浏览器。所有本地配置
+统一放在 `.env.local` 中；仓库只保留不含真实密钥的 `.env.example`。
 
 ### 3. 启动开发环境
 

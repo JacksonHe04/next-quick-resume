@@ -22,7 +22,6 @@ _satellites/
 .superpowers/
 .worktrees/
 .wrangler/
-.dev.vars
 data_import/
 
 # ==========================================
