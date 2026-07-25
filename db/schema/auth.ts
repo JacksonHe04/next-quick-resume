@@ -4,6 +4,7 @@ import { timestampColumns } from "@/db/schema/columns";
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
+  inonUserId: text("inon_user_id").unique(),
   email: text("email").notNull().unique(),
   passwordHash: text("password_hash").notNull(),
   name: text("name").notNull(),
