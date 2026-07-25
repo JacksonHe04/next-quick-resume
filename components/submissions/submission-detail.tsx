@@ -23,6 +23,8 @@ type Detail = {
   id: string;
   batchName: string;
   companyName: string;
+  companyCareersUrl: string | null;
+  companyProcessUrl: string | null;
   positionConcept: string;
   positionName: string;
   jdUrl: string | null;
@@ -205,17 +207,43 @@ export function SubmissionDetail({ id }: { id: string }) {
           )}
         </div>
       </Card>
-      {detail.jdUrl ? (
-        <a
-          href={detail.jdUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-5 inline-flex items-center gap-2 text-sm font-medium text-foreground hover:underline"
-        >
-          打开职位页面
-          <ExternalLink size={14} />
-        </a>
-      ) : null}
+      <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
+        {detail.companyCareersUrl ? (
+          <a
+            href={detail.companyCareersUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`打开 ${detail.companyName} 招聘网站`}
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:underline"
+          >
+            公司招聘网站
+            <ExternalLink size={14} />
+          </a>
+        ) : null}
+        {detail.companyProcessUrl ? (
+          <a
+            href={detail.companyProcessUrl}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`查看 ${detail.companyName} 投递进度`}
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:underline"
+          >
+            查询投递进度
+            <ExternalLink size={14} />
+          </a>
+        ) : null}
+        {detail.jdUrl ? (
+          <a
+            href={detail.jdUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-2 text-sm font-medium text-foreground hover:underline"
+          >
+            打开职位页面
+            <ExternalLink size={14} />
+          </a>
+        ) : null}
+      </div>
       <Card className="mt-5 min-h-44 p-5 shadow-none">
         <h2 className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em]">
           选拔进程

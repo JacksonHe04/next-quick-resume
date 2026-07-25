@@ -14,6 +14,8 @@ export type EntityPickerOption = {
   source: "official" | "private";
   id: string;
   name: string;
+  careersUrl?: string | null;
+  processUrl?: string | null;
 };
 
 export function EntityPicker({
@@ -23,6 +25,7 @@ export function EntityPicker({
   value,
   onChange,
   error,
+  allowCustom = true,
 }: {
   entity: "company" | "position";
   label: string;
@@ -30,6 +33,7 @@ export function EntityPicker({
   value: EntityPickerOption | null;
   onChange(value: EntityPickerOption | null): void;
   error?: string;
+  allowCustom?: boolean;
 }) {
   const listboxId = useId();
   const [query, setQuery] = useState("");
@@ -174,7 +178,7 @@ export function EntityPicker({
                   </p>
                 ) : null}
               </div>
-              {query.trim() ? (
+              {allowCustom && query.trim() ? (
                 <button
                   type="button"
                   onClick={createPrivate}

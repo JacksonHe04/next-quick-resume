@@ -123,20 +123,18 @@ describe("submission service", () => {
     });
   });
 
-  it("rejects a private catalog reference owned by another user", async () => {
+  it("rejects private companies even when the legacy row belongs to the user", async () => {
     const repository = new MemorySubmissionRepository();
-    repository.validBatches.add("user-b:batch-a");
 
     await expect(
-      createSubmission(repository, "user-b", {
+      createSubmission(repository, "user-a", {
         ...input,
-        batchId: "batch-a",
         company: {
           source: "private",
           id: "private-company-a",
         },
       }),
-    ).rejects.toMatchObject({ code: "INVALID_REFERENCE" });
+    ).rejects.toMatchObject({ name: "ZodError" });
   });
 
   it("lets a manual status update override interview-derived progress", async () => {

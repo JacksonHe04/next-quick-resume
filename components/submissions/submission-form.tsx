@@ -1,9 +1,7 @@
 "use client";
 
-import {
-  type FormEvent,
-  useState,
-} from "react";
+import { ExternalLink } from "lucide-react";
+import { type FormEvent, useState } from "react";
 
 import {
   EntityPicker,
@@ -86,11 +84,41 @@ export function SubmissionForm({
       <EntityPicker
         entity="company"
         label="公司"
-        placeholder="搜索公司，找不到可自定义"
+        placeholder="搜索 SAYLESS 官方公司目录"
         value={company}
         onChange={setCompany}
         error={errors.company}
+        allowCustom={false}
       />
+      {company &&
+      (company.careersUrl || company.processUrl) ? (
+        <div className="flex flex-wrap gap-4 rounded-lg border border-border bg-muted/40 px-3 py-2.5 text-xs">
+          {company.careersUrl ? (
+            <a
+              href={company.careersUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`打开 ${company.name} 招聘网站`}
+              className="inline-flex items-center gap-1 font-medium text-foreground hover:underline"
+            >
+              公司招聘网站
+              <ExternalLink size={12} />
+            </a>
+          ) : null}
+          {company.processUrl ? (
+            <a
+              href={company.processUrl}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`查看 ${company.name} 投递进度`}
+              className="inline-flex items-center gap-1 font-medium text-foreground hover:underline"
+            >
+              查询投递进度
+              <ExternalLink size={12} />
+            </a>
+          ) : null}
+        </div>
+      ) : null}
       <EntityPicker
         entity="position"
         label="岗位"

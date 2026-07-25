@@ -166,6 +166,8 @@ export async function listSubmissionViews(
       batchName: batches.name,
       companyName:
         sql<string>`coalesce(${officialCompanies.name}, ${privateCompanies.name})`,
+      companyCareersUrl: officialCompanies.careersUrl,
+      companyProcessUrl: officialCompanies.processUrl,
       positionConcept:
         sql<string>`coalesce(${officialPositions.name}, ${privatePositions.name})`,
       positionName: submissions.positionName,

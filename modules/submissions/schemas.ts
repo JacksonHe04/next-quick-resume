@@ -13,10 +13,15 @@ const catalogReferenceSchema = z.discriminatedUnion("source", [
   }),
 ]);
 
+const officialCompanyReferenceSchema = z.object({
+  source: z.literal("official"),
+  id: z.string().min(1),
+});
+
 export const createSubmissionInputSchema = z.object({
   clientMutationId: z.string().min(8).max(100),
   batchId: z.string().min(1),
-  company: catalogReferenceSchema,
+  company: officialCompanyReferenceSchema,
   position: catalogReferenceSchema,
   positionName: z.string().trim().min(1, "请输入岗位名称").max(160),
   jdUrl: z.string().url("请输入有效的职位链接").optional(),

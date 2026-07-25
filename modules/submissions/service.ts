@@ -80,7 +80,7 @@ async function validateReferences(
   userId: string,
   input: {
     batchId: string;
-    company: { source: "official" | "private"; id: string };
+    company: { source: "official"; id: string };
     position: { source: "official" | "private"; id: string };
   },
 ) {
@@ -131,12 +131,8 @@ export async function createSubmission(
     userId,
     clientMutationId: parsed.clientMutationId,
     batchId: parsed.batchId,
-    officialCompanyId:
-      parsed.company.source === "official"
-        ? parsed.company.id
-        : null,
-    privateCompanyId:
-      parsed.company.source === "private" ? parsed.company.id : null,
+    officialCompanyId: parsed.company.id,
+    privateCompanyId: null,
     officialPositionId:
       parsed.position.source === "official"
         ? parsed.position.id
