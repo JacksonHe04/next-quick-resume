@@ -255,16 +255,8 @@ export function ResumeEditor({
     reader.readAsDataURL(file);
   }
 
-  function exportMarkdown() {
-    const blob = new Blob([toMarkdown(document.data)], {
-      type: "text/markdown;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const anchor = window.document.createElement("a");
-    anchor.href = url;
-    anchor.download = `${name}.md`;
-    anchor.click();
-    URL.revokeObjectURL(url);
+  async function copyMarkdown() {
+    await navigator.clipboard.writeText(toMarkdown(document.data));
   }
 
   return (
@@ -274,7 +266,7 @@ export function ResumeEditor({
         name={name}
         onNameChange={setName}
         onExportPdf={() => window.print()}
-        onExportMarkdown={exportMarkdown}
+        onCopyMarkdown={copyMarkdown}
         onToggleLeftSidebar={() =>
           setShowLeftSidebar((current) => !current)
         }

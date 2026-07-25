@@ -1,44 +1,41 @@
 "use client";
 
-import {
-  ChevronDown,
-  Download,
-  Menu,
-  Pencil,
-} from "lucide-react";
+import { Check, Menu, Pencil } from "lucide-react";
 import { type KeyboardEvent, useEffect, useState } from "react";
 
 import { AppTopbarPortal } from "@/components/app/app-topbar";
 import { ResumeWorkspaceSwitch } from "@/components/resumes/resume-workspace-switch";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 export function ResumeTopbar({
   editorHref,
   name,
   onNameChange,
   onExportPdf,
-  onExportMarkdown,
+  onCopyMarkdown,
   onToggleLeftSidebar,
 }: {
   editorHref: string;
   name: string;
   onNameChange: (name: string) => void;
   onExportPdf: () => void;
-  onExportMarkdown: () => void;
+  onCopyMarkdown: () => Promise<void>;
   onToggleLeftSidebar: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [draftName, setDraftName] = useState(name);
+  const [markdownCopied, setMarkdownCopied] = useState(false);
 
   useEffect(() => {
     if (!editing) setDraftName(name);
   }, [editing, name]);
+
+  useEffect(() => {
+    if (!markdownCopied) return;
+    const timer = window.setTimeout(() => setMarkdownCopied(false), 1400);
+    return () => window.clearTimeout(timer);
+  }, [markdownCopied]);
 
   function saveName() {
     const trimmed = draftName.trim();
@@ -52,6 +49,15 @@ export function ResumeTopbar({
     if (event.key === "Escape") {
       setDraftName(name);
       setEditing(false);
+    }
+  }
+
+  async function copyMarkdown() {
+    try {
+      await onCopyMarkdown();
+      setMarkdownCopied(true);
+    } catch {
+      setMarkdownCopied(false);
     }
   }
 
@@ -125,23 +131,37 @@ export function ResumeTopbar({
       </div>
 
       <div className="flex shrink-0 items-center gap-1.5">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
-              <Download aria-hidden="true" />
-              <span className="hidden sm:inline">导出</span>
-              <ChevronDown aria-hidden="true" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem onSelect={onExportPdf}>
-              导出为 PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={onExportMarkdown}>
-              导出为 Markdown
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label={markdownCopied ? "已复制 Markdown" : "复制 Markdown"}
+          title={markdownCopied ? "已复制 Markdown" : "复制 Markdown"}
+          data-state={markdownCopied ? "copied" : "idle"}
+          onClick={() => void copyMarkdown()}
+          className={cn(
+            "font-[var(--font-data)] text-[10px] font-semibold tracking-[-0.04em]",
+            markdownCopied &&
+              "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-700",
+          )}
+        >
+          {markdownCopied ? (
+            <Check aria-hidden="true" className="size-3.5" />
+          ) : (
+            "MD"
+          )}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label="打印 PDF"
+          title="打印 PDF"
+          onClick={onExportPdf}
+          className="font-[var(--font-data)] text-[9px] font-semibold tracking-[-0.06em]"
+        >
+          PDF
+        </Button>
       </div>
     </AppTopbarPortal>
   );

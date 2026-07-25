@@ -42,7 +42,10 @@ const initial: ResumeRecord = {
   },
 };
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+});
 
 describe("resume editor", () => {
   it("uses one sidebar for layout, content, and resume switching", async () => {
@@ -110,6 +113,33 @@ describe("resume editor", () => {
         .getByRole("main", { name: "简历预览" })
         .querySelector("#resume-preview"),
     ).toBeInTheDocument();
+  });
+
+  it("copies Markdown and opens browser printing from direct toolbar actions", async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    const print = vi.spyOn(window, "print").mockImplementation(() => {});
+    Object.defineProperty(window.navigator, "clipboard", {
+      configurable: true,
+      value: { writeText },
+    });
+
+    render(<ResumeEditor initial={initial} />);
+
+    expect(screen.queryByRole("button", { name: "导出" })).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "复制 Markdown" }));
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining("# Jackson"),
+    );
+    expect(writeText).toHaveBeenCalledWith(
+      expect.stringContaining("- 邮箱：jackson@example.com"),
+    );
+    expect(
+      screen.getByRole("button", { name: "已复制 Markdown" }),
+    ).toHaveAttribute("data-state", "copied");
+
+    await user.click(screen.getByRole("button", { name: "打印 PDF" }));
+    expect(print).toHaveBeenCalledOnce();
   });
 
   it("keeps autosave invisible while preserving a local draft on failure", async () => {
