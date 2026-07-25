@@ -6,7 +6,7 @@
 
 SAYLESS 当前围绕个人求职流程实现以下模块：
 
-- **Auth / Account**：邮箱验证码注册、邮箱密码登录、密码重置、资料修改与账户注销。
+- **Auth / Account**：通过 iNon SSO 使用统一的邮箱验证码、邮箱或用户名密码与 GitHub 登录；用户名、密码和设备会话在 iNon 账号中心管理。
 - **Dashboard**：当前 Batch、投递指标、阶段转化与近期面试。
 - **Batches**：创建、编辑、归档求职批次，并设置唯一的 `currentBatchId`。
 - **Resumes**：创建、克隆、编辑结构化简历内容和展示配置。
@@ -19,7 +19,7 @@ SAYLESS 当前围绕个人求职流程实现以下模块：
 
 ## 系统架构
 
-Next.js 应用部署在 Vercel。Cloudflare 只承担 D1 数据库和带 Bearer Token 鉴权的 Worker 网关；邮件通过 Resend 发送。
+Next.js 应用部署在 Vercel。SAYLESS 业务数据由 Cloudflare D1 和带 Bearer Token 鉴权的 Worker 网关承载；登录由 `inon.space` 上的中央 OAuth 服务提供。
 
 ```text
 Browser
@@ -27,10 +27,8 @@ Browser
    ▼
 Next.js App Router (Vercel)
    │
-   ├── Authentication, domain services and REST endpoints
-   │
-   ├── RESEND_API_KEY ──────────────► Resend
-   │
+   ├── @inon-ai/inon-sso ───────────► inon.space
+   ├── Domain services and REST endpoints
    └── D1_GATEWAY_URL
        + D1_GATEWAY_TOKEN
                     │
@@ -75,17 +73,14 @@ cp .env.example .env.local
 
 | 变量 | 是否必需 | 用途 |
 | --- | --- | --- |
-| `RESEND_API_KEY` | 是 | Resend API Key，用于注册验证码和密码重置邮件 |
-| `RESEND_FROM_EMAIL` | 是 | Resend 已验证的发件地址 |
-| `SESSION_SECRET` | 是 | 服务端会话签名密钥，应使用足够长的随机值 |
 | `D1_GATEWAY_URL` | 是 | 已部署的 `sayless-api` Worker 地址 |
 | `D1_GATEWAY_TOKEN` | 是 | Next.js 服务端访问 Worker 的 Bearer Token |
-| `SAYLESS_DEV_LOGIN_EMAIL` | 否 | development 环境自动创建会话的邮箱 |
-| `SAYLESS_DEV_LOGIN_PASSWORD` | 否 | development 环境自动创建会话的密码，仅服务端读取 |
+| `INON_SSO_CLIENT_ID` | 是 | SAYLESS 在 iNon SSO 中的 OAuth client ID |
+| `INON_SSO_CLIENT_SECRET` | 是 | SAYLESS 的 OAuth client secret，仅服务端读取 |
+| `INON_SSO_SESSION_SECRET` | 是 | SAYLESS 项目会话加密密钥，至少 32 个字符 |
+| `INON_SSO_PUBLIC_ORIGIN` | 是 | 本地为 `http://localhost:3000`，线上为 `https://sayless.inon.space` |
 
-只有两个 `SAYLESS_DEV_LOGIN_*` 变量同时存在时，开发快捷登录才会启用。该能力在 Production 构建中始终关闭，密码不会发送到浏览器。
-
-`.env.local` 仅用于本地 Next.js。不要提交 `.env.local`、`.dev.vars`、真实 API Key、session secret 或 gateway token。
+`.env.local` 仅用于本地 Next.js。不要提交 `.env.local`、`.dev.vars`、OAuth client secret、session secret 或 gateway token。
 
 ### 3. 启动应用
 
@@ -101,7 +96,7 @@ pnpm dev
 sayless/
 ├── app/
 │   ├── (marketing)/        # 落地页
-│   ├── (auth)/             # 登录、注册和密码重置
+│   ├── (auth)/             # 跳转中央 iNon SSO 的兼容入口
 │   ├── (app)/app/          # 主要产品页面
 │   └── api/                # REST API 路由
 ├── components/
@@ -228,7 +223,7 @@ BASE_URL=https://sayless.inon.space pnpm e2e:production
 - Next.js 部署到 Vercel；Cloudflare 仅承担 D1 与 Worker 网关。
 - Cloudflare 业务环境唯一，不维护独立 Preview 数据库。
 - 所有用户私有查询和写操作必须验证当前 `userId`，不能只依赖客户端过滤。
-- 浏览器不能获得 `D1_GATEWAY_TOKEN`、`SESSION_SECRET` 或 Resend API Key。
+- 浏览器不能获得 `D1_GATEWAY_TOKEN`、`INON_SSO_CLIENT_SECRET` 或 `INON_SSO_SESSION_SECRET`。
 - 不提交 `.env.local`、`.dev.vars`、真实密钥、个人导入数据或一次性过程脚本。
 - 不加入付费、团队协作、外部平台导入或 LLM 能力，除非产品边界先明确变更。
 - 修改相似界面或业务规则时优先抽取复用，确保一处修改能够全局生效。

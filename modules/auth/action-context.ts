@@ -2,38 +2,37 @@ import { NextResponse } from "next/server";
 
 import { getDb } from "@/db/client";
 import { DEMO_USER_ID } from "@/db/seed/demo";
-import { createAuthRepository } from "@/modules/auth/repository";
-import { authenticateRequest } from "@/modules/auth/request";
+import { getInonProjectSso } from "@/modules/auth/inon-sso";
+import { resolveInonProjectUser } from "@/modules/auth/inon-user";
 
 export async function getAuthenticatedDatabaseContext(
   request: Request,
 ) {
   const database = await getDb();
-  const authRepository = createAuthRepository(database);
-  const authenticated = await authenticateRequest(
-    authRepository,
-    request,
-  );
-  if (!authenticated) return null;
+  const session = await getInonProjectSso().getSession(request);
+  if (!session) return null;
+  const user = await resolveInonProjectUser(database, session);
+  if (user.disabledAt) return null;
 
   return {
     database,
-    authRepository,
-    user: authenticated.user,
-    session: authenticated.session,
+    user,
+    session,
   };
 }
 
 export async function getReadDatabaseContext(request: Request) {
   const database = await getDb();
-  const authRepository = createAuthRepository(database);
-  const authenticated = await authenticateRequest(authRepository, request);
+  const session = await getInonProjectSso().getSession(request);
+  const user = session
+    ? await resolveInonProjectUser(database, session)
+    : null;
+  const authenticated = user && !user.disabledAt ? user : null;
 
   return {
     database,
-    authRepository,
-    userId: authenticated?.user.id ?? DEMO_USER_ID,
-    user: authenticated?.user ?? null,
+    userId: authenticated?.id ?? DEMO_USER_ID,
+    user: authenticated,
     isGuest: !authenticated,
   };
 }
