@@ -129,4 +129,36 @@ describe("resume editor", () => {
     expect(list).toHaveClass("list-decimal");
     expect(screen.getByText("React").tagName).toBe("STRONG");
   });
+
+  it("keeps the photo inside a header-sized frame for printing", () => {
+    const document = structuredClone(initial.document);
+    document.displayConfig.photo = {
+      showPhoto: true,
+      photoData: "data:image/png;base64,iVBORw0KGgo=",
+    };
+
+    render(<ResumePreview document={document} />);
+
+    const frame = screen.getByTestId("resume-photo-frame");
+    const image = screen.getByRole("img", { name: "个人照片" });
+
+    expect(frame).toHaveClass(
+      "resume-photo-frame",
+      "relative",
+      "overflow-hidden",
+      "sm:h-auto",
+      "sm:self-stretch",
+      "print:h-auto",
+      "print:self-stretch",
+    );
+    expect(frame).not.toHaveClass("sm:h-40");
+    expect(image).toHaveClass(
+      "resume-photo-image",
+      "absolute",
+      "inset-0",
+      "h-full",
+      "w-full",
+      "object-contain",
+    );
+  });
 });

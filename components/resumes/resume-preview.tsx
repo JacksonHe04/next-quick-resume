@@ -103,7 +103,7 @@ function HeaderSection({
     <header className="mb-0">
       <div
         className={cn(
-          "flex flex-col-reverse justify-between gap-4 sm:flex-row sm:gap-8",
+          "resume-header-layout flex flex-col-reverse justify-between gap-4 sm:flex-row sm:items-stretch sm:gap-8 print:flex-row print:items-stretch print:gap-8",
           alignment === "center" && "sm:justify-center",
         )}
       >
@@ -238,23 +238,24 @@ function HeaderSection({
         </div>
 
         {displayConfig.photo.showPhoto ? (
-          <div className="shrink-0 self-center sm:self-start">
-            <div className="h-32 w-24 overflow-hidden rounded-lg p-px sm:h-40 sm:w-32">
-              {displayConfig.photo.photoData ? (
-                <Image
-                  src={displayConfig.photo.photoData}
-                  alt="个人照片"
-                  width={128}
-                  height={160}
-                  unoptimized
-                  className="h-full w-full rounded-lg border border-gray-200 object-contain"
-                />
-              ) : (
-                <div className="grid h-full w-full place-items-center rounded-lg border border-gray-200 bg-gray-50 text-xs text-gray-400">
-                  个人照片
-                </div>
-              )}
-            </div>
+          <div
+            data-testid="resume-photo-frame"
+            className="resume-photo-frame relative h-32 w-24 shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-auto sm:w-32 sm:self-stretch print:h-auto print:w-32 print:self-stretch"
+          >
+            {displayConfig.photo.photoData ? (
+              <Image
+                src={displayConfig.photo.photoData}
+                alt="个人照片"
+                width={128}
+                height={160}
+                unoptimized
+                className="resume-photo-image absolute inset-0 h-full w-full object-contain"
+              />
+            ) : (
+              <div className="absolute inset-0 grid place-items-center bg-gray-50 text-xs text-gray-400">
+                个人照片
+              </div>
+            )}
           </div>
         ) : null}
       </div>
