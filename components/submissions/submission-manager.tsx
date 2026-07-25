@@ -15,16 +15,22 @@ import {
 } from "react";
 
 import { IntentLink } from "@/components/app/intent-link";
+import {
+  AppTopbarPortal,
+  TopbarFilterMenu,
+} from "@/components/app/app-topbar";
 import { SubmissionForm } from "@/components/submissions/submission-form";
 import { CompanyResourceLink } from "@/components/catalog/company-resource-link";
 import {
   Button,
   Card,
   DataTable,
+  DataViewSwitch,
   FilterSelect,
   FormDrawer,
   Input,
   PresentationBadge,
+  useDataView,
   type DataTableColumn,
 } from "@/components/ui";
 import { appFetch, patchJson } from "@/lib/app-fetch";
@@ -124,6 +130,7 @@ export function SubmissionManager({
     history: "replace",
   });
   const [error, setError] = useState<string>();
+  const [view, setView] = useDataView("submissions");
 
   const load = useCallback(async () => {
     const [submissionResponse, batchResponse] = await Promise.all([
@@ -198,6 +205,14 @@ export function SubmissionManager({
       from ||
       to,
   );
+  const activeFilterCount = [
+    batchId,
+    companyName,
+    positionConcept,
+    status,
+    from,
+    to,
+  ].filter(Boolean).length;
 
   async function remove(id: string) {
     setError(undefined);
@@ -393,99 +408,93 @@ export function SubmissionManager({
 
   return (
     <>
-      <div className="mt-7 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-        <div className="flex flex-1 flex-col gap-3">
-          <div className="relative w-full max-w-sm">
-            <Search
-              size={15}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[#98a099]"
-            />
-            <Input
-              value={query}
-              onChange={(event) =>
-                void setQuery(event.target.value)
-              }
-              placeholder="搜索公司、岗位或批次"
-              className="pl-10"
-            />
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <FilterSelect
-              label="按批次筛选"
-              value={batchId}
-              onChange={(value) => void setBatchId(value)}
-              allLabel="全部批次"
-              options={batches.map((batch) => ({
-                value: batch.id,
-                label: batch.name,
-              }))}
-            />
-            <FilterSelect
-              label="按公司筛选"
-              value={companyName}
-              onChange={(value) => void setCompanyName(value)}
-              allLabel="全部公司"
-              options={filterOptions.companies}
-            />
-            <FilterSelect
-              label="按岗位筛选"
-              value={positionConcept}
-              onChange={(value) => void setPositionConcept(value)}
-              allLabel="全部岗位"
-              options={filterOptions.positions}
-            />
-            <FilterSelect
-              label="按状态筛选"
-              value={status}
-              onChange={(value) => void setStatus(value)}
-              allLabel="全部状态"
-              options={filterOptions.statuses}
-            />
+      <AppTopbarPortal>
+        <div className="relative w-52 sm:w-72">
+          <Search
+            size={15}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            value={query}
+            onChange={(event) => void setQuery(event.target.value)}
+            placeholder="搜索投递"
+            aria-label="搜索公司、岗位或批次"
+            className="pl-10"
+          />
+        </div>
+        <TopbarFilterMenu
+          activeCount={activeFilterCount}
+          onClear={() => {
+            void Promise.all([
+              setBatchId(null),
+              setCompanyName(null),
+              setPositionConcept(null),
+              setStatus(null),
+              setFrom(null),
+              setTo(null),
+            ]);
+          }}
+        >
+          <FilterSelect
+            label="按批次筛选"
+            value={batchId}
+            onChange={(value) => void setBatchId(value)}
+            allLabel="全部批次"
+            options={batches.map((batch) => ({
+              value: batch.id,
+              label: batch.name,
+            }))}
+          />
+          <FilterSelect
+            label="按公司筛选"
+            value={companyName}
+            onChange={(value) => void setCompanyName(value)}
+            allLabel="全部公司"
+            options={filterOptions.companies}
+          />
+          <FilterSelect
+            label="按岗位筛选"
+            value={positionConcept}
+            onChange={(value) => void setPositionConcept(value)}
+            allLabel="全部岗位"
+            options={filterOptions.positions}
+          />
+          <FilterSelect
+            label="按状态筛选"
+            value={status}
+            onChange={(value) => void setStatus(value)}
+            allLabel="全部状态"
+            options={filterOptions.statuses}
+          />
+          <div className="grid grid-cols-2 gap-2">
             <Input
               aria-label="投递开始日期"
               type="date"
               value={from}
               onChange={(event) => void setFrom(event.target.value)}
-              className="w-auto min-w-36"
             />
             <Input
               aria-label="投递结束日期"
               type="date"
               value={to}
               onChange={(event) => void setTo(event.target.value)}
-              className="w-auto min-w-36"
             />
-            {hasFilters ? (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => {
-                  void Promise.all([
-                    setQuery(null),
-                    setBatchId(null),
-                    setCompanyName(null),
-                    setPositionConcept(null),
-                    setStatus(null),
-                    setFrom(null),
-                    setTo(null),
-                  ]);
-                }}
-              >
-                清除筛选
-              </Button>
-            ) : null}
           </div>
+        </TopbarFilterMenu>
+        <div className="ml-auto flex items-center gap-2">
+          <DataViewSwitch view={view} onChange={setView} />
+          <Button
+            onClick={() => setDrawerOpen(true)}
+            disabled={batches.length === 0}
+          >
+            <Plus aria-hidden="true" />
+            记录投递
+          </Button>
         </div>
-        <Button
-          onClick={() => setDrawerOpen(true)}
-          disabled={batches.length === 0}
-        >
-          <Plus size={16} />
-          记录投递
-        </Button>
-      </div>
+      </AppTopbarPortal>
+
       {batches.length === 0 ? (
-        <p className="mt-3 text-sm text-[#9a6a2c]">
+        <p className="text-sm text-[#9a6a2c]">
           新建投递前，需要先在{" "}
           <Link
             href="/app/batches"
@@ -505,12 +514,14 @@ export function SubmissionManager({
         </p>
       ) : null}
 
-      <div className="mt-5">
+      <div className={batches.length === 0 || error ? "mt-5" : undefined}>
         <DataTable
           columns={columns}
           rows={filtered}
           rowKey={(row) => row.id}
           viewStorageKey="submissions"
+          view={view}
+          hideViewSwitch
           empty={
             hasFilters
               ? "没有符合当前搜索的投递"

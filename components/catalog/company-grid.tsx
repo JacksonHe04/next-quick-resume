@@ -4,13 +4,19 @@ import {
   Building2,
   ExternalLink,
   MapPin,
+  Search,
 } from "lucide-react";
+import { useMemo, useState } from "react";
 
+import { AppTopbarPortal } from "@/components/app/app-topbar";
 import { CompanyResourceLink } from "@/components/catalog/company-resource-link";
 import {
   Card,
   DataTable,
+  DataViewSwitch,
+  Input,
   PresentationBadge,
+  useDataView,
   type DataTableColumn,
 } from "@/components/ui";
 import type { OfficialCompany } from "@/modules/catalog/repository";
@@ -48,6 +54,20 @@ export function CompanyManager({
 }: {
   companies: OfficialCompany[];
 }) {
+  const [query, setQuery] = useState("");
+  const [view, setView] = useDataView("companies");
+  const filtered = useMemo(() => {
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return companies;
+    return companies.filter(
+      (company) =>
+        company.name.toLowerCase().includes(normalized) ||
+        company.cities.some((city) =>
+          city.toLowerCase().includes(normalized),
+        ),
+    );
+  }, [companies, query]);
+
   const columns: DataTableColumn<OfficialCompany>[] = [
     {
       key: "name",
@@ -127,13 +147,33 @@ export function CompanyManager({
   ];
 
   return (
-    <div className="mt-5">
+    <>
+      <AppTopbarPortal>
+        <label className="relative w-52 sm:w-72">
+          <Search
+            size={15}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            aria-label="搜索公司"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="搜索公司或城市"
+            className="pl-10"
+          />
+        </label>
+        <div className="ml-auto">
+          <DataViewSwitch view={view} onChange={setView} />
+        </div>
+      </AppTopbarPortal>
       <DataTable
         columns={columns}
-        rows={companies}
+        rows={filtered}
         rowKey={(company) => company.id}
         viewStorageKey="companies"
-        empty="公司目录正在整理"
+        view={view}
+        hideViewSwitch
+        empty={companies.length === 0 ? "公司目录正在整理" : "没有匹配的公司"}
         gridCard={(company) => (
           <Card className="group h-full p-5 shadow-none transition hover:border-[#b7cbb9]">
             <div className="flex items-start gap-4">
@@ -186,7 +226,7 @@ export function CompanyManager({
           </Card>
         )}
       />
-    </div>
+    </>
   );
 }
 

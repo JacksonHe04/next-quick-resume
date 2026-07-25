@@ -14,13 +14,16 @@ import {
   useState,
 } from "react";
 
+import { AppTopbarPortal } from "@/components/app/app-topbar";
 import {
   Button,
   Card,
   DataTable,
+  DataViewSwitch,
   FormDrawer,
   Input,
   StatusBadge,
+  useDataView,
   type DataTableColumn,
 } from "@/components/ui";
 import { appFetch, patchJson } from "@/lib/app-fetch";
@@ -85,6 +88,7 @@ export function BatchManager({
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
+  const [view, setView] = useDataView("batches");
 
   const load = useCallback(async () => {
     const response = await appFetch("/api/batches", { cache: "no-store" });
@@ -315,31 +319,64 @@ export function BatchManager({
 
   return (
     <>
-      <div className="mt-7 flex items-center justify-between gap-4">
-        <p className="text-sm text-muted-foreground">
-          当前批次只作为新建投递的默认分组，不会筛选其他页面。
-        </p>
-        <Button onClick={() => setDrawerOpen(true)}>
-          <Plus size={16} />
-          新建批次
-        </Button>
-      </div>
+      <AppTopbarPortal>
+        <label className="flex items-center gap-2">
+          <span className="hidden text-xs font-medium text-muted-foreground sm:inline">
+            当前批次
+          </span>
+          <select
+            aria-label="当前批次"
+            value={data.currentBatchId ?? ""}
+            disabled={!data.batches.some((batch) => !batch.archivedAt)}
+            onChange={(event) => {
+              const id = event.target.value;
+              if (id) {
+                void perform(() =>
+                  api(`/api/batches/${id}/current`, "POST"),
+                );
+              }
+            }}
+            className="h-9 min-w-36 max-w-56 rounded-md border border-input bg-background px-3 text-sm font-medium shadow-xs outline-none focus:border-ring focus:ring-3 focus:ring-ring/20"
+          >
+            {data.batches
+              .filter((batch) => !batch.archivedAt)
+              .map((batch) => (
+                <option key={batch.id} value={batch.id}>
+                  {batch.name}
+                </option>
+              ))}
+          </select>
+        </label>
+        <div className="ml-auto flex items-center gap-2">
+          <DataViewSwitch view={view} onChange={setView} />
+          <Button onClick={() => setDrawerOpen(true)}>
+            <Plus aria-hidden="true" />
+            新建批次
+          </Button>
+        </div>
+      </AppTopbarPortal>
+
+      <p className="mb-5 text-sm text-muted-foreground">
+        当前批次只作为新建投递的默认分组，不会筛选其他页面。
+      </p>
 
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="mb-5 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      <div className="mt-5">
+      <div>
         <DataTable
           columns={columns}
           rows={data.batches}
           rowKey={(batch) => batch.id}
           viewStorageKey="batches"
+          view={view}
+          hideViewSwitch
           empty="先建立第一个求职批次"
           gridCard={batchCard}
         />

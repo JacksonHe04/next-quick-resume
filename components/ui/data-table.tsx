@@ -240,6 +240,8 @@ export function DataTable<TRow>({
   className,
   viewStorageKey,
   gridCard,
+  view: controlledView,
+  hideViewSwitch = false,
 }: {
   columns: DataTableColumn<TRow>[];
   rows: TRow[];
@@ -248,11 +250,14 @@ export function DataTable<TRow>({
   className?: string;
   viewStorageKey?: string;
   gridCard?: (row: TRow) => ReactNode;
+  view?: "table" | "grid";
+  hideViewSwitch?: boolean;
 }) {
   const storageKey = viewStorageKey
     ? `sayless:view:${viewStorageKey}`
     : null;
   const [view, setView] = useState<"table" | "grid">("table");
+  const resolvedView = controlledView ?? view;
 
   useEffect(() => {
     if (!storageKey || !gridCard) return;
@@ -267,7 +272,7 @@ export function DataTable<TRow>({
 
   return (
     <div className={className}>
-      {gridCard ? (
+      {gridCard && !hideViewSwitch ? (
         <div className="mb-3 flex justify-end">
           <div
             className="inline-flex rounded-md border border-border bg-background p-0.5"
@@ -276,11 +281,11 @@ export function DataTable<TRow>({
             <button
               type="button"
               aria-label="表格视图"
-              aria-pressed={view === "table"}
+              aria-pressed={resolvedView === "table"}
               onClick={() => changeView("table")}
               className={cn(
                 "grid size-8 place-items-center rounded-sm text-muted-foreground transition",
-                view === "table" &&
+                resolvedView === "table" &&
                   "bg-foreground text-background shadow-sm",
               )}
             >
@@ -289,11 +294,11 @@ export function DataTable<TRow>({
             <button
               type="button"
               aria-label="卡片视图"
-              aria-pressed={view === "grid"}
+              aria-pressed={resolvedView === "grid"}
               onClick={() => changeView("grid")}
               className={cn(
                 "grid size-8 place-items-center rounded-sm text-muted-foreground transition",
-                view === "grid" &&
+                resolvedView === "grid" &&
                   "bg-foreground text-background shadow-sm",
               )}
             >
@@ -303,7 +308,7 @@ export function DataTable<TRow>({
         </div>
       ) : null}
 
-      {view === "grid" && gridCard ? (
+      {resolvedView === "grid" && gridCard ? (
         rows.length > 0 ? (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {rows.map((row) => (

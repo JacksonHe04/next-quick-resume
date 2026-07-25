@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { type KeyboardEvent, useEffect, useState } from "react";
 
+import { AppTopbarPortal } from "@/components/app/app-topbar";
 import { ResumeWorkspaceSwitch } from "@/components/resumes/resume-workspace-switch";
 import { Button } from "@/components/ui/button";
 import {
@@ -111,9 +112,9 @@ export function ResumeTopbar({
   }
 
   return (
-    <header
-      aria-label="简历编辑工具栏"
-      className="relative z-30 flex h-14 shrink-0 items-center justify-between border-b border-border bg-background px-2 sm:px-3 print:hidden"
+    <AppTopbarPortal
+      className="justify-between"
+      fallbackLabel="简历编辑工具栏"
     >
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <button
@@ -245,6 +246,6 @@ export function ResumeTopbar({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-    </header>
+    </AppTopbarPortal>
   );
 }

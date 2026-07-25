@@ -1,9 +1,12 @@
 "use client";
 
-import { Menu, UserRound, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
+import {
+  APP_TOPBAR_PORTAL_ID,
+} from "@/components/app/app-topbar";
 import {
   SIDEBAR_COLLAPSED_WIDTH,
   SIDEBAR_DEFAULT_WIDTH,
@@ -120,22 +123,20 @@ export function AppShell({
         </div>
       ) : null}
 
-      <div className="print:block lg:col-start-2">
-        <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border bg-background/90 px-4 backdrop-blur-xl print:hidden lg:hidden">
+      <div className="min-w-0 print:block lg:col-start-2">
+        <header className="sticky top-0 z-30 flex h-16 min-w-0 items-center border-b border-border bg-background/95 backdrop-blur-xl print:hidden">
           <button
             type="button"
             aria-label={menuOpen ? "关闭导航" : "打开导航"}
             onClick={() => setMenuOpen((value) => !value)}
-            className="grid size-8 place-items-center rounded-md border border-border bg-background"
+            className="ml-3 grid size-8 shrink-0 place-items-center rounded-md border border-border bg-background lg:hidden"
           >
             {menuOpen ? <X size={19} /> : <Menu size={19} />}
           </button>
-          <span className="text-sm font-semibold tracking-[-0.02em]">
-            SAYLESS
-          </span>
-          <span className="grid size-8 place-items-center rounded-full border border-border bg-muted text-foreground">
-            <UserRound size={17} />
-          </span>
+          <div
+            id={APP_TOPBAR_PORTAL_ID}
+            className="h-full min-w-0 flex-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          />
         </header>
         <main className="min-h-screen">{children}</main>
       </div>

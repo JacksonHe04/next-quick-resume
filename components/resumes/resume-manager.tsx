@@ -5,11 +5,16 @@ import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
 import { IntentLink } from "@/components/app/intent-link";
+import { AppTopbarPortal } from "@/components/app/app-topbar";
+import { ResumeWorkspaceSwitch } from "@/components/resumes/resume-workspace-switch";
 import {
   Button,
   Card,
   DataTable,
+  DataViewSwitch,
+  FormDrawer,
   Input,
+  useDataView,
   type DataTableColumn,
 } from "@/components/ui";
 import { appFetch, patchJson } from "@/lib/app-fetch";
@@ -26,15 +31,19 @@ function formatDate(value: Date | string) {
 
 export function ResumeManager({
   initialResumes,
+  editorHref,
 }: {
   initialResumes: ResumeRecord[];
+  editorHref?: string;
 }) {
   const router = useRouter();
   const [resumes, setResumes] =
     useState<ResumeRecord[]>(initialResumes);
   const [newName, setNewName] = useState("我的简历");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
+  const [view, setView] = useDataView("resumes");
 
   const load = useCallback(async () => {
     const response = await appFetch("/api/resumes", { cache: "no-store" });
@@ -180,40 +189,34 @@ export function ResumeManager({
 
   return (
     <>
-      <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <label className="w-full max-w-sm">
-          <span className="mb-2 block text-sm font-medium">新简历名称</span>
-          <Input
-            value={newName}
-            onChange={(event) => setNewName(event.target.value)}
-            maxLength={120}
-          />
-        </label>
-        <Button
-          onClick={create}
-          loading={pending}
-          disabled={!newName.trim()}
-        >
-          <Plus size={16} />
-          新建简历
-        </Button>
-      </div>
+      <AppTopbarPortal>
+        <ResumeWorkspaceSwitch mode="manage" editorHref={editorHref} compact />
+        <div className="ml-auto flex items-center gap-2">
+          <DataViewSwitch view={view} onChange={setView} />
+          <Button onClick={() => setDrawerOpen(true)}>
+            <Plus aria-hidden="true" />
+            新建简历
+          </Button>
+        </div>
+      </AppTopbarPortal>
 
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      <div className="mt-5">
+      <div className={error ? "mt-5" : undefined}>
         <DataTable
           columns={columns}
           rows={resumes}
           rowKey={(resume) => resume.id}
           viewStorageKey="resumes"
+          view={view}
+          hideViewSwitch
           empty="还没有简历，先创建第一份结构化简历"
           gridCard={(resume) => (
             <Card className="h-full p-5 shadow-none">
@@ -254,6 +257,41 @@ export function ResumeManager({
           )}
         />
       </div>
+
+      <FormDrawer
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        title="新建简历"
+        description="创建后会直接进入简历编辑器。"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => setDrawerOpen(false)}
+            >
+              取消
+            </Button>
+            <Button
+              onClick={() => void create()}
+              loading={pending}
+              disabled={!newName.trim()}
+            >
+              创建并编辑
+            </Button>
+          </div>
+        }
+      >
+        <label className="block">
+          <span className="mb-2 block text-sm font-medium">简历名称</span>
+          <Input
+            value={newName}
+            onChange={(event) => setNewName(event.target.value)}
+            maxLength={120}
+            autoFocus
+          />
+        </label>
+      </FormDrawer>
     </>
   );
 }

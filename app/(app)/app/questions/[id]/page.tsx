@@ -24,7 +24,7 @@ export default async function QuestionDetailPage({
   if (!question) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10">
+    <div className="mx-auto max-w-6xl px-5 py-7 lg:py-9">
       <QuestionDetail
         id={id}
         initialQuestion={question}

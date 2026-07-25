@@ -1,9 +1,12 @@
 "use client";
 
 import { ArrowLeft, Link2, Save, Unlink } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import {
+  AppTopbarDivider,
+  AppTopbarPortal,
+} from "@/components/app/app-topbar";
 import { IntentLink } from "@/components/app/intent-link";
 import type { InterviewView } from "@/components/interviews/interview-manager";
 import { Button, Card, Input, MarkdownEditor } from "@/components/ui";
@@ -133,21 +136,27 @@ export function QuestionDetail({
 
   return (
     <>
-      <Link
-        href="/app/questions"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft size={15} />
-        返回题库
-      </Link>
-      <div className="mt-6">
-        <p className="text-sm text-muted-foreground">持续迭代标准答案</p>
-        <h1 className="mt-1 font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
+      <AppTopbarPortal>
+        <IntentLink
+          href="/app/questions"
+          aria-label="返回题库"
+          className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+        </IntentLink>
+        <AppTopbarDivider />
+        <p className="max-w-80 truncate text-sm font-medium">
           {question.questionText}
-        </h1>
-      </div>
+        </p>
+        <div className="ml-auto">
+          <Button onClick={save} loading={pending}>
+            <Save aria-hidden="true" />
+            保存答案
+          </Button>
+        </div>
+      </AppTopbarPortal>
 
-      <Card className="mt-7 grid gap-4 p-5 shadow-none sm:grid-cols-[1fr_220px]">
+      <Card className="grid gap-4 p-5 shadow-none sm:grid-cols-[1fr_220px]">
         <label>
           <span className="mb-2 block text-xs text-muted-foreground">问题</span>
           <Input
@@ -189,10 +198,7 @@ export function QuestionDetail({
         ) : (
           <span />
         )}
-        <Button onClick={save} loading={pending}>
-          <Save size={15} />
-          保存答案
-        </Button>
+        <span />
       </div>
 
       <Card className="mt-8 p-5 shadow-none">

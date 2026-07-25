@@ -5,9 +5,12 @@ import {
   ExternalLink,
   Save,
 } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useState } from "react";
 
+import {
+  AppTopbarDivider,
+  AppTopbarPortal,
+} from "@/components/app/app-topbar";
 import { IntentLink } from "@/components/app/intent-link";
 import type { InterviewView } from "@/components/interviews/interview-manager";
 import { InterviewQuestionCreator } from "@/components/questions/interview-question-creator";
@@ -83,52 +86,51 @@ export function InterviewDetail({
 
   return (
     <>
-      <Link
-        href="/app/interviews"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft size={15} />
-        返回面试
-      </Link>
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">
+      <AppTopbarPortal>
+        <IntentLink
+          href="/app/interviews"
+          aria-label="返回面试"
+          className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+        </IntentLink>
+        <AppTopbarDivider />
+        <div className="min-w-0">
+          <p className="max-w-56 truncate text-sm font-medium">
+            {interview.name}
+          </p>
+          <p className="max-w-56 truncate text-[11px] text-muted-foreground">
             {interview.companyName} · {interview.positionName}
           </p>
-          <h1 className="mt-1 font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
-            {interview.name}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            官方阶段：{interview.stageName}
-          </p>
         </div>
-        <IntentLink
-          href={`/app/submissions/${interview.submissionId}`}
-          className="text-sm font-medium text-foreground hover:underline"
-        >
-          查看对应投递
-        </IntentLink>
-      </div>
+        <div className="ml-auto flex items-center gap-2">
+          <select
+            aria-label="当前状态"
+            value={status}
+            onChange={(event) =>
+              setStatus(event.target.value as InterviewStatus)
+            }
+            className="h-9 min-w-28 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus:border-ring focus:ring-3 focus:ring-ring/20"
+          >
+            <option value="pending_interview">待进行</option>
+            <option value="pending_result">待结果</option>
+            <option value="passed">已通过</option>
+            <option value="failed">未通过</option>
+          </select>
+          <InterviewQuestionCreator interviewId={id} />
+          <Button onClick={save} loading={pending}>
+            <Save aria-hidden="true" />
+            保存
+          </Button>
+        </div>
+      </AppTopbarPortal>
 
-      <Card className="mt-7 p-5 shadow-none">
+      <Card className="p-5 shadow-none">
         <div className="grid gap-4 sm:grid-cols-3">
-          <label>
-            <span className="mb-2 block text-xs text-muted-foreground">
-              当前状态
-            </span>
-            <select
-              value={status}
-              onChange={(event) =>
-                setStatus(event.target.value as InterviewStatus)
-              }
-              className="min-h-11 w-full rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
-            >
-              <option value="pending_interview">待进行</option>
-              <option value="pending_result">待结果</option>
-              <option value="passed">已通过</option>
-              <option value="failed">未通过</option>
-            </select>
-          </label>
+          <div>
+            <p className="mb-2 text-xs text-muted-foreground">官方阶段</p>
+            <p className="min-h-11 py-2.5 text-sm">{interview.stageName}</p>
+          </div>
           <div>
             <p className="mb-2 text-xs text-muted-foreground">时间</p>
             <p className="min-h-11 py-2.5 text-sm">
@@ -183,13 +185,12 @@ export function InterviewDetail({
         ) : (
           <span />
         )}
-        <div className="flex flex-wrap justify-end gap-2">
-          <InterviewQuestionCreator interviewId={id} />
-          <Button onClick={save} loading={pending}>
-            <Save size={15} />
-            保存状态与复盘
-          </Button>
-        </div>
+        <IntentLink
+          href={`/app/submissions/${interview.submissionId}`}
+          className="text-sm font-medium text-foreground hover:underline"
+        >
+          查看对应投递
+        </IntentLink>
       </div>
     </>
   );

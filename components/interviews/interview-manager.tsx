@@ -17,13 +17,19 @@ import { useQueryState } from "nuqs";
 import { IntentLink } from "@/components/app/intent-link";
 import { InterviewForm } from "@/components/interviews/interview-form";
 import {
+  AppTopbarPortal,
+  TopbarFilterMenu,
+} from "@/components/app/app-topbar";
+import {
   Button,
   Card,
   DataTable,
+  DataViewSwitch,
   FilterSelect,
   FormDrawer,
   Input,
   PresentationBadge,
+  useDataView,
   type DataTableColumn,
 } from "@/components/ui";
 import { appFetch, patchJson } from "@/lib/app-fetch";
@@ -192,6 +198,7 @@ export function InterviewManager({
     history: "replace",
   });
   const [error, setError] = useState<string>();
+  const [view, setView] = useDataView("interviews");
 
   const load = useCallback(async () => {
     const [interviewResponse, submissionResponse, stageResponse] =
@@ -253,6 +260,13 @@ export function InterviewManager({
   const hasFilters = Boolean(
     stageId || status || companyName || from || to,
   );
+  const activeFilterCount = [
+    stageId,
+    status,
+    companyName,
+    from,
+    to,
+  ].filter(Boolean).length;
 
   async function remove(id: string) {
     const response = await appFetch(`/api/interviews/${id}`, {
@@ -431,8 +445,19 @@ export function InterviewManager({
 
   return (
     <>
-      <div className="mt-7 flex flex-col gap-3 xl:flex-row xl:items-start xl:justify-between">
-        <div className="flex flex-1 flex-wrap gap-2">
+      <AppTopbarPortal>
+        <TopbarFilterMenu
+          activeCount={activeFilterCount}
+          onClear={() => {
+            void Promise.all([
+              setStageId(null),
+              setStatus(null),
+              setCompanyName(null),
+              setFrom(null),
+              setTo(null),
+            ]);
+          }}
+        >
           <FilterSelect
             label="按选拔阶段筛选"
             value={stageId}
@@ -467,51 +492,35 @@ export function InterviewManager({
             type="date"
             value={from}
             onChange={(event) => void setFrom(event.target.value)}
-            className="w-auto min-w-36"
           />
           <Input
             aria-label="选拔结束日期"
             type="date"
             value={to}
             onChange={(event) => void setTo(event.target.value)}
-            className="w-auto min-w-36"
           />
-          {hasFilters ? (
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => {
-                void Promise.all([
-                  setStageId(null),
-                  setStatus(null),
-                  setCompanyName(null),
-                  setFrom(null),
-                  setTo(null),
-                ]);
-              }}
-            >
-              清除筛选
-            </Button>
-          ) : null}
+        </TopbarFilterMenu>
+        <div className="ml-auto flex items-center gap-2">
+          <DataViewSwitch view={view} onChange={setView} />
+          <Button
+            onClick={() => setDrawerOpen(true)}
+            disabled={submissions.length === 0 || stages.length === 0}
+          >
+            <Plus aria-hidden="true" />
+            添加选拔
+          </Button>
         </div>
-        <Button
-          onClick={() => setDrawerOpen(true)}
-          disabled={submissions.length === 0 || stages.length === 0}
-        >
-          <Plus size={16} />
-          添加选拔
-        </Button>
-      </div>
+      </AppTopbarPortal>
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-xl border border-[#ebc3c8] bg-[#fbecef] px-4 py-3 text-sm text-[#9d4450]"
+          className="rounded-xl border border-[#ebc3c8] bg-[#fbecef] px-4 py-3 text-sm text-[#9d4450]"
         >
           {error}
         </p>
       ) : null}
       {submissions.length === 0 ? (
-        <p className="mt-3 text-sm text-[#9a6a2c]">
+        <p className={error ? "mt-3 text-sm text-[#9a6a2c]" : "text-sm text-[#9a6a2c]"}>
           需要先{" "}
           <Link
             href="/app/submissions"
@@ -523,12 +532,14 @@ export function InterviewManager({
         </p>
       ) : null}
 
-      <div className="mt-5">
+      <div className={error || submissions.length === 0 ? "mt-5" : undefined}>
         <DataTable
           columns={columns}
           rows={filtered}
           rowKey={(interview) => interview.id}
           viewStorageKey="interviews"
+          view={view}
+          hideViewSwitch
           empty={
             hasFilters
               ? "没有符合当前筛选条件的选拔事件"

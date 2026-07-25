@@ -124,7 +124,7 @@ export function Sidebar({
     >
       <div
         className={cn(
-          "mx-3 mt-3 flex h-12 items-center",
+          "flex h-16 shrink-0 items-center border-b border-border px-3",
           collapsed && "justify-center",
         )}
       >
@@ -166,7 +166,7 @@ export function Sidebar({
       <TooltipProvider delayDuration={250}>
         <nav
           aria-label="主要导航"
-          className="mt-4 flex flex-1 flex-col gap-0.5 px-3"
+          className="mt-3 flex flex-1 flex-col gap-0.5 px-3"
         >
           {NAV_ITEMS.map(({ href, label, icon: IconComponent }) => {
             const active = isActivePath(pathname, href);

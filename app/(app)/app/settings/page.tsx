@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { SettingsForms } from "@/components/account/settings-forms";
+import { AppTopbarPortal } from "@/components/app/app-topbar";
 import { Button, Card, CardContent } from "@/components/ui";
 import { getAppReadContext } from "@/modules/app/read-context";
 
@@ -8,13 +9,15 @@ export default async function SettingsPage() {
   const { user } = await getAppReadContext();
 
   return (
-    <div className="mx-auto max-w-5xl px-5 py-10">
-      <h1 className="font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
-        个人设置
-      </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        管理个人资料、登录安全和账户数据。
-      </p>
+    <div className="mx-auto max-w-5xl px-5 py-7 lg:py-9">
+      <AppTopbarPortal>
+        <p className="text-sm font-medium">账号设置</p>
+        {user ? (
+          <p className="ml-auto text-xs text-muted-foreground">
+            {user.email}
+          </p>
+        ) : null}
+      </AppTopbarPortal>
       {user ? (
         <SettingsForms user={{ name: user.name, email: user.email }} />
       ) : (

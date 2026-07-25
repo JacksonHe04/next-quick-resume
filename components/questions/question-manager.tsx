@@ -4,13 +4,16 @@ import { BookOpenText, Plus, Search, Trash2 } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 import { IntentLink } from "@/components/app/intent-link";
+import { AppTopbarPortal } from "@/components/app/app-topbar";
 import { QuestionForm } from "@/components/questions/question-form";
 import {
   Button,
   Card,
   DataTable,
+  DataViewSwitch,
   FormDrawer,
   Input,
+  useDataView,
   type DataTableColumn,
 } from "@/components/ui";
 import { appFetch, patchJson } from "@/lib/app-fetch";
@@ -35,6 +38,7 @@ export function QuestionManager({
   const [category, setCategory] = useState("全部");
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [error, setError] = useState<string>();
+  const [view, setView] = useDataView("questions");
 
   const load = useCallback(async () => {
     const response = await appFetch("/api/questions", { cache: "no-store" });
@@ -182,53 +186,56 @@ export function QuestionManager({
 
   return (
     <>
-      <div className="mt-7 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-          <label className="relative max-w-md flex-1">
-            <Search
-              size={15}
-              className="pointer-events-none absolute left-3.5 top-3.5 text-muted-foreground"
-            />
-            <Input
-              aria-label="搜索题库"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="搜索问题或答案"
-              className="pl-10"
-            />
-          </label>
-          <select
-            aria-label="按分类筛选"
-            value={category}
-            onChange={(event) => setCategory(event.target.value)}
-            className="min-h-9 rounded-md border border-input bg-background px-3 text-sm outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-          >
-            {categories.map((item) => (
-              <option key={item}>{item}</option>
-            ))}
-          </select>
+      <AppTopbarPortal>
+        <label className="relative w-52 sm:w-72">
+          <Search
+            size={15}
+            className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            aria-label="搜索题库"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="搜索问题或答案"
+            className="pl-10"
+          />
+        </label>
+        <select
+          aria-label="按分类筛选"
+          value={category}
+          onChange={(event) => setCategory(event.target.value)}
+          className="h-9 min-w-32 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus:border-ring focus:ring-3 focus:ring-ring/20"
+        >
+          {categories.map((item) => (
+            <option key={item}>{item}</option>
+          ))}
+        </select>
+        <div className="ml-auto flex items-center gap-2">
+          <DataViewSwitch view={view} onChange={setView} />
+          <Button onClick={() => setDrawerOpen(true)}>
+            <Plus aria-hidden="true" />
+            新建问题
+          </Button>
         </div>
-        <Button onClick={() => setDrawerOpen(true)}>
-          <Plus size={16} />
-          新建问题
-        </Button>
-      </div>
+      </AppTopbarPortal>
 
       {error ? (
         <p
           role="alert"
-          className="mt-4 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
+          className="rounded-md border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"
         >
           {error}
         </p>
       ) : null}
 
-      <div className="mt-5">
+      <div className={error ? "mt-5" : undefined}>
         <DataTable
           columns={columns}
           rows={filtered}
           rowKey={(question) => question.id}
           viewStorageKey="questions"
+          view={view}
+          hideViewSwitch
           empty={
             questions.length === 0
               ? "还没有问题"

@@ -1,9 +1,13 @@
 "use client";
 
 import { ArrowLeft, ExternalLink, Save } from "lucide-react";
-import Link from "next/link";
 import { useCallback, useState } from "react";
 
+import {
+  AppTopbarDivider,
+  AppTopbarPortal,
+} from "@/components/app/app-topbar";
+import { IntentLink } from "@/components/app/intent-link";
 import {
   Button,
   Card,
@@ -112,26 +116,49 @@ export function SubmissionDetail({
 
   return (
     <>
-      <Link
-        href="/app/submissions"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-      >
-        <ArrowLeft size={15} />
-        返回投递
-      </Link>
-      <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="text-sm text-muted-foreground">{detail.companyName}</p>
-          <h1 className="mt-1 font-[var(--font-display)] text-3xl font-semibold tracking-[-0.04em]">
-            {detail.positionName}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            岗位概念：{detail.positionConcept}
+      <AppTopbarPortal>
+        <IntentLink
+          href="/app/submissions"
+          aria-label="返回投递"
+          className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <ArrowLeft size={16} />
+        </IntentLink>
+        <AppTopbarDivider />
+        <div className="min-w-0">
+          <p className="max-w-56 truncate text-sm font-medium">
+            {detail.companyName} · {detail.positionName}
+          </p>
+          <p className="max-w-56 truncate text-[11px] text-muted-foreground">
+            {detail.positionConcept}
           </p>
         </div>
-        <PresentationBadge label={status.label} tone={status.tone} />
-      </div>
-      <Card className="mt-7 grid gap-px overflow-hidden bg-[#dce5dd] p-0 shadow-none sm:grid-cols-2 lg:grid-cols-4">
+        <div className="ml-auto flex items-center gap-2">
+          <PresentationBadge label={status.label} tone={status.tone} />
+          <select
+            aria-label="手动投递状态"
+            value={manualStatus}
+            onChange={(event) =>
+              setManualStatus(
+                event.target.value as DirectSubmissionStatus,
+              )
+            }
+            className="h-9 min-w-32 rounded-md border border-input bg-background px-3 text-sm shadow-xs outline-none focus:border-ring focus:ring-3 focus:ring-ring/20"
+          >
+            {DIRECT_SUBMISSION_STATUS_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+          <Button onClick={saveManualStatus} loading={pending}>
+            <Save aria-hidden="true" />
+            更新状态
+          </Button>
+        </div>
+      </AppTopbarPortal>
+
+      <Card className="grid gap-px overflow-hidden bg-[#dce5dd] p-0 shadow-none sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["所属批次", detail.batchName],
           [
@@ -149,53 +176,18 @@ export function SubmissionDetail({
           </div>
         ))}
       </Card>
-      <Card className="mt-5 p-5 shadow-none">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <label className="w-full sm:max-w-xs">
-            <span className="mb-2 block text-xs text-muted-foreground">
-              手动投递状态
-            </span>
-            <select
-              aria-label="手动投递状态"
-              value={manualStatus}
-              onChange={(event) =>
-                setManualStatus(
-                  event.target.value as DirectSubmissionStatus,
-                )
-              }
-              className="min-h-11 w-full rounded-xl border border-border bg-white px-3.5 text-sm outline-none focus:border-[#55b97a] focus:ring-3 focus:ring-[#55b97a]/15"
-            >
-              {DIRECT_SUBMISSION_STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
-          <Button onClick={saveManualStatus} loading={pending}>
-            <Save size={15} />
-            更新投递状态
-          </Button>
-        </div>
-        <div className="mt-3 min-h-5">
-          {message ? (
-            <p
-              role={message.error ? "alert" : "status"}
-              className={
-                message.error
-                  ? "text-xs text-[#9d4450]"
-                  : "text-xs text-muted-foreground"
-              }
-            >
-              {message.text}
-            </p>
-          ) : (
-            <p className="text-xs text-muted-foreground">
-              手动更新会以所选状态覆盖当前由面试推进的状态。
-            </p>
-          )}
-        </div>
-      </Card>
+      {message ? (
+        <p
+          role={message.error ? "alert" : "status"}
+          className={
+            message.error
+              ? "mt-4 text-sm text-[#9d4450]"
+              : "mt-4 text-sm text-muted-foreground"
+          }
+        >
+          {message.text}
+        </p>
+      ) : null}
       <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2">
         {detail.companyCareersUrl ? (
           <CompanyResourceLink

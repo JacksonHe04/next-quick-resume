@@ -20,6 +20,8 @@ export {
 } from "./card";
 export { DataTable } from "./data-table";
 export type { DataTableColumn } from "./data-table";
+export { DataViewSwitch, useDataView } from "./data-view-switch";
+export type { DataView } from "./data-view-switch";
 export { FormDrawer } from "./form-drawer";
 export { FilterSelect } from "./filter-select";
 export { Input } from "./input";

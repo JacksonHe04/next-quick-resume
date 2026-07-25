@@ -289,7 +289,7 @@ export function ResumeEditor({
   }
 
   return (
-    <div className="relative flex h-[calc(100dvh-3.5rem)] flex-col overflow-hidden bg-background lg:h-dvh print:h-auto print:overflow-visible">
+    <div className="relative flex h-[calc(100dvh-4rem)] flex-col overflow-hidden bg-background print:h-auto print:overflow-visible">
       <ResumeTopbar
         editorHref={`/app/resumes/${initial.id}`}
         name={name}

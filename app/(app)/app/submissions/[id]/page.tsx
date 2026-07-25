@@ -15,7 +15,7 @@ export default async function SubmissionDetailPage({
   if (!submission) notFound();
 
   return (
-    <div className="mx-auto max-w-6xl px-5 py-10">
+    <div className="mx-auto max-w-6xl px-5 py-7 lg:py-9">
       <SubmissionDetail id={id} initialDetail={submission} />
     </div>
   );
