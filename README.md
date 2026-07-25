@@ -1,203 +1,70 @@
 <h1 align="center">SAYLESS</h1>
-<p align="center">把简历、投递、面试和复盘放在一条清晰的求职路径上。</p>
+<p align="center"><strong>把简历、投递、面试和复盘，放在一条清晰的求职路径上。</strong></p>
 
-SAYLESS 是一个面向求职全流程的管理工具。它将简历、岗位投递、选拔轮次、面试安排与面试题库集中到同一条路径中，帮助你持续记录进展，并把注意力放在下一步。
+<p align="center">
+  <a href="https://sayless.inon.space">立即使用 SAYLESS</a>
+  ·
+  <a href="./DEVELOPER.md">开发指南</a>
+</p>
 
-线上地址：[sayless.inon.space](https://sayless.inon.space)
+SAYLESS 是一个面向个人求职者的全链路管理工具。它不替你做决定，也不把求职包装成复杂的协作项目，而是把散落在文档、表格、日历和备忘录里的信息连接起来，让你随时知道自己走到了哪里、接下来该做什么。
 
-## 核心功能
+## 从准备到 Offer，一条路径持续推进
 
-- **求职批次**：按用户自己的时间阶段组织投递分组，记录策略、时间范围与归档状态。
-- **简历管理**：维护结构化简历及展示配置，并通过克隆快速创建新版本。
-- **投递追踪**：记录公司、职位、JD、渠道、地点、投递时间和当前状态。
-- **面试管理**：管理每一轮选拔的阶段、时间、时长、会议链接与复盘笔记。
-- **面试题库**：使用 Markdown 沉淀问题与答案，并将题目关联到具体面试。
-- **公司与职位目录**：同时使用官方目录和个人私有目录，减少重复录入。
-- **数据概览**：集中查看投递统计、阶段转化、近期安排与当前求职批次。
-- **账户系统**：支持邮箱验证码注册、登录、密码重置、资料修改与账户注销。
+一次求职往往跨越几个月：你会为不同方向准备简历，向多家公司投递，经历不同轮次的面试，再把问题、答案和复盘留给下一次机会。信息一旦分散，就很难看清整体进度。
 
-## 技术栈
+SAYLESS 将这段过程组织为一条连续路径：
 
-| 分类 | 技术 |
-| --- | --- |
-| Web | Next.js 16、React 19、TypeScript 6 |
-| UI | Tailwind CSS 4、shadcn、Radix UI、Lucide React、Recharts |
-| 表单与状态 | React Hook Form、Zod、TanStack Query、nuqs |
-| 数据库 | Cloudflare D1、Drizzle ORM |
-| 邮件 | Resend |
-| 测试 | Vitest、Testing Library、Playwright |
-| 基础设施 | Cloudflare Workers、Wrangler |
+1. **建立求职批次**，标记自己当前所处的求职节奏。
+2. **准备和维护简历**，为不同机会保留合适的版本。
+3. **记录真实投递**，把公司、职位、渠道、JD 和状态放在一起。
+4. **推进面试轮次**，管理时间安排并让投递状态随结果更新。
+5. **沉淀问题与复盘**，把每次经历转化为之后可以复用的准备。
+6. **回到全局视角**，查看阶段分布、近期安排和下一步行动。
 
-## 系统架构
+## SAYLESS 能做什么
 
-Next.js 应用通过带 Bearer Token 鉴权的 Cloudflare Worker 网关访问 D1：
+### 看清现在，也看见下一步
 
-```text
-Browser
-   │
-   ▼
-Next.js App Router
-   │  D1_GATEWAY_URL + D1_GATEWAY_TOKEN
-   ▼
-Cloudflare Worker (workers/d1-gateway.ts)
-   │
-   ▼
-Cloudflare D1
-```
+Dashboard 汇总当前求职批次、投递数据、阶段转化和即将到来的面试。你不需要逐条翻找记录，就能快速判断当前最值得关注的事情。
 
-应用不会在浏览器中直接访问数据库。所有产品页面均可公开体验，创建、修改和删除数据时才要求登录；认证、业务规则和数据访问均在服务端完成。注册验证码与密码重置邮件由 Resend 发送。
+### 为不同机会准备合适的简历
 
-## 快速开始
+使用结构化内容维护简历，调整版式和展示配置，并通过克隆快速建立新版本。简历是独立资产，不会因为某次投递而被锁定或打乱。
 
-### 环境要求
+### 记录每一次真实投递
 
-- Node.js 24.14.0（项目通过 `.nvmrc` 固定；最低支持 22.12.0）
-- pnpm 9.12.0
+把公司、职位、JD、渠道、地点、投递时间和进展集中到一条 submission 中。SAYLESS 不制造“待投递”清单，只记录已经发生的投递，让数据始终对应真实行动。
 
-如果使用 nvm：
+### 管理完整的面试过程
 
-```bash
-nvm use
-corepack enable
-```
+在一条投递下持续追加笔试、测评和各轮面试，记录时间、时长、会议链接、结果与复盘。面试状态变化时，对应投递的进度也会同步推进，避免两套状态彼此脱节。
 
-### 1. 克隆并安装依赖
+### 建立自己的面试题库
 
-```bash
-git clone https://github.com/JacksonHe04/sayless.git
-cd sayless
-pnpm install
-```
+提前维护问题和标准答案，也可以把问题关联到某一场面试。答案使用 Markdown 编写，可以在每次准备和复盘中继续迭代，而不是散落在一次性的面试笔记里。
 
-### 2. 配置环境变量
+### 复用公司与职位信息
 
-复制环境变量模板：
+从公共目录中选择公司和职位，也可以维护仅自己可见的记录。常用信息不必反复输入，个人目标和备注仍然只属于自己的空间。
 
-```bash
-cp .env.example .env.local
-```
+### 按自己的节奏组织求职
 
-填写以下变量：
+Batch 不是预设的“秋招”或“春招”，而是由你定义的求职阶段。你可以同时保留多个批次，并选择其中一个作为当前节奏；批次负责组织投递，但不会限制其他模块的可见范围。
 
-| 变量 | 用途 |
-| --- | --- |
-| `RESEND_API_KEY` | Resend API Key，用于发送注册验证码和密码重置邮件 |
-| `RESEND_FROM_EMAIL` | Resend 已验证的发件地址 |
-| `SESSION_SECRET` | 会话签名密钥，请使用足够长的随机值 |
-| `D1_GATEWAY_URL` | 线上 D1 网关地址；本地开发与线上环境均使用已部署的 Production Worker |
-| `D1_GATEWAY_TOKEN` | Next.js 应用访问 D1 网关的 Bearer Token |
-| `SAYLESS_DEV_LOGIN_EMAIL` | 可选；仅开发环境使用的快捷登录邮箱 |
-| `SAYLESS_DEV_LOGIN_PASSWORD` | 可选；仅服务端读取的开发快捷登录密码 |
+## 产品原则
 
-本地开发不启动 Cloudflare Worker，也不使用本地 D1。`D1_GATEWAY_URL`
-直接指向已部署的 Production Worker，`D1_GATEWAY_TOKEN` 必须与线上
-Worker Secret 保持一致。
+- **个人空间优先**：SAYLESS 服务个人求职者，不引入团队、共享工作区或协作权限。
+- **完整功能免费**：不设置付费墙、使用配额或账户等级。
+- **工具而非替代者**：不调用 LLM，不提供 AI 润色、AI 答题或自动决策，让内容和判断始终来自用户自己。
+- **围绕真实行动**：记录已经投出的申请、真实发生的面试和持续打磨的答案，不用虚构流程增加管理负担。
+- **数据彼此隔离**：每位用户的简历、投递、面试、问题和自定义目录都严格归属于自己的账户。
 
-> `.env.local` 不会提交到 Git。不要在仓库中保存真实密钥。
+## 技术概览
 
-如果同时配置两个 `SAYLESS_DEV_LOGIN_*` 变量，开发环境访问
-`/login` 时会自动创建该账号的本地会话。快捷登录接口在
-Production 构建中始终关闭，密码不会发送到浏览器。所有本地配置
-统一放在 `.env.local` 中；仓库只保留不含真实密钥的 `.env.example`。
+SAYLESS 使用 Next.js 和 React 构建并部署在 Vercel，数据通过 Cloudflare Worker 网关写入 Cloudflare D1，账户邮件由 Resend 发送。浏览器不会直接访问数据库，认证、业务规则和数据访问均在服务端完成。
 
-### 3. 启动开发环境
-
-只需启动 Next.js；应用会通过 HTTPS 直接访问 Production Worker：
-
-```bash
-pnpm dev
-```
-
-访问 [http://localhost:3000](http://localhost:3000)。
-
-## 常用命令
-
-| 命令 | 说明 |
-| --- | --- |
-| `pnpm dev` | 启动 Next.js 开发服务器，并连接 Production Worker / D1 |
-| `pnpm build` | 构建 Next.js 应用 |
-| `pnpm build:worker` | dry-run 构建 Cloudflare Worker |
-| `pnpm start` | 启动 Next.js 生产服务器 |
-| `pnpm db:generate` | 根据 Drizzle Schema 生成迁移 |
-| `pnpm db:migrate:local` | 将迁移应用到 E2E 隔离用的本地 D1 |
-| `pnpm db:seed:local` | 迁移并填充 E2E 隔离用的本地 D1 |
-| `pnpm lint` | 运行 ESLint |
-| `pnpm typecheck` | 运行 TypeScript 类型检查 |
-| `pnpm check` | 依次运行 lint 与类型检查 |
-| `pnpm test` | 运行 Vitest 测试 |
-| `pnpm test:watch` | 以监听模式运行 Vitest |
-| `pnpm e2e` | 准备隔离的本地数据并运行 Playwright E2E 测试 |
-| `pnpm e2e:production` | 对 `BASE_URL` 指向的环境运行生产冒烟测试 |
-| `pnpm cf-typegen` | 生成 Cloudflare 环境类型 |
-| `pnpm deploy:worker` | 部署 D1 网关 Worker |
-
-运行生产冒烟测试时需要指定目标地址：
-
-```bash
-BASE_URL=https://example.com pnpm e2e:production
-```
-
-## 项目结构
-
-```text
-sayless/
-├── app/
-│   ├── (marketing)/        # 落地页
-│   ├── (auth)/             # 登录、注册与密码重置
-│   ├── (app)/app/          # 公开可读、写操作需登录的产品页面
-│   └── api/                # REST API 路由
-├── components/             # 业务组件、应用外壳与基础 UI
-├── db/
-│   ├── schema/             # Drizzle 数据模型
-│   └── seed/               # 官方目录与演示数据
-├── drizzle/                # D1 SQL 迁移
-├── e2e/                    # Playwright 端到端测试
-├── lib/                    # Markdown、HTTP 等通用能力
-├── modules/                # 按领域划分的 service、repository 与 schema
-├── styles/                 # 全局样式
-├── tests/                  # Vitest 测试
-└── workers/
-    └── d1-gateway.ts       # Cloudflare D1 HTTP 网关
-```
-
-## 数据库与 Worker
-
-### 生成迁移
-
-修改 `db/schema/` 后运行：
-
-```bash
-pnpm db:generate
-```
-
-生成的 SQL 会写入 `drizzle/`，应随代码一起审查。
-
-### 部署 D1 网关
-
-`wrangler.jsonc` 中配置了 Worker、D1 binding 和迁移目录。部署前请先在 Cloudflare 中安全配置 `D1_GATEWAY_TOKEN`，然后执行：
-
-```bash
-pnpm deploy:worker
-```
-
-Next.js 运行环境中的 `D1_GATEWAY_URL` 应指向部署后的 Worker 地址，并使用相同的 `D1_GATEWAY_TOKEN`。
-
-## 质量检查
-
-提交变更前建议至少运行：
-
-```bash
-pnpm check
-pnpm test
-pnpm build
-pnpm build:worker
-```
-
-涉及关键用户流程时，再运行：
-
-```bash
-pnpm e2e
-```
+如果你希望在本地运行、了解项目结构或参与维护，请阅读 [DEVELOPER.md](./DEVELOPER.md)。
 
 ---
 
