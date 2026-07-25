@@ -1,9 +1,9 @@
 {
-  "name": "next-quick-resume",
+  "name": "sayless",
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=22.12.0"
+    "node": "24.x"
   },
   "packageManager": "pnpm@9.12.0",
   "scripts": {

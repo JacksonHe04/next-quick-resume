@@ -2,7 +2,7 @@
 # 1. 项目专属的特有规则 (Project Specific)
 # ==========================================
 /archive
-pdf/
+/pdf/
 public/images
 
 # ==========================================
@@ -73,4 +73,3 @@ test-results/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
-.vercel

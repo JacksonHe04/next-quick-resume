@@ -15,7 +15,7 @@ import {
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
 
-import { cn } from "@/utils/cn";
+import { cn } from "@/lib/utils";
 
 type Icon = ComponentType<SVGProps<SVGSVGElement> & { size?: number }>;
 
