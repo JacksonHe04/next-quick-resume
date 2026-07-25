@@ -27,7 +27,7 @@ export function UpcomingInterviews({
             近期面试
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            接下来最多五场安排
+            接下来最近三场安排
           </p>
         </div>
         <CalendarClock size={18} className="text-[#55a572]" />
