@@ -6,14 +6,11 @@ import {
   FileText,
   HelpCircle,
   LayoutDashboard,
-  LogOut,
-  Settings,
   Send,
-  LogIn,
   Video,
 } from "lucide-react";
 import Link from "next/link";
-import type { ComponentType, SVGProps } from "react";
+import type { ComponentType, ReactNode, SVGProps } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -40,20 +37,16 @@ function isActivePath(pathname: string, href: string): boolean {
 }
 
 export function Sidebar({
-  user,
+  account,
   className,
   onNavigate,
   pathname = "",
-  onLogout,
 }: {
-  user: { name: string; email: string } | null;
+  account: ReactNode;
   className?: string;
   onNavigate?: () => void;
   pathname?: string;
-  onLogout?: () => void | Promise<void>;
 }) {
-  const initials = user?.name.trim().slice(0, 1).toUpperCase() || "S";
-
   return (
     <aside
       className={cn(
@@ -105,51 +98,8 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-border p-3">
-        <div className="flex items-center gap-2.5 rounded-md px-2 py-2">
-          <span className="grid size-8 shrink-0 place-items-center rounded-full border border-border bg-muted text-xs font-medium text-foreground">
-            {initials}
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-foreground">
-              {user?.name ?? "访客模式"}
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {user?.email ?? "浏览演示数据"}
-            </p>
-          </div>
-        </div>
-        <div className="mt-1 grid grid-cols-2 gap-1">
-          {user ? (
-            <>
-              <Link
-                href="/app/settings"
-                onClick={onNavigate}
-                className="flex h-8 items-center justify-center gap-1.5 rounded-md text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-              >
-                <Settings size={14} />
-                设置
-              </Link>
-              <button
-                type="button"
-                onClick={onLogout}
-                className="flex h-8 items-center justify-center gap-1.5 rounded-md text-xs text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-              >
-                <LogOut size={14} />
-                退出
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              onClick={onNavigate}
-              className="col-span-2 flex h-8 items-center justify-center gap-1.5 rounded-md bg-foreground text-xs font-medium text-background transition-opacity hover:opacity-85"
-            >
-              <LogIn size={14} />
-              登录后开始记录
-            </Link>
-          )}
-        </div>
+      <div className="border-t border-border p-3" onClick={onNavigate}>
+        {account}
       </div>
     </aside>
   );

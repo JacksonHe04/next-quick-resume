@@ -288,3 +288,40 @@ select {
     @apply font-sans;
   }
 }
+
+@keyframes navigation-progress {
+  0% {
+    transform: scaleX(0);
+  }
+  18% {
+    transform: scaleX(0.42);
+  }
+  70% {
+    transform: scaleX(0.78);
+  }
+  100% {
+    transform: scaleX(0.9);
+  }
+}
+
+.navigation-progress-bar {
+  opacity: 0;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition:
+    opacity 180ms ease,
+    transform 220ms ease;
+}
+
+[data-pending="true"] > .navigation-progress-bar {
+  animation: navigation-progress 8s cubic-bezier(0.2, 0.7, 0.2, 1)
+    forwards;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-pending="true"] > .navigation-progress-bar {
+    animation: none;
+    transform: scaleX(0.82);
+  }
+}

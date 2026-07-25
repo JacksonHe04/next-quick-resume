@@ -17,7 +17,12 @@ describe("SAYLESS application sidebar", () => {
   it("renders the approved Chinese navigation order", () => {
     render(
       <Sidebar
-        user={{ name: "Jackson", email: "jackson@example.com" }}
+        account={
+          <div>
+            <p>Jackson</p>
+            <p>jackson@example.com</p>
+          </div>
+        }
       />,
     );
 
@@ -52,7 +57,9 @@ describe("SAYLESS application sidebar", () => {
   });
 
   it("shows a login action instead of account actions for guests", () => {
-    render(<Sidebar user={null} />);
+    render(
+      <Sidebar account={<a href="/login">登录后开始记录</a>} />,
+    );
 
     expect(
       screen.getByRole("link", { name: "登录后开始记录" }),

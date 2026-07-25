@@ -1,29 +1,22 @@
 "use client";
 
 import { Menu, UserRound, X } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
 
 import { Sidebar } from "@/components/app/sidebar";
 
 export function AppShell({
-  user,
+  account,
   children,
 }: {
-  user: { name: string; email: string } | null;
+  account: ReactNode;
   children: ReactNode;
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
   const immersiveResumeEditor =
     /^\/app\/resumes\/[^/]+\/?$/u.test(pathname);
-
-  async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.replace("/login");
-    router.refresh();
-  }
 
   if (immersiveResumeEditor) {
     return <main className="min-h-screen">{children}</main>;
@@ -32,7 +25,7 @@ export function AppShell({
   return (
     <div className="min-h-screen bg-background lg:grid lg:grid-cols-[240px_minmax(0,1fr)]">
       <div className="fixed inset-y-0 left-0 z-40 hidden lg:block">
-        <Sidebar user={user} pathname={pathname} onLogout={logout} />
+        <Sidebar account={account} pathname={pathname} />
       </div>
 
       {menuOpen ? (
@@ -44,9 +37,8 @@ export function AppShell({
             onClick={() => setMenuOpen(false)}
           />
           <Sidebar
-            user={user}
+            account={account}
             pathname={pathname}
-            onLogout={logout}
             className="relative z-10 shadow-2xl"
             onNavigate={() => setMenuOpen(false)}
           />

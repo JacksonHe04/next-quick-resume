@@ -1,18 +1,23 @@
+import { Suspense } from "react";
+
 import { AppShell } from "@/components/app/app-shell";
-import { getOptionalCurrentUser } from "@/modules/auth/server";
+import {
+  SidebarAccount,
+  SidebarAccountSkeleton,
+} from "@/components/app/sidebar-account";
 
-export const dynamic = "force-dynamic";
-
-export default async function ProductLayout({
+export default function ProductLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const user = await getOptionalCurrentUser();
-
   return (
     <AppShell
-      user={user ? { name: user.name, email: user.email } : null}
+      account={
+        <Suspense fallback={<SidebarAccountSkeleton />}>
+          <SidebarAccount />
+        </Suspense>
+      }
     >
       {children}
     </AppShell>
