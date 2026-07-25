@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { z } from "zod";
 
+import { firstFieldError } from "@/lib/http/errors";
 import { AuthError, type AuthErrorCode } from "@/modules/auth/errors";
 
 const AUTH_ERROR_STATUS: Record<AuthErrorCode, number> = {
@@ -14,7 +15,7 @@ const AUTH_ERROR_STATUS: Record<AuthErrorCode, number> = {
 
 export class InvalidRequestBodyError extends Error {
   constructor(public readonly details?: unknown) {
-    super("请求内容无效");
+    super(firstFieldError(details) ?? "请求内容无效");
     this.name = "InvalidRequestBodyError";
   }
 }

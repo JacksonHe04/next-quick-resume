@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { AuthFrame } from "@/components/auth/auth-frame";
 import { LoginForm } from "@/components/auth/auth-forms";
+import { getDevelopmentLoginCredentials } from "@/modules/auth/development";
 import { safePostAuthPath } from "@/modules/auth/navigation";
 
 export default async function LoginPage({
@@ -29,7 +30,12 @@ export default async function LoginPage({
         </>
       }
     >
-      <LoginForm nextPath={nextPath} />
+      <LoginForm
+        nextPath={nextPath}
+        developmentLoginEnabled={Boolean(
+          getDevelopmentLoginCredentials(),
+        )}
+      />
     </AuthFrame>
   );
 }

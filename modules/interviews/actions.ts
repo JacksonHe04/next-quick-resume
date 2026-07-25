@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
+import { firstFieldError } from "@/lib/http/errors";
 import {
   getAuthenticatedDatabaseContext,
   unauthenticatedResponse,
@@ -26,12 +27,13 @@ export function interviewErrorResponse(error: unknown) {
     );
   }
   if (error instanceof ZodError) {
+    const details = error.flatten().fieldErrors;
     return NextResponse.json(
       {
         error: {
           code: "INVALID_REQUEST",
-          message: "请求内容无效",
-          details: error.flatten().fieldErrors,
+          message: firstFieldError(details) ?? "请求内容无效",
+          details,
         },
       },
       { status: 400 },

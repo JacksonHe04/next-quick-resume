@@ -2,7 +2,10 @@
 
 import { useRouter } from "next/navigation";
 import {
+  useCallback,
   type FormEvent,
+  useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -83,10 +86,46 @@ function FormMessage({
   );
 }
 
-export function LoginForm({ nextPath = "/app" }: { nextPath?: string }) {
+export function LoginForm({
+  nextPath = "/app",
+  developmentLoginEnabled = false,
+}: {
+  nextPath?: string;
+  developmentLoginEnabled?: boolean;
+}) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
+  const [developmentPending, setDevelopmentPending] =
+    useState(false);
   const [error, setError] = useState<string>();
+  const developmentLoginStarted = useRef(false);
+
+  const loginDevelopmentAccount = useCallback(async () => {
+    setDevelopmentPending(true);
+    setError(undefined);
+    try {
+      await postJson("/api/auth/development-login", {});
+      router.replace(nextPath);
+      router.refresh();
+    } catch (submissionError) {
+      setError(
+        `开发快捷登录失败：${(submissionError as Error).message}`,
+      );
+    } finally {
+      setDevelopmentPending(false);
+    }
+  }, [nextPath, router]);
+
+  useEffect(() => {
+    if (
+      !developmentLoginEnabled ||
+      developmentLoginStarted.current
+    ) {
+      return;
+    }
+    developmentLoginStarted.current = true;
+    void loginDevelopmentAccount();
+  }, [developmentLoginEnabled, loginDevelopmentAccount]);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -132,6 +171,17 @@ export function LoginForm({ nextPath = "/app" }: { nextPath?: string }) {
         </a>
       </div>
       <FormMessage error={error} />
+      {developmentLoginEnabled ? (
+        <Button
+          type="button"
+          variant="secondary"
+          block
+          loading={developmentPending}
+          onClick={loginDevelopmentAccount}
+        >
+          直接登录开发账号
+        </Button>
+      ) : null}
       <Button type="submit" block loading={pending}>
         登录
       </Button>
@@ -232,7 +282,7 @@ export function RegisterForm({ nextPath = "/app" }: { nextPath?: string }) {
         name="password"
         type="password"
         autoComplete="new-password"
-        placeholder="至少 12 个字符"
+        placeholder="至少 8 个字符"
       />
       <FormMessage
         error={error}
@@ -327,7 +377,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         name="password"
         type="password"
         autoComplete="new-password"
-        placeholder="至少 12 个字符"
+        placeholder="至少 8 个字符"
       />
       <FormMessage error={error} />
       <Button type="submit" block loading={pending}>

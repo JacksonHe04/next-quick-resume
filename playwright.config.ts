@@ -40,6 +40,8 @@ export default defineConfig({
               "SAYLESS Local <local@sayless.invalid>",
             SESSION_SECRET:
               "local-e2e-session-secret-32-characters",
+            SAYLESS_DEV_LOGIN_EMAIL: "",
+            SAYLESS_DEV_LOGIN_PASSWORD: "",
           },
           reuseExistingServer: false,
           timeout: 120_000,

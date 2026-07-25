@@ -86,6 +86,8 @@ cp .env.example .env.local
 | `SESSION_SECRET` | 会话签名密钥，请使用足够长的随机值 |
 | `D1_GATEWAY_URL` | D1 网关地址；本地默认使用 `http://127.0.0.1:8787` |
 | `D1_GATEWAY_TOKEN` | Next.js 应用访问 D1 网关的 Bearer Token |
+| `SAYLESS_DEV_LOGIN_EMAIL` | 可选；仅开发环境使用的快捷登录邮箱 |
+| `SAYLESS_DEV_LOGIN_PASSWORD` | 可选；仅服务端读取的开发快捷登录密码 |
 
 本地 Worker 从 `.dev.vars` 读取同一个 `D1_GATEWAY_TOKEN`。该值必须与 `.env.local` 中的值一致：
 
@@ -94,6 +96,11 @@ D1_GATEWAY_TOKEN=replace-with-a-local-secret
 ```
 
 > `.env.local` 与 `.dev.vars` 均不会提交到 Git。不要在仓库中保存真实密钥。
+
+如果同时配置两个 `SAYLESS_DEV_LOGIN_*` 变量，开发环境访问
+`/login` 时会自动创建该账号的本地会话。快捷登录接口在
+Production 构建中始终关闭，密码不会发送到浏览器。建议将个人配置
+放在优先级更高且同样被忽略的 `.env.development.local` 中。
 
 ### 3. 初始化本地 D1
 

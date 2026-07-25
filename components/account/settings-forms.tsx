@@ -187,7 +187,7 @@ export function SettingsForms({
               name="newPassword"
               type="password"
               autoComplete="new-password"
-              placeholder="至少 12 个字符"
+              placeholder="至少 8 个字符"
               required
             />
           </label>

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { AuthError } from "@/modules/auth/errors";
 import {
   authErrorResponse,
+  InvalidRequestBodyError,
   readJson,
   sessionCookieOptions,
 } from "@/modules/auth/http";
@@ -33,6 +34,25 @@ describe("authentication HTTP helpers", () => {
       error: {
         code: "RATE_LIMITED",
         message: "验证码请求过于频繁，请稍后再试",
+      },
+    });
+  });
+
+  it("returns the first field validation message to the client", async () => {
+    const response = authErrorResponse(
+      new InvalidRequestBodyError({
+        password: ["密码至少需要 8 个字符"],
+      }),
+    );
+
+    expect(response.status).toBe(400);
+    await expect(response.json()).resolves.toEqual({
+      error: {
+        code: "INVALID_REQUEST",
+        message: "密码至少需要 8 个字符",
+        details: {
+          password: ["密码至少需要 8 个字符"],
+        },
       },
     });
   });

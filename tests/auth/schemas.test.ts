@@ -15,22 +15,27 @@ describe("authentication input schemas", () => {
     ).toEqual({ email: "jackson@example.com" });
   });
 
-  it("requires a verified registration code and a strong password", () => {
+  it("accepts an 8-character password and explains shorter passwords", () => {
     const valid = registerInputSchema.safeParse({
       email: "jackson@example.com",
       code: "123456",
-      password: "long enough password",
+      password: "12345678",
       name: "Jackson",
     });
-    const weak = registerInputSchema.safeParse({
+    const tooShort = registerInputSchema.safeParse({
       email: "jackson@example.com",
       code: "123456",
-      password: "short",
+      password: "1234567",
       name: "Jackson",
     });
 
     expect(valid.success).toBe(true);
-    expect(weak.success).toBe(false);
+    expect(tooShort.success).toBe(false);
+    if (!tooShort.success) {
+      expect(tooShort.error.flatten().fieldErrors.password).toEqual([
+        "密码至少需要 8 个字符",
+      ]);
+    }
   });
 
   it("does not alter the submitted password during login", () => {
