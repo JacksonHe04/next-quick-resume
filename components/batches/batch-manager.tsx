@@ -11,7 +11,6 @@ import {
 import {
   type FormEvent,
   useCallback,
-  useEffect,
   useState,
 } from "react";
 
@@ -26,18 +25,18 @@ import {
 } from "@/components/ui";
 import { appFetch, patchJson } from "@/lib/app-fetch";
 
-type Batch = {
+export type BatchView = {
   id: string;
   name: string;
   description: string | null;
   strategyMarkdown: string | null;
-  startDate: string | null;
-  endDate: string | null;
-  archivedAt: string | null;
+  startDate: string | Date | null;
+  endDate: string | Date | null;
+  archivedAt: string | Date | null;
 };
 
-type BatchResponse = {
-  batches: Batch[];
+export type BatchResponse = {
+  batches: BatchView[];
   currentBatchId: string | null;
 };
 
@@ -59,11 +58,15 @@ async function api(
   }
 }
 
-function dateInput(value: string | null) {
-  return value ? value.slice(0, 10) : "";
+function dateInput(value: string | Date | null) {
+  if (!value) return "";
+  return (typeof value === "string" ? value : value.toISOString()).slice(
+    0,
+    10,
+  );
 }
 
-function formatDate(value: string | null) {
+function formatDate(value: string | Date | null) {
   return value
     ? new Intl.DateTimeFormat("zh-CN", {
         year: "numeric",
@@ -73,12 +76,12 @@ function formatDate(value: string | null) {
     : "未设置";
 }
 
-export function BatchManager() {
-  const [data, setData] = useState<BatchResponse>({
-    batches: [],
-    currentBatchId: null,
-  });
-  const [loading, setLoading] = useState(true);
+export function BatchManager({
+  initialData,
+}: {
+  initialData: BatchResponse;
+}) {
+  const [data, setData] = useState<BatchResponse>(initialData);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string>();
@@ -88,12 +91,6 @@ export function BatchManager() {
     if (!response.ok) throw new Error("批次加载失败");
     setData((await response.json()) as BatchResponse);
   }, []);
-
-  useEffect(() => {
-    load()
-      .catch((loadError) => setError((loadError as Error).message))
-      .finally(() => setLoading(false));
-  }, [load]);
 
   async function create(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -133,7 +130,7 @@ export function BatchManager() {
     await load();
   }
 
-  const columns: DataTableColumn<Batch>[] = [
+  const columns: DataTableColumn<BatchView>[] = [
     {
       key: "name",
       header: "批次名称",
@@ -278,7 +275,7 @@ export function BatchManager() {
     },
   ];
 
-  function batchCard(batch: Batch) {
+  function batchCard(batch: BatchView) {
     const current = batch.id === data.currentBatchId;
     const archived = Boolean(batch.archivedAt);
     return (
@@ -338,18 +335,14 @@ export function BatchManager() {
       ) : null}
 
       <div className="mt-5">
-        {loading ? (
-          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
-        ) : (
-          <DataTable
-            columns={columns}
-            rows={data.batches}
-            rowKey={(batch) => batch.id}
-            viewStorageKey="batches"
-            empty="先建立第一个求职批次"
-            gridCard={batchCard}
-          />
-        )}
+        <DataTable
+          columns={columns}
+          rows={data.batches}
+          rowKey={(batch) => batch.id}
+          viewStorageKey="batches"
+          empty="先建立第一个求职批次"
+          gridCard={batchCard}
+        />
       </div>
 
       <FormDrawer

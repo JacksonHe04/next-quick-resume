@@ -185,10 +185,7 @@ export async function listActiveStages(database: Database) {
     .orderBy(stages.sortOrder);
 }
 
-export async function listInterviewViews(
-  database: Database,
-  userId: string,
-) {
+function selectInterviewViews(database: Database) {
   return database
     .select({
       id: interviews.id,
@@ -220,10 +217,41 @@ export async function listInterviewViews(
     .leftJoin(
       privateCompanies,
       eq(submissions.privateCompanyId, privateCompanies.id),
-    )
+    );
+}
+
+export async function listInterviewViews(
+  database: Database,
+  userId: string,
+) {
+  const rows = await selectInterviewViews(database)
     .where(eq(interviews.userId, userId))
     .orderBy(
       desc(interviews.scheduledAt),
       desc(interviews.createdAt),
     );
+  return rows.map((row) => ({
+    ...row,
+    scheduledAt: row.scheduledAt?.toISOString() ?? null,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  }));
+}
+
+export async function findInterviewView(
+  database: Database,
+  userId: string,
+  id: string,
+) {
+  const [interview] = await selectInterviewViews(database)
+    .where(and(eq(interviews.userId, userId), eq(interviews.id, id)))
+    .limit(1);
+  return interview
+    ? {
+        ...interview,
+        scheduledAt: interview.scheduledAt?.toISOString() ?? null,
+        createdAt: interview.createdAt.toISOString(),
+        updatedAt: interview.updatedAt.toISOString(),
+      }
+    : null;
 }

@@ -155,10 +155,7 @@ export function createSubmissionRepository(
   };
 }
 
-export async function listSubmissionViews(
-  database: Database,
-  userId: string,
-) {
+function selectSubmissionViews(database: Database) {
   return database
     .select({
       id: submissions.id,
@@ -203,7 +200,36 @@ export async function listSubmissionViews(
       interviews,
       eq(submissions.currentInterviewId, interviews.id),
     )
-    .leftJoin(stages, eq(interviews.stageId, stages.id))
+    .leftJoin(stages, eq(interviews.stageId, stages.id));
+}
+
+export async function listSubmissionViews(
+  database: Database,
+  userId: string,
+) {
+  const rows = await selectSubmissionViews(database)
     .where(eq(submissions.userId, userId))
     .orderBy(desc(submissions.appliedAt));
+  return rows.map((row) => ({
+    ...row,
+    appliedAt: row.appliedAt.toISOString(),
+  }));
+}
+
+export async function findSubmissionView(
+  database: Database,
+  userId: string,
+  id: string,
+) {
+  const [submission] = await selectSubmissionViews(database)
+    .where(
+      and(eq(submissions.userId, userId), eq(submissions.id, id)),
+    )
+    .limit(1);
+  return submission
+    ? {
+        ...submission,
+        appliedAt: submission.appliedAt.toISOString(),
+      }
+    : null;
 }

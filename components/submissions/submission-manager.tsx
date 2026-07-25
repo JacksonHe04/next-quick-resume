@@ -10,11 +10,11 @@ import Link from "next/link";
 import { useQueryState } from "nuqs";
 import {
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
 
+import { IntentLink } from "@/components/app/intent-link";
 import { SubmissionForm } from "@/components/submissions/submission-form";
 import { CompanyResourceLink } from "@/components/catalog/company-resource-link";
 import {
@@ -38,7 +38,7 @@ import type {
   InterviewStatus,
 } from "@/modules/submissions/service";
 
-type SubmissionView = {
+export type SubmissionView = {
   id: string;
   batchId: string;
   batchName: string;
@@ -58,10 +58,10 @@ type SubmissionView = {
   interviewStatus: InterviewStatus | null;
 };
 
-type BatchOption = {
+export type BatchOption = {
   id: string;
   name: string;
-  archivedAt: string | null;
+  archivedAt: string | Date | null;
 };
 
 const DIRECT_STATUS_OPTIONS: Array<{
@@ -78,11 +78,21 @@ const DIRECT_STATUS_OPTIONS: Array<{
   { value: "expired", label: "已过期" },
 ];
 
-export function SubmissionManager() {
-  const [submissions, setSubmissions] = useState<SubmissionView[]>([]);
-  const [batches, setBatches] = useState<BatchOption[]>([]);
+export function SubmissionManager({
+  initialSubmissions,
+  initialBatches,
+  initialCurrentBatchId,
+}: {
+  initialSubmissions: SubmissionView[];
+  initialBatches: BatchOption[];
+  initialCurrentBatchId: string | null;
+}) {
+  const [submissions, setSubmissions] =
+    useState<SubmissionView[]>(initialSubmissions);
+  const [batches, setBatches] =
+    useState<BatchOption[]>(initialBatches);
   const [currentBatchId, setCurrentBatchId] = useState<string | null>(
-    null,
+    initialCurrentBatchId,
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [query, setQuery] = useQueryState("q", {
@@ -113,7 +123,6 @@ export function SubmissionManager() {
     defaultValue: "",
     history: "replace",
   });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
@@ -137,12 +146,6 @@ export function SubmissionManager() {
     );
     setCurrentBatchId(batchPayload.currentBatchId);
   }, []);
-
-  useEffect(() => {
-    load()
-      .catch((loadError) => setError((loadError as Error).message))
-      .finally(() => setLoading(false));
-  }, [load]);
 
   const filtered = useMemo(() => {
     return filterSubmissions(submissions, {
@@ -221,12 +224,12 @@ export function SubmissionManager() {
       key: "company",
       header: "公司",
       render: (submission) => (
-        <Link
+        <IntentLink
           href={`/app/submissions/${submission.id}`}
           className="font-medium"
         >
           {submission.companyName}
-        </Link>
+        </IntentLink>
       ),
     },
     {
@@ -481,7 +484,7 @@ export function SubmissionManager() {
           记录投递
         </Button>
       </div>
-      {batches.length === 0 && !loading ? (
+      {batches.length === 0 ? (
         <p className="mt-3 text-sm text-[#9a6a2c]">
           新建投递前，需要先在{" "}
           <Link
@@ -503,63 +506,59 @@ export function SubmissionManager() {
       ) : null}
 
       <div className="mt-5">
-        {loading ? (
-          <div className="h-72 animate-pulse rounded-[18px] border border-border bg-white/60" />
-        ) : (
-          <DataTable
-            columns={columns}
-            rows={filtered}
-            rowKey={(row) => row.id}
-            viewStorageKey="submissions"
-            empty={
-              hasFilters
-                ? "没有符合当前搜索的投递"
-                : "还没有投递记录，记录第一条已发生的投递"
-            }
-            gridCard={(submission) => {
-              const presentation = displaySubmissionStatus({
-                statusSource: submission.statusSource,
-                directStatus: submission.directStatus,
-                currentInterview:
-                  submission.stageName && submission.interviewStatus
-                    ? {
-                        stageName: submission.stageName,
-                        status: submission.interviewStatus,
-                      }
-                    : null,
-              });
-              return (
-                <Card className="h-full p-5 shadow-none">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <Link
-                        href={`/app/submissions/${submission.id}`}
-                        className="block truncate text-base font-semibold"
-                      >
-                        {submission.companyName}
-                      </Link>
-                      <p className="mt-1 truncate text-sm text-muted-foreground">
-                        {submission.positionName}
-                      </p>
-                    </div>
-                    <PresentationBadge
-                      label={presentation.label}
-                      tone={presentation.tone}
-                    />
+        <DataTable
+          columns={columns}
+          rows={filtered}
+          rowKey={(row) => row.id}
+          viewStorageKey="submissions"
+          empty={
+            hasFilters
+              ? "没有符合当前搜索的投递"
+              : "还没有投递记录，记录第一条已发生的投递"
+          }
+          gridCard={(submission) => {
+            const presentation = displaySubmissionStatus({
+              statusSource: submission.statusSource,
+              directStatus: submission.directStatus,
+              currentInterview:
+                submission.stageName && submission.interviewStatus
+                  ? {
+                      stageName: submission.stageName,
+                      status: submission.interviewStatus,
+                    }
+                  : null,
+            });
+            return (
+              <Card className="h-full p-5 shadow-none">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <IntentLink
+                      href={`/app/submissions/${submission.id}`}
+                      className="block truncate text-base font-semibold"
+                    >
+                      {submission.companyName}
+                    </IntentLink>
+                    <p className="mt-1 truncate text-sm text-muted-foreground">
+                      {submission.positionName}
+                    </p>
                   </div>
-                  <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
-                    <span>{submission.batchName}</span>
-                    <span className="text-right">
-                      {new Intl.DateTimeFormat("zh-CN").format(
-                        new Date(submission.appliedAt),
-                      )}
-                    </span>
-                  </div>
-                </Card>
-              );
-            }}
-          />
-        )}
+                  <PresentationBadge
+                    label={presentation.label}
+                    tone={presentation.tone}
+                  />
+                </div>
+                <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4 text-xs text-muted-foreground">
+                  <span>{submission.batchName}</span>
+                  <span className="text-right">
+                    {new Intl.DateTimeFormat("zh-CN").format(
+                      new Date(submission.appliedAt),
+                    )}
+                  </span>
+                </div>
+              </Card>
+            );
+          }}
+        />
       </div>
 
       <FormDrawer

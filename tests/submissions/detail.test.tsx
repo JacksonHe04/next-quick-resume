@@ -48,7 +48,29 @@ describe("SubmissionDetail", () => {
       ),
     );
 
-    render(<SubmissionDetail id="submission-a" />);
+    render(
+      <SubmissionDetail
+        id="submission-a"
+        initialDetail={{
+          id: "submission-a",
+          batchName: "夏季探索",
+          companyName: "OpenAI",
+          companyCareersUrl: "https://openai.com/careers",
+          companyProcessUrl:
+            "https://openai.com/careers/applications",
+          positionConcept: "产品经理",
+          positionName: "平台产品经理",
+          jdUrl: "https://openai.com/careers/job-a",
+          location: "San Francisco",
+          channel: "官网",
+          appliedAt: "2026-07-25T00:00:00.000Z",
+          statusSource: "direct",
+          directStatus: "submitted",
+          stageName: null,
+          interviewStatus: null,
+        }}
+      />,
+    );
 
     expect(
       await screen.findByRole("link", {

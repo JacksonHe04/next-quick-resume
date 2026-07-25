@@ -1,10 +1,10 @@
 "use client";
 
 import { Check, MoreVertical, RefreshCw, Trash2 } from "lucide-react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { IntentLink } from "@/components/app/intent-link";
 import { appFetch } from "@/lib/app-fetch";
 import { cn } from "@/lib/utils";
 import type { ResumeRecord } from "@/modules/resumes/service";
@@ -65,7 +65,7 @@ export function ResumeListSidebar({
             const active = resume.id === currentId;
             return (
               <div key={resume.id} className="group relative">
-                <Link
+                <IntentLink
                   href={`/app/resumes/${resume.id}`}
                   aria-label={`切换到${resume.name}`}
                   aria-current={active ? "page" : undefined}
@@ -96,7 +96,7 @@ export function ResumeListSidebar({
                   <p className="mt-2 truncate text-xs text-gray-400">
                     {resume.document.data.header.name || "未命名"}
                   </p>
-                </Link>
+                </IntentLink>
                 <button
                   type="button"
                   onClick={() =>

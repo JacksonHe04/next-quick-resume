@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { cache } from "react";
 
 import { getDb } from "@/db/client";
 import { createTransactionalEmail } from "@/modules/auth/email";
@@ -35,7 +36,7 @@ export async function getAuthRepository() {
   return createAuthRepository(await getDb());
 }
 
-export async function getOptionalCurrentUser() {
+export const getOptionalCurrentUser = cache(async function getOptionalCurrentUser() {
   const token = (await cookies()).get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
@@ -44,4 +45,4 @@ export async function getOptionalCurrentUser() {
   if (!session) return null;
   const user = await repository.findUserById(session.userId);
   return user && !user.disabledAt ? user : null;
-}
+});

@@ -1,9 +1,10 @@
 "use client";
 
 import { Copy, FileText, Plus, Trash2 } from "lucide-react";
-import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
 
+import { IntentLink } from "@/components/app/intent-link";
 import {
   Button,
   Card,
@@ -23,11 +24,16 @@ function formatDate(value: Date | string) {
   }).format(new Date(value));
 }
 
-export function ResumeManager() {
-  const [resumes, setResumes] = useState<ResumeRecord[]>([]);
+export function ResumeManager({
+  initialResumes,
+}: {
+  initialResumes: ResumeRecord[];
+}) {
+  const router = useRouter();
+  const [resumes, setResumes] =
+    useState<ResumeRecord[]>(initialResumes);
   const [newName, setNewName] = useState("我的简历");
   const [pending, setPending] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
@@ -38,12 +44,6 @@ export function ResumeManager() {
     };
     setResumes(payload.resumes);
   }, []);
-
-  useEffect(() => {
-    load()
-      .catch((loadError) => setError((loadError as Error).message))
-      .finally(() => setLoading(false));
-  }, [load]);
 
   async function create() {
     setPending(true);
@@ -64,7 +64,7 @@ export function ResumeManager() {
       if (!response.ok || !payload.resume) {
         throw new Error(payload.error?.message ?? "创建失败");
       }
-      window.location.href = `/app/resumes/${payload.resume.id}`;
+      router.push(`/app/resumes/${payload.resume.id}`);
     } catch (createError) {
       setError((createError as Error).message);
       setPending(false);
@@ -150,13 +150,13 @@ export function ResumeManager() {
       className: "w-24 text-right",
       render: (resume) => (
         <div className="flex justify-end gap-1">
-          <Link
+          <IntentLink
             href={`/app/resumes/${resume.id}`}
             aria-label="打开简历编辑器"
             className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <FileText size={14} />
-          </Link>
+          </IntentLink>
           <button
             type="button"
             aria-label="克隆简历"
@@ -209,54 +209,50 @@ export function ResumeManager() {
       ) : null}
 
       <div className="mt-5">
-        {loading ? (
-          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
-        ) : (
-          <DataTable
-            columns={columns}
-            rows={resumes}
-            rowKey={(resume) => resume.id}
-            viewStorageKey="resumes"
-            empty="还没有简历，先创建第一份结构化简历"
-            gridCard={(resume) => (
-              <Card className="h-full p-5 shadow-none">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <FileText size={18} className="text-[#55a572]" />
-                    <Link
-                      href={`/app/resumes/${resume.id}`}
-                      className="mt-4 block truncate text-base font-semibold"
-                    >
-                      {resume.name}
-                    </Link>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      {resume.document.data.header.name || "未填写姓名"} · v
-                      {resume.version}
-                    </p>
-                  </div>
-                  <div className="flex gap-1">
-                    <button
-                      type="button"
-                      aria-label="克隆简历"
-                      onClick={() => void mutate(resume.id, "clone")}
-                      className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted"
-                    >
-                      <Copy size={14} />
-                    </button>
-                    <button
-                      type="button"
-                      aria-label="删除简历"
-                      onClick={() => void mutate(resume.id, "delete")}
-                      className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  </div>
+        <DataTable
+          columns={columns}
+          rows={resumes}
+          rowKey={(resume) => resume.id}
+          viewStorageKey="resumes"
+          empty="还没有简历，先创建第一份结构化简历"
+          gridCard={(resume) => (
+            <Card className="h-full p-5 shadow-none">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <FileText size={18} className="text-[#55a572]" />
+                  <IntentLink
+                    href={`/app/resumes/${resume.id}`}
+                    className="mt-4 block truncate text-base font-semibold"
+                  >
+                    {resume.name}
+                  </IntentLink>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    {resume.document.data.header.name || "未填写姓名"} · v
+                    {resume.version}
+                  </p>
                 </div>
-              </Card>
-            )}
-          />
-        )}
+                <div className="flex gap-1">
+                  <button
+                    type="button"
+                    aria-label="克隆简历"
+                    onClick={() => void mutate(resume.id, "clone")}
+                    className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted"
+                  >
+                    <Copy size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    aria-label="删除简历"
+                    onClick={() => void mutate(resume.id, "delete")}
+                    className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
+              </div>
+            </Card>
+          )}
+        />
       </div>
     </>
   );

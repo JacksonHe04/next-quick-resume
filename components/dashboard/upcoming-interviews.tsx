@@ -1,6 +1,7 @@
 import { ArrowUpRight, CalendarClock } from "lucide-react";
 import Link from "next/link";
 
+import { IntentLink } from "@/components/app/intent-link";
 import { Card, StatusBadge } from "@/components/ui";
 import type { DashboardViewModel } from "@/modules/dashboard/service";
 
@@ -34,7 +35,7 @@ export function UpcomingInterviews({
       </div>
       <div className="divide-y divide-[#edf0ed]">
         {interviews.map((interview) => (
-          <Link
+          <IntentLink
             key={interview.id}
             href={`/app/interviews/${interview.id}`}
             className="group flex items-center gap-4 px-5 py-4 transition hover:bg-muted"
@@ -57,7 +58,7 @@ export function UpcomingInterviews({
               size={16}
               className="text-[#a2aba3] transition group-hover:text-foreground"
             />
-          </Link>
+          </IntentLink>
         ))}
         {interviews.length === 0 ? (
           <div className="px-5 py-12 text-center">

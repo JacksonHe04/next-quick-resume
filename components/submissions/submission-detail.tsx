@@ -2,7 +2,7 @@
 
 import { ArrowLeft, ExternalLink, Save } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 import {
   Button,
@@ -20,7 +20,7 @@ import type {
   InterviewStatus,
 } from "@/modules/submissions/service";
 
-type Detail = {
+export type SubmissionDetailView = {
   id: string;
   batchName: string;
   companyName: string;
@@ -38,16 +38,22 @@ type Detail = {
   interviewStatus: InterviewStatus | null;
 };
 
-export function SubmissionDetail({ id }: { id: string }) {
-  const [detail, setDetail] = useState<Detail>();
+export function SubmissionDetail({
+  id,
+  initialDetail,
+}: {
+  id: string;
+  initialDetail: SubmissionDetailView;
+}) {
+  const [detail, setDetail] =
+    useState<SubmissionDetailView>(initialDetail);
   const [manualStatus, setManualStatus] =
-    useState<DirectSubmissionStatus>("submitted");
+    useState<DirectSubmissionStatus>(initialDetail.directStatus);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
     error?: boolean;
   }>();
-  const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
     const response = await appFetch("/api/submissions", {
@@ -55,7 +61,7 @@ export function SubmissionDetail({ id }: { id: string }) {
     });
     if (!response.ok) throw new Error("投递加载失败");
     const payload = (await response.json()) as {
-      submissions: Detail[];
+      submissions: SubmissionDetailView[];
     };
     const item = payload.submissions.find(
       (submission) => submission.id === id,
@@ -64,11 +70,6 @@ export function SubmissionDetail({ id }: { id: string }) {
     setDetail(item);
     setManualStatus(item.directStatus);
   }, [id]);
-
-  useEffect(() => {
-    load()
-      .catch((loadError) => setError((loadError as Error).message));
-  }, [load]);
 
   async function saveManualStatus() {
     setPending(true);
@@ -95,19 +96,6 @@ export function SubmissionDetail({ id }: { id: string }) {
     } finally {
       setPending(false);
     }
-  }
-
-  if (error) {
-    return (
-      <p className="rounded-xl border border-[#ebc3c8] bg-[#fbecef] px-4 py-3 text-sm text-[#9d4450]">
-        {error}
-      </p>
-    );
-  }
-  if (!detail) {
-    return (
-      <div className="h-72 animate-pulse rounded-[18px] border border-border bg-white/60" />
-    );
   }
 
   const status = displaySubmissionStatus({

@@ -2,10 +2,10 @@ import Link from "next/link";
 
 import { SettingsForms } from "@/components/account/settings-forms";
 import { Button, Card, CardContent } from "@/components/ui";
-import { getOptionalCurrentUser } from "@/modules/auth/server";
+import { getAppReadContext } from "@/modules/app/read-context";
 
 export default async function SettingsPage() {
-  const user = await getOptionalCurrentUser();
+  const { user } = await getAppReadContext();
 
   return (
     <div className="mx-auto max-w-5xl px-5 py-10">

@@ -6,8 +6,9 @@ import {
   Save,
 } from "lucide-react";
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
+import { IntentLink } from "@/components/app/intent-link";
 import type { InterviewView } from "@/components/interviews/interview-manager";
 import { InterviewQuestionCreator } from "@/components/questions/interview-question-creator";
 import {
@@ -18,11 +19,20 @@ import {
 import { appFetch } from "@/lib/app-fetch";
 import type { InterviewStatus } from "@/modules/submissions/service";
 
-export function InterviewDetail({ id }: { id: string }) {
-  const [interview, setInterview] = useState<InterviewView>();
+export function InterviewDetail({
+  id,
+  initialInterview,
+}: {
+  id: string;
+  initialInterview: InterviewView;
+}) {
+  const [interview, setInterview] =
+    useState<InterviewView>(initialInterview);
   const [status, setStatus] =
-    useState<InterviewStatus>("pending_interview");
-  const [review, setReview] = useState("");
+    useState<InterviewStatus>(initialInterview.status);
+  const [review, setReview] = useState(
+    initialInterview.reviewMarkdown ?? "",
+  );
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{
     text: string;
@@ -43,12 +53,6 @@ export function InterviewDetail({ id }: { id: string }) {
     setStatus(item.status);
     setReview(item.reviewMarkdown ?? "");
   }, [id]);
-
-  useEffect(() => {
-    load().catch((error) =>
-      setMessage({ text: (error as Error).message, error: true }),
-    );
-  }, [load]);
 
   async function save() {
     setPending(true);
@@ -77,12 +81,6 @@ export function InterviewDetail({ id }: { id: string }) {
     }
   }
 
-  if (!interview) {
-    return (
-      <div className="h-72 animate-pulse rounded-[18px] border border-border bg-white/60" />
-    );
-  }
-
   return (
     <>
       <Link
@@ -104,12 +102,12 @@ export function InterviewDetail({ id }: { id: string }) {
             官方阶段：{interview.stageName}
           </p>
         </div>
-        <Link
+        <IntentLink
           href={`/app/submissions/${interview.submissionId}`}
           className="text-sm font-medium text-foreground hover:underline"
         >
           查看对应投递
-        </Link>
+        </IntentLink>
       </div>
 
       <Card className="mt-7 p-5 shadow-none">

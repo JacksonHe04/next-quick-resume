@@ -9,12 +9,12 @@ import {
 import Link from "next/link";
 import {
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from "react";
 import { useQueryState } from "nuqs";
 
+import { IntentLink } from "@/components/app/intent-link";
 import { InterviewForm } from "@/components/interviews/interview-form";
 import {
   Button,
@@ -87,12 +87,12 @@ function InterviewCard({
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <Link
+            <IntentLink
               href={`/app/interviews/${interview.id}`}
               className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-foreground"
             >
               {interview.name}
-            </Link>
+            </IntentLink>
             <PresentationBadge
               label={status.label}
               tone={status.tone}
@@ -143,14 +143,33 @@ function InterviewCard({
   );
 }
 
-export function InterviewManager() {
-  const [interviews, setInterviews] = useState<InterviewView[]>([]);
+export type InterviewSubmissionOption = {
+  id: string;
+  label: string;
+};
+
+export type InterviewStageOption = {
+  id: string;
+  name: string;
+};
+
+export function InterviewManager({
+  initialInterviews,
+  initialSubmissions,
+  initialStages,
+}: {
+  initialInterviews: InterviewView[];
+  initialSubmissions: InterviewSubmissionOption[];
+  initialStages: InterviewStageOption[];
+}) {
+  const [interviews, setInterviews] =
+    useState<InterviewView[]>(initialInterviews);
   const [submissions, setSubmissions] = useState<
-    Array<{ id: string; label: string }>
-  >([]);
+    InterviewSubmissionOption[]
+  >(initialSubmissions);
   const [stages, setStages] = useState<
-    Array<{ id: string; name: string }>
-  >([]);
+    InterviewStageOption[]
+  >(initialStages);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [stageId, setStageId] = useQueryState("stage", {
     defaultValue: "",
@@ -172,7 +191,6 @@ export function InterviewManager() {
     defaultValue: "",
     history: "replace",
   });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
@@ -211,12 +229,6 @@ export function InterviewManager() {
     );
     setStages(stagePayload.stages);
   }, []);
-
-  useEffect(() => {
-    load()
-      .catch((loadError) => setError((loadError as Error).message))
-      .finally(() => setLoading(false));
-  }, [load]);
 
   const filtered = useMemo(
     () =>
@@ -386,13 +398,13 @@ export function InterviewManager() {
       className: "w-24 text-right",
       render: (interview) => (
         <div className="flex justify-end gap-1">
-          <Link
+          <IntentLink
             href={`/app/interviews/${interview.id}`}
             aria-label="打开选拔详情"
             className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <CalendarClock size={14} />
-          </Link>
+          </IntentLink>
           {interview.meetingUrl ? (
             <a
               href={interview.meetingUrl}
@@ -498,7 +510,7 @@ export function InterviewManager() {
           {error}
         </p>
       ) : null}
-      {submissions.length === 0 && !loading ? (
+      {submissions.length === 0 ? (
         <p className="mt-3 text-sm text-[#9a6a2c]">
           需要先{" "}
           <Link
@@ -512,27 +524,23 @@ export function InterviewManager() {
       ) : null}
 
       <div className="mt-5">
-        {loading ? (
-          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
-        ) : (
-          <DataTable
-            columns={columns}
-            rows={filtered}
-            rowKey={(interview) => interview.id}
-            viewStorageKey="interviews"
-            empty={
-              hasFilters
-                ? "没有符合当前筛选条件的选拔事件"
-                : "还没有选拔事件"
-            }
-            gridCard={(interview) => (
-              <InterviewCard
-                interview={interview}
-                onRemove={(id) => void remove(id)}
-              />
-            )}
-          />
-        )}
+        <DataTable
+          columns={columns}
+          rows={filtered}
+          rowKey={(interview) => interview.id}
+          viewStorageKey="interviews"
+          empty={
+            hasFilters
+              ? "没有符合当前筛选条件的选拔事件"
+              : "还没有选拔事件"
+          }
+          gridCard={(interview) => (
+            <InterviewCard
+              interview={interview}
+              onRemove={(id) => void remove(id)}
+            />
+          )}
+        />
       </div>
 
       <FormDrawer

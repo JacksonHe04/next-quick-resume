@@ -4,19 +4,16 @@ import Link from "next/link";
 import { ConversionChart } from "@/components/dashboard/conversion-chart";
 import { DashboardMetrics } from "@/components/dashboard/metrics";
 import { UpcomingInterviews } from "@/components/dashboard/upcoming-interviews";
-import { getDb } from "@/db/client";
-import { DEMO_USER_ID } from "@/db/seed/demo";
-import { getOptionalCurrentUser } from "@/modules/auth/server";
+import { getAppReadContext } from "@/modules/app/read-context";
 import { createDashboardRepository } from "@/modules/dashboard/repository";
 import { getDashboard } from "@/modules/dashboard/service";
 
 export default async function DashboardPage() {
-  const database = await getDb();
-  const user = await getOptionalCurrentUser();
+  const { database, user, userId } = await getAppReadContext();
 
   const dashboard = await getDashboard(
     createDashboardRepository(database),
-    user?.id ?? DEMO_USER_ID,
+    userId,
     {},
   );
   const hour = new Date().getHours();

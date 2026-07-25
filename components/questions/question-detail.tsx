@@ -4,33 +4,53 @@ import { ArrowLeft, Link2, Save, Unlink } from "lucide-react";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { IntentLink } from "@/components/app/intent-link";
 import type { InterviewView } from "@/components/interviews/interview-manager";
 import { Button, Card, Input, MarkdownEditor } from "@/components/ui";
 import { appFetch } from "@/lib/app-fetch";
 
-type Question = {
+export type QuestionDetailView = {
   id: string;
   questionText: string;
   answerMarkdown: string;
   category: string | null;
 };
 
-type QuestionInterview = {
+export type QuestionInterviewView = {
   id: string;
   name: string;
   stageName: string;
   positionName: string;
   status: string;
-  scheduledAt: string | null;
+  scheduledAt: string | Date | null;
 };
 
-export function QuestionDetail({ id }: { id: string }) {
-  const [question, setQuestion] = useState<Question>();
-  const [questionText, setQuestionText] = useState("");
-  const [category, setCategory] = useState("");
-  const [answer, setAnswer] = useState("");
-  const [links, setLinks] = useState<QuestionInterview[]>([]);
-  const [interviews, setInterviews] = useState<InterviewView[]>([]);
+export function QuestionDetail({
+  id,
+  initialQuestion,
+  initialLinks,
+  initialInterviews,
+}: {
+  id: string;
+  initialQuestion: QuestionDetailView;
+  initialLinks: QuestionInterviewView[];
+  initialInterviews: InterviewView[];
+}) {
+  const [question, setQuestion] =
+    useState<QuestionDetailView>(initialQuestion);
+  const [questionText, setQuestionText] = useState(
+    initialQuestion.questionText,
+  );
+  const [category, setCategory] = useState(
+    initialQuestion.category ?? "",
+  );
+  const [answer, setAnswer] = useState(
+    initialQuestion.answerMarkdown,
+  );
+  const [links, setLinks] =
+    useState<QuestionInterviewView[]>(initialLinks);
+  const [interviews, setInterviews] =
+    useState<InterviewView[]>(initialInterviews);
   const [selectedInterview, setSelectedInterview] = useState("");
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<{
@@ -46,8 +66,8 @@ export function QuestionDetail({ id }: { id: string }) {
     if (!questionResponse.ok) throw new Error("问题不存在");
     if (!interviewResponse.ok) throw new Error("选拔事件加载失败");
     const questionPayload = (await questionResponse.json()) as {
-      question: Question;
-      interviews: QuestionInterview[];
+      question: QuestionDetailView;
+      interviews: QuestionInterviewView[];
     };
     const interviewPayload = (await interviewResponse.json()) as {
       interviews: InterviewView[];
@@ -59,12 +79,6 @@ export function QuestionDetail({ id }: { id: string }) {
     setLinks(questionPayload.interviews);
     setInterviews(interviewPayload.interviews);
   }, [id]);
-
-  useEffect(() => {
-    load().catch((error) =>
-      setMessage({ text: (error as Error).message, error: true }),
-    );
-  }, [load]);
 
   const availableInterviews = useMemo(() => {
     const linked = new Set(links.map((item) => item.id));
@@ -115,12 +129,6 @@ export function QuestionDetail({ id }: { id: string }) {
     }
     setMessage({ text: method === "POST" ? "已关联选拔" : "已取消关联" });
     await load();
-  }
-
-  if (!question) {
-    return (
-      <div className="h-72 animate-pulse rounded-[18px] border border-border bg-white/60" />
-    );
   }
 
   return (
@@ -228,12 +236,12 @@ export function QuestionDetail({ id }: { id: string }) {
               className="flex items-center justify-between gap-4 py-3"
             >
               <div>
-                <Link
+                <IntentLink
                   href={`/app/interviews/${item.id}`}
                   className="text-sm font-medium hover:text-foreground"
                 >
                   {item.name}
-                </Link>
+                </IntentLink>
                 <p className="mt-1 text-xs text-muted-foreground">
                   {item.positionName} · {item.stageName}
                 </p>

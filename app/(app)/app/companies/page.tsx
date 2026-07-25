@@ -1,8 +1,11 @@
+import { connection } from "next/server";
+
 import { CompanyManager } from "@/components/catalog/company-grid";
 import { getDb } from "@/db/client";
 import { listOfficialCompanies } from "@/modules/catalog/repository";
 
 export default async function CompaniesPage() {
+  await connection();
   const companies = await listOfficialCompanies(await getDb());
   return (
     <div className="mx-auto max-w-7xl px-5 py-10">

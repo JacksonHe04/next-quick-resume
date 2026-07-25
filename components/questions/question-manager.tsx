@@ -1,9 +1,9 @@
 "use client";
 
 import { BookOpenText, Plus, Search, Trash2 } from "lucide-react";
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
+import { IntentLink } from "@/components/app/intent-link";
 import { QuestionForm } from "@/components/questions/question-form";
 import {
   Button,
@@ -15,21 +15,25 @@ import {
 } from "@/components/ui";
 import { appFetch, patchJson } from "@/lib/app-fetch";
 
-type QuestionView = {
+export type QuestionView = {
   id: string;
   questionText: string;
   answerMarkdown: string;
   category: string | null;
-  updatedAt: string;
+  updatedAt: string | Date;
   interviewCount: number;
 };
 
-export function QuestionManager() {
-  const [questions, setQuestions] = useState<QuestionView[]>([]);
+export function QuestionManager({
+  initialQuestions,
+}: {
+  initialQuestions: QuestionView[];
+}) {
+  const [questions, setQuestions] =
+    useState<QuestionView[]>(initialQuestions);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("全部");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>();
 
   const load = useCallback(async () => {
@@ -40,12 +44,6 @@ export function QuestionManager() {
     };
     setQuestions(payload.questions);
   }, []);
-
-  useEffect(() => {
-    load()
-      .catch((loadError) => setError((loadError as Error).message))
-      .finally(() => setLoading(false));
-  }, [load]);
 
   const categories = useMemo(
     () => [
@@ -162,13 +160,13 @@ export function QuestionManager() {
       className: "w-24 text-right",
       render: (question) => (
         <div className="flex justify-end gap-1">
-          <Link
+          <IntentLink
             href={`/app/questions/${question.id}`}
             aria-label="打开问题详情"
             className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           >
             <BookOpenText size={14} />
-          </Link>
+          </IntentLink>
           <button
             type="button"
             aria-label="删除问题"
@@ -226,50 +224,46 @@ export function QuestionManager() {
       ) : null}
 
       <div className="mt-5">
-        {loading ? (
-          <div className="h-72 animate-pulse rounded-lg border border-border bg-muted/40" />
-        ) : (
-          <DataTable
-            columns={columns}
-            rows={filtered}
-            rowKey={(question) => question.id}
-            viewStorageKey="questions"
-            empty={
-              questions.length === 0
-                ? "还没有问题"
-                : "没有匹配的问题"
-            }
-            gridCard={(question) => (
-              <Card className="h-full p-5 shadow-none">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="min-w-0">
-                    <span className="text-[11px] text-muted-foreground">
-                      {question.category || "未分类"} · 关联{" "}
-                      {question.interviewCount} 场
-                    </span>
-                    <Link
-                      href={`/app/questions/${question.id}`}
-                      className="mt-3 block line-clamp-2 text-base font-semibold"
-                    >
-                      {question.questionText}
-                    </Link>
-                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
-                      {question.answerMarkdown || "还没有标准答案"}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    aria-label="删除问题"
-                    onClick={() => void remove(question.id)}
-                    className="grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+        <DataTable
+          columns={columns}
+          rows={filtered}
+          rowKey={(question) => question.id}
+          viewStorageKey="questions"
+          empty={
+            questions.length === 0
+              ? "还没有问题"
+              : "没有匹配的问题"
+          }
+          gridCard={(question) => (
+            <Card className="h-full p-5 shadow-none">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <span className="text-[11px] text-muted-foreground">
+                    {question.category || "未分类"} · 关联{" "}
+                    {question.interviewCount} 场
+                  </span>
+                  <IntentLink
+                    href={`/app/questions/${question.id}`}
+                    className="mt-3 block line-clamp-2 text-base font-semibold"
                   >
-                    <Trash2 size={14} />
-                  </button>
+                    {question.questionText}
+                  </IntentLink>
+                  <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted-foreground">
+                    {question.answerMarkdown || "还没有标准答案"}
+                  </p>
                 </div>
-              </Card>
-            )}
-          />
-        )}
+                <button
+                  type="button"
+                  aria-label="删除问题"
+                  onClick={() => void remove(question.id)}
+                  className="grid size-8 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                >
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            </Card>
+          )}
+        />
       </div>
 
       <FormDrawer
