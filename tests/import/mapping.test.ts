@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   mapBatch,
+  mapCompany,
   mapInterview,
   mapQuestion,
   mapResume,
@@ -57,6 +58,60 @@ describe("Wiki import mappings", () => {
       jdUrl: "https://example.com/jobs/1",
       location: "上海",
       channel: "官网",
+    });
+  });
+
+  it("maps the complete Notion company record and its city relations", () => {
+    const company = mapCompany(
+      {
+        notionId: "company-source",
+        title: "示例公司",
+        body: "",
+        createdTime: "2026-07-01T02:00:00.000Z",
+        lastEditedTime: "2026-07-02T02:00:00.000Z",
+        properties: {
+          Link: "https://jobs.example.com",
+          Process: "https://jobs.example.com/process",
+          Priority: "Top",
+          City: ["city-source", "city-source-2"],
+          "PM Submission": [submission.notionId],
+        },
+      },
+      new Map([
+        ...relations,
+        ["city-source-2", "北京"],
+      ]),
+    );
+
+    expect(company).toMatchObject({
+      id: "wiki-company-company-source",
+      sourceId: "company-source",
+      name: "示例公司",
+      careersUrl: "https://jobs.example.com",
+      processUrl: "https://jobs.example.com/process",
+      priority: "Top",
+      cities: [
+        { sourceId: "city-source", name: "上海" },
+        { sourceId: "city-source-2", name: "北京" },
+      ],
+      submissionSourceIds: [submission.notionId],
+    });
+  });
+
+  it("keeps an untitled source row for audit without publishing it", () => {
+    expect(
+      mapCompany(
+        {
+          notionId: "untitled-source",
+          title: "untitled",
+          body: "",
+          properties: {},
+        },
+        relations,
+      ),
+    ).toMatchObject({
+      name: "未命名公司",
+      isActive: false,
     });
   });
 

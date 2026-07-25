@@ -29,6 +29,12 @@ function relationId(value: unknown): string | undefined {
     : undefined;
 }
 
+function relationIds(value: unknown): string[] {
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+}
+
 function relationTitle(
   properties: Record<string, unknown>,
   property: string,
@@ -90,6 +96,32 @@ export function mapBatch(page: WikiPage) {
     name: page.title.trim(),
     description: page.body || undefined,
     strategyMarkdown: page.body || undefined,
+    createdAt: isoDate(page.createdTime),
+    updatedAt: isoDate(page.lastEditedTime, page.createdTime),
+  };
+}
+
+export function mapCompany(
+  page: WikiPage,
+  relations: RelationTitles,
+) {
+  const citySourceIds = relationIds(page.properties.City);
+  const sourceName = page.title.trim();
+  const isUntitled = !sourceName || /^untitled$/i.test(sourceName);
+
+  return {
+    id: stableWikiId("company", page.notionId),
+    sourceId: page.notionId,
+    name: isUntitled ? "未命名公司" : sourceName,
+    careersUrl: scalarString(page.properties.Link),
+    processUrl: scalarString(page.properties.Process),
+    priority: scalarString(page.properties.Priority),
+    cities: citySourceIds.flatMap((sourceId) => {
+      const cityName = relations.get(sourceId);
+      return cityName ? [{ sourceId, name: cityName }] : [];
+    }),
+    submissionSourceIds: relationIds(page.properties["PM Submission"]),
+    isActive: !isUntitled,
     createdAt: isoDate(page.createdTime),
     updatedAt: isoDate(page.lastEditedTime, page.createdTime),
   };
