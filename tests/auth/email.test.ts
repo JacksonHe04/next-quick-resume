@@ -13,6 +13,7 @@ describe("Resend authentication email adapter", () => {
         },
       },
       "SAYLESS <hello@sayless.app>",
+      "https://sayless.inon.space",
     );
 
     await email.sendVerificationCode({
@@ -27,6 +28,7 @@ describe("Resend authentication email adapter", () => {
       subject: "你的 SAYLESS 注册验证码",
     });
     expect(payloads[0].html).toContain("123456");
+    expect(payloads[0].html).toMatch(/logo-180\.png/);
   });
 
   it("surfaces a Resend API error instead of reporting success", async () => {
@@ -40,6 +42,7 @@ describe("Resend authentication email adapter", () => {
         },
       },
       "SAYLESS <hello@sayless.app>",
+      "https://sayless.inon.space",
     );
 
     await expect(

@@ -18,20 +18,52 @@ type EmailClient = {
   send(payload: EmailPayload): Promise<EmailResult>;
 };
 
-function verificationEmailHtml(code: string): string {
+/**
+ * Build the inline logo header that's appended to every SAYLESS email.
+ *
+ * We use a <img> tag pointing at the deployed origin's `/logo-180.png`
+ * because Resend and most mail clients already cache / proxy remote images
+ * — inlining a 60KB+ base64 PNG makes the email heavier without visual gain.
+ *
+ * `origin` is supplied by the caller (typically `publicOrigin()` from
+ * `modules/auth/inon-sso.ts`) so production emails always reference the
+ * deployed domain and local dev falls back to `http://localhost:3000`.
+ */
+function brandHeader(origin: string): string {
+  const logoUrl = `${origin.replace(/\/$/, "")}/logo-180.png`;
   return `
-    <div style="font-family: Arial, sans-serif; color: #18211b; line-height: 1.6">
-      <p>你好，</p>
-      <p>你的 SAYLESS 注册验证码是：</p>
-      <p style="font-size: 28px; font-weight: 700; letter-spacing: 6px">${code}</p>
-      <p>验证码将在 10 分钟后失效。如果不是你本人操作，可以忽略这封邮件。</p>
+    <div style="margin: 0 0 20px 0; padding: 16px 0; border-bottom: 1px solid #e6ece8;">
+      <img src="${logoUrl}" alt="SAYLESS" width="36" height="36"
+           style="display:block; width:36px; height:36px; border:0; outline:none; text-decoration:none;" />
     </div>
   `;
 }
 
-function passwordResetEmailHtml(url: string): string {
+function emailShell(origin: string, body: string): string {
   return `
-    <div style="font-family: Arial, sans-serif; color: #18211b; line-height: 1.6">
+    <div style="font-family: Arial, sans-serif; color: #18211b; line-height: 1.6; max-width: 560px; margin: 0 auto;">
+      ${brandHeader(origin)}
+      ${body}
+    </div>
+  `;
+}
+
+function verificationEmailHtml(origin: string, code: string): string {
+  return emailShell(
+    origin,
+    `
+      <p>你好，</p>
+      <p>你的 SAYLESS 注册验证码是：</p>
+      <p style="font-size: 28px; font-weight: 700; letter-spacing: 6px">${code}</p>
+      <p>验证码将在 10 分钟后失效。如果不是你本人操作，可以忽略这封邮件。</p>
+    `,
+  );
+}
+
+function passwordResetEmailHtml(origin: string, url: string): string {
+  return emailShell(
+    origin,
+    `
       <p>你好，</p>
       <p>点击下面的按钮重置你的 SAYLESS 登录密码：</p>
       <p>
@@ -40,13 +72,14 @@ function passwordResetEmailHtml(url: string): string {
         </a>
       </p>
       <p>链接将在 1 小时后失效。如果不是你本人操作，可以忽略这封邮件。</p>
-    </div>
-  `;
+    `,
+  );
 }
 
 export function createResendEmail(
   client: EmailClient,
   from: string,
+  origin: string,
 ): TransactionalEmail {
   async function send(payload: EmailPayload): Promise<void> {
     const result = await client.send(payload);
@@ -61,7 +94,7 @@ export function createResendEmail(
         from,
         to: [to],
         subject: "你的 SAYLESS 注册验证码",
-        html: verificationEmailHtml(code),
+        html: verificationEmailHtml(origin, code),
       });
     },
 
@@ -70,7 +103,7 @@ export function createResendEmail(
         from,
         to: [to],
         subject: "重置你的 SAYLESS 登录密码",
-        html: passwordResetEmailHtml(url),
+        html: passwordResetEmailHtml(origin, url),
       });
     },
   };
@@ -79,6 +112,7 @@ export function createResendEmail(
 export function createTransactionalEmail(
   apiKey: string,
   from: string,
+  origin: string,
 ): TransactionalEmail {
   const resend = new Resend(apiKey);
 
@@ -95,5 +129,6 @@ export function createTransactionalEmail(
       },
     },
     from,
+    origin,
   );
 }
