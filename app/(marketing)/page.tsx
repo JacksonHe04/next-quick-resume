@@ -9,6 +9,7 @@ import {
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
+import { BrandMark } from "@/components/ui/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -48,9 +49,7 @@ export default function LandingPage() {
             href="/"
             className="inline-flex items-center gap-2.5 text-sm font-semibold tracking-[-0.02em]"
           >
-            <span className="grid size-7 place-items-center rounded-md bg-foreground text-xs text-background">
-              S
-            </span>
+            <BrandMark size="sm" />
             SAYLESS
           </Link>
           <nav className="flex items-center gap-1.5" aria-label="账户入口">

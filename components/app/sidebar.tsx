@@ -12,6 +12,7 @@ import {
   Video,
 } from "lucide-react";
 import Link from "next/link";
+import { BrandMark } from "@/components/ui/brand-mark";
 import {
   Fragment,
   type ComponentType,
@@ -135,9 +136,7 @@ export function Sidebar({
             className="flex min-w-0 items-center gap-2.5 rounded-lg px-2.5 py-2"
             aria-label="SAYLESS 首页"
           >
-            <span className="grid size-7 shrink-0 place-items-center rounded-md bg-foreground text-xs font-semibold text-background">
-              S
-            </span>
+            <BrandMark size="sm" className="rounded-md" />
             <span className="truncate text-sm font-semibold tracking-[-0.02em]">
               SAYLESS
             </span>
