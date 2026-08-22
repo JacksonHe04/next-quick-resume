@@ -160,39 +160,6 @@ select {
   h3 {
     break-after: avoid;
   }
-
-  img {
-    display: inline-block !important;
-    max-width: 100% !important;
-    height: auto !important;
-  }
-
-  /*
-   * The photo must never contribute its intrinsic dimensions to the header.
-   * The header row owns the frame height; the image is only painted inside it.
-   */
-  .resume-header-layout {
-    align-items: stretch !important;
-  }
-
-  .resume-photo-frame {
-    position: relative !important;
-    width: 8rem !important;
-    height: auto !important;
-    min-height: 0 !important;
-    align-self: stretch !important;
-    overflow: hidden !important;
-  }
-
-  .resume-photo-image {
-    position: absolute !important;
-    inset: 0 !important;
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    max-width: none !important;
-    object-fit: cover !important;
-  }
 }
 
 @theme inline {

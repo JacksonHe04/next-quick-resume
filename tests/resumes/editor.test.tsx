@@ -327,7 +327,7 @@ describe("resume editor", () => {
     ).toBeVisible();
   });
 
-  it("keeps the photo inside a header-sized frame for printing", () => {
+  it("renders the photo inside a header-sized frame", () => {
     const document = structuredClone(initial.document);
     document.displayConfig.photo = {
       showPhoto: true,
@@ -339,13 +339,16 @@ describe("resume editor", () => {
     const frame = screen.getByTestId("resume-photo-frame");
     const image = screen.getByRole("img", { name: "个人照片" });
 
+    // On small screens the frame is a fixed 128px box; on sm+ it collapses to
+    // zero intrinsic height and stretches to fill the header row (min-h-full),
+    // so the photo never dictates the header's height.
     expect(frame).toHaveClass(
       "resume-photo-frame",
       "overflow-hidden",
-      "sm:h-auto",
-      "sm:self-stretch",
-      "print:h-auto",
-      "print:self-stretch",
+      "h-32",
+      "sm:h-0",
+      "sm:min-h-full",
+      "sm:self-auto",
     );
     expect(frame).not.toHaveClass("sm:h-40");
     expect(image).toHaveClass(

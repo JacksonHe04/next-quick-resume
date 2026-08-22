@@ -4,15 +4,41 @@ import { renderSafeInlineMarkdown } from "@/lib/markdown";
 import { cn } from "@/lib/utils";
 import { getEducationItems } from "@/modules/resumes/education";
 import type { ResumeDocumentV1, ResumeSectionKey } from "@/types";
+import {
+  DESCRIPTION_BOTTOM_CLASS,
+  EDUCATION_ENTRY_GAP_CLASS,
+  HEADER_CONTACTS_COLUMN_GAP_CLASS,
+  HEADER_CONTACTS_ROW_GAP_CLASS,
+  HEADER_IDENTITY_BOTTOM_CLASS,
+  HEADER_NAME_TO_POSITION_CLASS,
+  HEADER_PHOTO_GAP_CLASS,
+  ITEM_GAP_CLASS,
+  ITEM_HEADER_BOTTOM_CLASS,
+  LIST_GAP_CLASS,
+  SECTION_GAP_CLASS,
+  TITLE_BOTTOM_CLASS,
+} from "@/components/resumes/resume-spacing";
 
-const sectionTitleClass =
-  "mb-2 border-b border-black py-1 text-lg font-bold text-black sm:text-xl";
-const sectionClass = "mb-3";
-const itemClass = "mb-3";
+// 非间距的排版样式（字号、字重、颜色）保留在这里，间距统一见 resume-spacing.ts
+const sectionTitleClass = cn(
+  TITLE_BOTTOM_CLASS,
+  "border-b border-black py-1 text-lg font-bold text-black sm:text-xl",
+);
+const itemHeaderClass = cn(
+  ITEM_HEADER_BOTTOM_CLASS,
+  "flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-baseline sm:gap-4",
+);
+const itemTitleClass = "text-base font-bold sm:text-lg";
 const bodyTextClass = "text-sm sm:text-base";
 const mutedTextClass = "text-sm text-gray-600 sm:text-base";
-const orderedListClass =
-  "ml-0 list-inside list-decimal space-y-1 text-sm sm:text-base";
+const descriptionClass = cn(
+  DESCRIPTION_BOTTOM_CLASS,
+  "text-sm text-gray-700 sm:text-base",
+);
+const orderedListClass = cn(
+  LIST_GAP_CLASS,
+  "ml-0 list-inside list-decimal text-sm sm:text-base",
+);
 
 // Every user-editable text field in the resume is rendered through this
 // component so Markdown bold (and other inline markup) works everywhere
@@ -84,10 +110,11 @@ function HeaderSection({
       : "items-start text-left";
 
   return (
-    <header className={sectionClass}>
+    <header className={SECTION_GAP_CLASS}>
       <div
         className={cn(
-          "resume-header-layout flex flex-col-reverse gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-stretch sm:gap-8 print:grid print:grid-cols-[minmax(0,1fr)_auto] print:items-stretch print:gap-8",
+          "resume-header-layout flex flex-col-reverse sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-stretch",
+          HEADER_PHOTO_GAP_CLASS,
         )}
       >
         <div
@@ -96,65 +123,70 @@ function HeaderSection({
             alignmentClasses,
           )}
         >
-          <div className="mb-3 sm:mb-4">
+          <div className={HEADER_IDENTITY_BOTTOM_CLASS}>
             <h1 className="m-0 font-serif text-2xl font-bold sm:text-3xl md:text-4xl">
               <Markdown value={name} />
             </h1>
-            <p className="mt-2 font-[Georgia] text-base text-gray-600 sm:mt-4 sm:text-lg md:text-xl">
+            <p
+              className={cn(
+                HEADER_NAME_TO_POSITION_CLASS,
+                "font-[Georgia] text-base text-gray-600 sm:text-lg md:text-xl",
+              )}
+            >
               <b>
                 <Markdown value={jobInfo.position} />
               </b>
             </p>
           </div>
 
-          <div className="space-y-2 sm:space-y-3">
-            <div
-              className={cn(
-                "grid grid-cols-1 gap-2 sm:grid-cols-2",
-                alignment === "center" && "sm:justify-center",
-              )}
-            >
+          <div
+            className={cn(
+              "grid grid-cols-1 sm:grid-cols-2",
+              HEADER_CONTACTS_ROW_GAP_CLASS,
+              HEADER_CONTACTS_COLUMN_GAP_CLASS,
+              alignment === "center" && "sm:justify-center",
+            )}
+          >
+            <p className={bodyTextClass}>
+              <b>电话 / 微信：</b>
+              <Markdown value={contact.phone} />
+            </p>
+            <p className={bodyTextClass}>
+              <b>邮箱：</b>
+              <ResumeLink
+                href={`mailto:${contact.email}`}
+                underline={false}
+              >
+                <Markdown value={contact.email} />
+              </ResumeLink>
+            </p>
+            {contact.homepage ? (
               <p className={bodyTextClass}>
-                <b>电话 / 微信：</b>
-                <Markdown value={contact.phone} />
-              </p>
-              <p className={bodyTextClass}>
-                <b>邮箱：</b>
-                <ResumeLink
-                  href={`mailto:${contact.email}`}
-                  underline={false}
-                >
-                  <Markdown value={contact.email} />
+                <b>主页：</b>
+                <ResumeLink href={contact.homepage.url}>
+                  <Markdown value={contact.homepage.text} />
                 </ResumeLink>
               </p>
-              {contact.homepage ? (
-                <p className={bodyTextClass}>
-                  <b>主页：</b>
-                  <ResumeLink href={contact.homepage.url}>
-                    <Markdown value={contact.homepage.text} />
-                  </ResumeLink>
-                </p>
-              ) : (
-                <span aria-hidden="true" />
-              )}
-              {contact.github ? (
-                <p className={bodyTextClass}>
-                  <b>GitHub：</b>
-                  <ResumeLink href={contact.github.url}>
-                    <Markdown value={contact.github.text} />
-                  </ResumeLink>
-                </p>
-              ) : (
-                <span aria-hidden="true" />
-              )}
-            </div>
+            ) : (
+              <span aria-hidden="true" />
+            )}
+            {contact.github ? (
+              <p className={bodyTextClass}>
+                <b>GitHub：</b>
+                <ResumeLink href={contact.github.url}>
+                  <Markdown value={contact.github.text} />
+                </ResumeLink>
+              </p>
+            ) : (
+              <span aria-hidden="true" />
+            )}
           </div>
         </div>
 
         {photo.showPhoto ? (
           <div
             data-testid="resume-photo-frame"
-            className="resume-photo-frame relative flex h-32 w-max max-w-full shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-0 sm:min-h-full sm:self-auto print:h-0 print:min-h-full print:self-auto"
+            className="resume-photo-frame relative flex h-32 w-max max-w-full shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-0 sm:min-h-full sm:self-auto"
           >
             {photo.photoData ? (
               <Image
@@ -166,7 +198,7 @@ function HeaderSection({
                 className="resume-photo-image h-full w-auto object-contain"
               />
             ) : (
-              <div className="grid h-full w-24 place-items-center bg-gray-50 text-xs text-gray-400 sm:w-32 print:w-32">
+              <div className="grid h-full w-24 place-items-center bg-gray-50 text-xs text-gray-400 sm:w-32">
                 个人照片
               </div>
             )}
@@ -187,11 +219,11 @@ function EducationSection({
   const items = getEducationItems(education);
   if (items.length === 0) return null;
   return (
-    <section className={sectionClass}>
+    <section className={SECTION_GAP_CLASS}>
       <SectionTitle title={education.title} />
       {items.map((item, index) => (
-        <div className={itemClass} key={`${item.school}-${index}`}>
-          <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
+        <div className={ITEM_GAP_CLASS} key={`${item.school}-${index}`}>
+          <div className={itemHeaderClass}>
             <div className="flex flex-wrap items-center gap-2">
               {item.image ? (
                 <Image
@@ -200,10 +232,10 @@ function EducationSection({
                   width={32}
                   height={32}
                   unoptimized
-                  className="shrink-0 object-contain"
+                  className="shrink-0 self-center object-contain"
                 />
               ) : null}
-              <h3 className="text-base font-bold leading-none sm:text-lg">
+              <h3 className={itemTitleClass}>
                 <Markdown value={item.school} />
               </h3>
             </div>
@@ -213,19 +245,21 @@ function EducationSection({
               </span>
             ) : null}
           </div>
-          {item.entries.map((entry, entryIndex) => (
-            <div
-              key={entryIndex}
-              className="flex items-start justify-between gap-2"
-            >
-              <p className={bodyTextClass}>
-                <Markdown value={entry.details} />
-              </p>
-              <span className={mutedTextClass}>
-                <Markdown value={entry.period} />
-              </span>
-            </div>
-          ))}
+          <div className={EDUCATION_ENTRY_GAP_CLASS}>
+            {item.entries.map((entry, entryIndex) => (
+              <div
+                key={entryIndex}
+                className="flex items-start justify-between gap-2"
+              >
+                <p className={bodyTextClass}>
+                  <Markdown value={entry.details} />
+                </p>
+                <span className={mutedTextClass}>
+                  <Markdown value={entry.period} />
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       ))}
     </section>
@@ -236,14 +270,14 @@ function InternSection({ document }: { document: ResumeDocumentV1 }) {
   const intern = document.data.intern;
   if (!intern) return null;
   return (
-    <section className={sectionClass}>
+    <section className={SECTION_GAP_CLASS}>
       <SectionTitle title={intern.title} />
       {intern.items
         .filter((item) => item.show !== false)
         .map((item, index) => (
-          <div className={itemClass} key={`${item.company}-${index}`}>
-            <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
-              <div className="flex flex-wrap items-center gap-2">
+          <div className={ITEM_GAP_CLASS} key={`${item.company}-${index}`}>
+            <div className={itemHeaderClass}>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
                 {item.image ? (
                   <Image
                     src={item.image}
@@ -251,27 +285,32 @@ function InternSection({ document }: { document: ResumeDocumentV1 }) {
                     width={32}
                     height={32}
                     unoptimized
-                    className="shrink-0 object-contain"
+                    className="shrink-0 self-center object-contain"
                   />
                 ) : null}
-                <h3 className="text-base font-bold leading-none sm:text-lg">
+                <h3 className={itemTitleClass}>
                   <Markdown value={item.company} />
                 </h3>
-                <span className={cn(mutedTextClass, "leading-none")}>
+                <span className={mutedTextClass}>
                   <Markdown value={item.position} />
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-1">
-                <span className={mutedTextClass}>
+              <div
+                className={cn(
+                  mutedTextClass,
+                  "flex flex-wrap items-baseline gap-x-1 gap-y-1",
+                )}
+              >
+                <span>
                   <Markdown value={item.base} />
                 </span>
-                <span className={mutedTextClass}>
+                <span>
                   ｜<Markdown value={item.period} />
                 </span>
               </div>
             </div>
             {item.description ? (
-              <p className="mb-1.5 text-sm text-gray-700 sm:text-base">
+              <p className={descriptionClass}>
                 <Markdown value={item.description} />
               </p>
             ) : null}
@@ -296,14 +335,14 @@ function ProjectsSection({
   const projects = document.data.projects;
   if (!projects) return null;
   return (
-    <section className={sectionClass}>
+    <section className={SECTION_GAP_CLASS}>
       <SectionTitle title={projects.title} />
       {projects.items
         .filter((item) => item.show !== false)
         .map((item, index) => (
-          <div className={itemClass} key={`${item.name}-${index}`}>
-            <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
-              <h3 className="text-base font-bold sm:text-lg">
+          <div className={ITEM_GAP_CLASS} key={`${item.name}-${index}`}>
+            <div className={itemHeaderClass}>
+              <h3 className={itemTitleClass}>
                 <Markdown value={item.name} />
               </h3>
               {item.github ? (
@@ -316,7 +355,7 @@ function ProjectsSection({
               ) : null}
             </div>
             {item.description ? (
-              <p className="mb-1.5 text-sm text-gray-700 sm:text-base">
+              <p className={descriptionClass}>
                 <Markdown value={item.description} />
               </p>
             ) : null}
@@ -337,7 +376,7 @@ function SkillsSection({ document }: { document: ResumeDocumentV1 }) {
   const skills = document.data.skills;
   if (!skills) return null;
   return (
-    <section className={sectionClass}>
+    <section className={SECTION_GAP_CLASS}>
       <SectionTitle title={skills.title} />
       <ol className={orderedListClass}>
         {skills.items.map((skill, index) => (
@@ -358,13 +397,13 @@ function AboutSection({ document }: { document: ResumeDocumentV1 }) {
     .map((line) => line.trim())
     .filter(Boolean);
   return (
-    <section className={sectionClass}>
+    <section className={SECTION_GAP_CLASS}>
       <SectionTitle title={about.title} />
       <ol className={orderedListClass}>
         {paragraphs.map((paragraph, index) => (
           <li
             key={index}
-            className="leading-relaxed text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-900"
+            className="text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-900"
           >
             <Markdown value={paragraph} />
           </li>
@@ -396,7 +435,7 @@ export function ResumePreview({
   return (
     <article
       id="resume-preview"
-      className="min-w-0 text-black [&_strong]:font-semibold print:bg-white"
+      className="min-w-0 text-black [&_strong]:font-semibold"
     >
       {document.displayConfig.sectionOrder.map((key) =>
         visible.has(key) ? <div key={key}>{sections[key]}</div> : null,
