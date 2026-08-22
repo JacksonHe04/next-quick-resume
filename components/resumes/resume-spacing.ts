@@ -28,7 +28,7 @@ export const ITEM_GAP_CLASS = "mb-2";
 export const TITLE_BOTTOM_CLASS = "mb-3";
 
 // 条目头部（学校/公司名 + 时间那一行）与下方描述/列表之间
-export const ITEM_HEADER_BOTTOM_CLASS = "mb-0.5";
+export const ITEM_HEADER_BOTTOM_CLASS = "mb-1";
 
 // 条目内描述段与下方职责/特性列表之间
 export const DESCRIPTION_BOTTOM_CLASS = "mb-1";
@@ -42,7 +42,7 @@ export const LIST_GAP_CLASS = "space-y-0.5";
 export const HEADER_IDENTITY_BOTTOM_CLASS = "mb-2";
 
 // 姓名 与 职位之间
-export const HEADER_NAME_TO_POSITION_CLASS = "mt-2";
+export const HEADER_NAME_TO_POSITION_CLASS = "mt-3";
 
 // 联系方式两列网格：行间距 / 列间距
 export const HEADER_CONTACTS_ROW_GAP_CLASS = "gap-y-1";
