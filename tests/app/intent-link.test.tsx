@@ -25,7 +25,7 @@ afterEach(cleanup);
 
 describe("IntentLink", () => {
   it("defers route prefetching until the user shows navigation intent", () => {
-    render(<IntentLink href="/app/questions/one">打开详情</IntentLink>);
+    render(<IntentLink href="/questions/one">打开详情</IntentLink>);
 
     const link = screen.getByRole("link", { name: "打开详情" });
     expect(link).toHaveAttribute("data-prefetch", "false");
@@ -36,7 +36,7 @@ describe("IntentLink", () => {
   });
 
   it("also enables prefetching for keyboard users", () => {
-    render(<IntentLink href="/app/questions/one">打开详情</IntentLink>);
+    render(<IntentLink href="/questions/one">打开详情</IntentLink>);
 
     const link = screen.getByRole("link", { name: "打开详情" });
     fireEvent.focus(link);

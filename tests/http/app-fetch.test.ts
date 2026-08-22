@@ -17,11 +17,11 @@ describe("appFetch", () => {
   it("preserves the current page as the post-login return target", () => {
     expect(
       getLoginUrl({
-        pathname: "/app/submissions",
+        pathname: "/submissions",
         search: "?status=interview",
       }),
     ).toBe(
-      "/login?next=%2Fapp%2Fsubmissions%3Fstatus%3Dinterview",
+      "/login?next=%2Fsubmissions%3Fstatus%3Dinterview",
     );
   });
 

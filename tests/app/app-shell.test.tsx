@@ -5,7 +5,7 @@ import { AppShell } from "@/components/app/app-shell";
 import { AppTopbarPortal } from "@/components/app/app-topbar";
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => "/app/resumes/resume-a",
+  usePathname: () => "/resumes/resume-a",
 }));
 
 afterEach(() => {

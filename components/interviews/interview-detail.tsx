@@ -88,7 +88,7 @@ export function InterviewDetail({
     <>
       <AppTopbarPortal>
         <IntentLink
-          href="/app/interviews"
+          href="/interviews"
           aria-label="返回面试"
           className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
         >
@@ -186,7 +186,7 @@ export function InterviewDetail({
           <span />
         )}
         <IntentLink
-          href={`/app/submissions/${interview.submissionId}`}
+          href={`/submissions/${interview.submissionId}`}
           className="text-sm font-medium text-foreground hover:underline"
         >
           查看对应投递

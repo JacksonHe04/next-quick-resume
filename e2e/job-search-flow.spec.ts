@@ -11,7 +11,7 @@ test("completes the job-search lifecycle", async ({ page }) => {
 
   await login(page);
 
-  await page.goto("/app/batches");
+  await page.goto("/batches");
   await page.getByRole("button", { name: "新建批次" }).first().click();
   const batchDialog = page.getByRole("dialog", { name: "新建批次" });
   await batchDialog
@@ -29,12 +29,12 @@ test("completes the job-search lifecycle", async ({ page }) => {
   await expect(
     batchRow.getByText("当前批次", { exact: true }),
   ).toBeVisible();
-  await page.goto("/app");
+  await page.goto("/resumes");
   await expect(
     page.getByText(`当前阶段：${batchName}`),
   ).toBeVisible();
 
-  await page.goto("/app/submissions");
+  await page.goto("/submissions");
   await page.getByRole("button", { name: "记录投递" }).click();
   const submissionDialog = page.getByRole("dialog", {
     name: "记录投递",
@@ -71,7 +71,7 @@ test("completes the job-search lifecycle", async ({ page }) => {
     page.getByRole("table").getByText(positionName),
   ).toBeVisible();
 
-  await page.goto("/app/interviews");
+  await page.goto("/interviews");
   await page.getByRole("button", { name: "添加选拔" }).click();
   const interviewDialog = page.getByRole("dialog", {
     name: "添加选拔事件",
@@ -109,7 +109,7 @@ test("completes the job-search lifecycle", async ({ page }) => {
     .click();
   await expect(questionDialog).toBeHidden();
 
-  await page.goto("/app/questions");
+  await page.goto("/questions");
   const questionRow = page.getByRole("row").filter({
     hasText: questionText,
   });
@@ -120,7 +120,7 @@ test("completes the job-search lifecycle", async ({ page }) => {
     page.getByRole("link", { name: interviewName, exact: true }),
   ).toBeVisible();
 
-  await page.goto("/app/interviews");
+  await page.goto("/interviews");
   await page
     .getByLabel("按选拔阶段筛选")
     .selectOption({ label: "一面" });
@@ -130,7 +130,7 @@ test("completes the job-search lifecycle", async ({ page }) => {
   await expect(page).toHaveURL(/stage=stage-first/);
   await expect(page.getByText(interviewName)).toBeVisible();
 
-  await page.goto("/app/submissions");
+  await page.goto("/submissions");
   const submissionRow = page.getByRole("row").filter({
     hasText: positionName,
   });
@@ -149,7 +149,7 @@ test("completes the job-search lifecycle", async ({ page }) => {
     page.locator("span").filter({ hasText: /^Offer$/ }),
   ).toBeVisible();
 
-  await page.goto("/app/batches");
+  await page.goto("/batches");
   const archivedBatchRow = page.getByRole("row").filter({
     hasText: batchName,
   });

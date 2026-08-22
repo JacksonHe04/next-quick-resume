@@ -11,7 +11,7 @@ test("creates, edits, and clones an independent resume", async ({
   const candidateName = `候选人 ${suffix}`;
 
   await login(page);
-  await page.goto("/app/resumes");
+  await page.goto("/resumes");
   await page.getByLabel("新简历名称").fill(resumeName);
   await page.getByRole("button", { name: "新建简历" }).click();
   await expect(page).toHaveURL(/\/app\/resumes\/[^/]+$/u);

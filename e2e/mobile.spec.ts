@@ -24,7 +24,7 @@ test("opens the Chinese product navigation on mobile", async ({ page }) => {
     "批次",
   ]);
 
-  await page.goto("/app/submissions");
+  await page.goto("/submissions");
   await expect(page.getByRole("table")).toBeVisible();
   await expect(
     page.getByRole("button", { name: "卡片视图" }),
@@ -36,7 +36,7 @@ test("creates and filters a question on mobile", async ({ page }) => {
   const question = `移动端题目 ${suffix}`;
 
   await login(page);
-  await page.goto("/app/questions");
+  await page.goto("/questions");
   await page.getByRole("button", { name: "新建问题" }).click();
   const dialog = page.getByRole("dialog", { name: "新建问题" });
   await dialog

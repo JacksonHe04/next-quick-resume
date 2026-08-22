@@ -87,7 +87,7 @@ function FormMessage({
 }
 
 export function LoginForm({
-  nextPath = "/app",
+  nextPath = "/resumes",
   developmentLoginEnabled = false,
 }: {
   nextPath?: string;
@@ -189,7 +189,7 @@ export function LoginForm({
   );
 }
 
-export function RegisterForm({ nextPath = "/app" }: { nextPath?: string }) {
+export function RegisterForm({ nextPath = "/resumes" }: { nextPath?: string }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [codePending, setCodePending] = useState(false);

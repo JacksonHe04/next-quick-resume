@@ -99,7 +99,7 @@ function HeaderSection({
           <div className="space-y-2 sm:space-y-3">
             <div
               className={cn(
-                "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-8",
+                "grid grid-cols-1 gap-2 sm:grid-cols-2",
                 alignment === "center" && "sm:justify-center",
               )}
             >

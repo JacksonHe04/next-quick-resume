@@ -138,7 +138,7 @@ export function QuestionDetail({
     <>
       <AppTopbarPortal>
         <IntentLink
-          href="/app/questions"
+          href="/questions"
           aria-label="返回题库"
           className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
         >
@@ -243,7 +243,7 @@ export function QuestionDetail({
             >
               <div>
                 <IntentLink
-                  href={`/app/interviews/${item.id}`}
+                  href={`/interviews/${item.id}`}
                   className="text-sm font-medium hover:text-foreground"
                 >
                   {item.name}

@@ -9,7 +9,7 @@ export function legacyAuthDisabledResponse(): NextResponse {
         code: "INON_SSO_REQUIRED",
         message: "SAYLESS 已改用 iNon 统一账号登录。",
       },
-      loginUrl: saylessLoginPath("/app"),
+      loginUrl: saylessLoginPath("/resumes"),
     },
     { status: 410 },
   );

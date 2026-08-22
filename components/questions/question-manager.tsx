@@ -165,7 +165,7 @@ export function QuestionManager({
       render: (question) => (
         <div className="flex justify-end gap-1">
           <IntentLink
-            href={`/app/questions/${question.id}`}
+            href={`/questions/${question.id}`}
             aria-label="打开问题详情"
             className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           >
@@ -250,7 +250,7 @@ export function QuestionManager({
                     {question.interviewCount} 场
                   </span>
                   <IntentLink
-                    href={`/app/questions/${question.id}`}
+                    href={`/questions/${question.id}`}
                     className="mt-3 block line-clamp-2 text-base font-semibold"
                   >
                     {question.questionText}

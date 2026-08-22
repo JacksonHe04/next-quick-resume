@@ -4,14 +4,14 @@ const PUBLIC_ROUTES = [
   "/",
   "/login",
   "/register",
-  "/app",
-  "/app/resumes",
-  "/app/submissions",
-  "/app/interviews",
-  "/app/questions",
-  "/app/companies",
-  "/app/batches",
-  "/app/settings",
+  "/resumes",
+  "/resumes",
+  "/submissions",
+  "/interviews",
+  "/questions",
+  "/companies",
+  "/batches",
+  "/settings",
 ];
 
 test("keeps text readable on every visible dark button", async ({

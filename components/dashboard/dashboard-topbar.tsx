@@ -63,7 +63,7 @@ export function DashboardTopbar({
       </label>
       <div className="ml-auto">
         <Button asChild>
-          <IntentLink href="/app/submissions">
+          <IntentLink href="/submissions">
             <Send aria-hidden="true" />
             记录投递
           </IntentLink>

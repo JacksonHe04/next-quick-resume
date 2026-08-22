@@ -19,7 +19,7 @@ export function ResumeWorkspaceSwitch({
       className="inline-flex rounded-lg border border-border bg-muted/60 p-0.5"
     >
       <IntentLink
-        href="/app/resumes"
+        href="/resumes"
         aria-label="管理简历"
         title="管理简历"
         aria-current={mode === "manage" ? "page" : undefined}

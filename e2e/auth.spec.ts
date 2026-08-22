@@ -5,12 +5,12 @@ import { login } from "@/e2e/helpers";
 test("lets visitors browse, requires login on write, and supports login", async ({
   page,
 }) => {
-  await page.goto("/app");
+  await page.goto("/resumes");
   await expect(
-    page.getByRole("heading", { name: /欢迎体验.*继续向前/ }),
+    page.getByRole("heading", { name: /简历/ }),
   ).toBeVisible();
 
-  await page.goto("/app/batches");
+  await page.goto("/batches");
   await page.getByRole("button", { name: "新建批次" }).first().click();
   const batchDialog = page.getByRole("dialog", { name: "新建批次" });
   await batchDialog
@@ -18,12 +18,12 @@ test("lets visitors browse, requires login on write, and supports login", async 
     .fill("访客不可写");
   await batchDialog.getByRole("button", { name: "创建批次" }).click();
   await expect(page).toHaveURL(
-    /\/login\?next=%2Fapp%2Fbatches$/,
+    /\/login\?next=%2Fbatches$/,
   );
 
   await login(page);
   await expect(
-    page.getByRole("heading", { name: /继续向前/ }),
+    page.getByRole("heading", { name: /简历/ }),
   ).toBeVisible();
 
   await page.getByRole("button", { name: "退出" }).click();

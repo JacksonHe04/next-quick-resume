@@ -37,7 +37,7 @@ export function UpcomingInterviews({
         {interviews.map((interview) => (
           <IntentLink
             key={interview.id}
-            href={`/app/interviews/${interview.id}`}
+            href={`/interviews/${interview.id}`}
             className="group flex items-center gap-4 px-5 py-4 transition hover:bg-muted"
           >
             <div className="min-w-0 flex-1">
@@ -64,7 +64,7 @@ export function UpcomingInterviews({
           <div className="px-5 py-12 text-center">
             <p className="text-sm font-medium">近期没有待进行的面试</p>
             <Link
-              href="/app/interviews"
+              href="/interviews"
               className="mt-2 inline-block text-xs text-foreground hover:underline"
             >
               查看全部选拔事件

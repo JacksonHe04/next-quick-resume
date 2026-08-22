@@ -240,7 +240,7 @@ export function SubmissionManager({
       header: "公司",
       render: (submission) => (
         <IntentLink
-          href={`/app/submissions/${submission.id}`}
+          href={`/submissions/${submission.id}`}
           className="font-medium"
         >
           {submission.companyName}
@@ -497,7 +497,7 @@ export function SubmissionManager({
         <p className="text-sm text-[#9a6a2c]">
           新建投递前，需要先在{" "}
           <Link
-            href="/app/batches"
+            href="/batches"
             className="font-medium text-foreground underline"
           >
             批次
@@ -544,7 +544,7 @@ export function SubmissionManager({
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <IntentLink
-                      href={`/app/submissions/${submission.id}`}
+                      href={`/submissions/${submission.id}`}
                       className="block truncate text-base font-semibold"
                     >
                       {submission.companyName}

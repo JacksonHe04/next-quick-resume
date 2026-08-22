@@ -38,7 +38,7 @@ export function ResumeListSidebar({
     const fallback = sorted.find((item) => item.id !== resume.id);
     if (resume.id === currentId) {
       router.replace(
-        fallback ? `/app/resumes/${fallback.id}` : "/app/resumes",
+        fallback ? `/resumes/${fallback.id}` : "/resumes",
       );
     } else {
       router.refresh();
@@ -53,7 +53,7 @@ export function ResumeListSidebar({
           return (
             <div key={resume.id} className="group relative">
               <IntentLink
-                href={`/app/resumes/${resume.id}`}
+                href={`/resumes/${resume.id}`}
                 aria-label={`切换到${resume.name}`}
                 aria-current={active ? "page" : undefined}
                 className={cn(

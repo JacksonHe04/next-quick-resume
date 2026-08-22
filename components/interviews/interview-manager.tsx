@@ -94,7 +94,7 @@ function InterviewCard({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <IntentLink
-              href={`/app/interviews/${interview.id}`}
+              href={`/interviews/${interview.id}`}
               className="font-[var(--font-display)] text-lg font-semibold tracking-[-0.03em] hover:text-foreground"
             >
               {interview.name}
@@ -413,7 +413,7 @@ export function InterviewManager({
       render: (interview) => (
         <div className="flex justify-end gap-1">
           <IntentLink
-            href={`/app/interviews/${interview.id}`}
+            href={`/interviews/${interview.id}`}
             aria-label="打开选拔详情"
             className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           >
@@ -523,7 +523,7 @@ export function InterviewManager({
         <p className={error ? "mt-3 text-sm text-[#9a6a2c]" : "text-sm text-[#9a6a2c]"}>
           需要先{" "}
           <Link
-            href="/app/submissions"
+            href="/submissions"
             className="font-medium text-foreground underline"
           >
             记录投递

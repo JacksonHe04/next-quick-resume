@@ -73,7 +73,7 @@ export function ResumeManager({
       if (!response.ok || !payload.resume) {
         throw new Error(payload.error?.message ?? "创建失败");
       }
-      router.push(`/app/resumes/${payload.resume.id}`);
+      router.push(`/resumes/${payload.resume.id}`);
     } catch (createError) {
       setError((createError as Error).message);
       setPending(false);
@@ -160,7 +160,7 @@ export function ResumeManager({
       render: (resume) => (
         <div className="flex justify-end gap-1">
           <IntentLink
-            href={`/app/resumes/${resume.id}`}
+            href={`/resumes/${resume.id}`}
             aria-label="打开简历编辑器"
             className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
           >
@@ -224,7 +224,7 @@ export function ResumeManager({
                 <div className="min-w-0">
                   <FileText size={18} className="text-[#55a572]" />
                   <IntentLink
-                    href={`/app/resumes/${resume.id}`}
+                    href={`/resumes/${resume.id}`}
                     className="mt-4 block truncate text-base font-semibold"
                   >
                     {resume.name}

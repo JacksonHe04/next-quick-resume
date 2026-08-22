@@ -118,7 +118,7 @@ export function SubmissionDetail({
     <>
       <AppTopbarPortal>
         <IntentLink
-          href="/app/submissions"
+          href="/submissions"
           aria-label="返回投递"
           className="grid size-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
         >
