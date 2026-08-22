@@ -26,7 +26,7 @@ const sectionTitleClass = cn(
 );
 const itemHeaderClass = cn(
   ITEM_HEADER_BOTTOM_CLASS,
-  "flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-baseline sm:gap-4",
+  "flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-4",
 );
 const itemTitleClass = "text-base font-bold sm:text-lg";
 const bodyTextClass = "text-sm sm:text-base";
@@ -186,7 +186,7 @@ function HeaderSection({
         {photo.showPhoto ? (
           <div
             data-testid="resume-photo-frame"
-            className="resume-photo-frame relative flex h-32 w-max max-w-full shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-0 sm:min-h-full sm:self-auto"
+            className="resume-photo-frame relative flex h-32 w-max max-w-full shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-0 sm:min-h-full sm:self-auto print:!h-32 print:!min-h-0 print:!self-start print:!overflow-hidden"
           >
             {photo.photoData ? (
               <Image

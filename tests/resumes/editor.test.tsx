@@ -351,6 +351,11 @@ describe("resume editor", () => {
       "sm:self-auto",
     );
     expect(frame).not.toHaveClass("sm:h-40");
+    // 打印时用 !important 强制 frame 收缩到 128px，撤销 min-h-full，撤销 stretch，并强制 overflow-hidden 防止 image 溢出
+    expect(frame).toHaveClass("print:!h-32");
+    expect(frame).toHaveClass("print:!min-h-0");
+    expect(frame).toHaveClass("print:!self-start");
+    expect(frame).toHaveClass("print:!overflow-hidden");
     expect(image).toHaveClass(
       "resume-photo-image",
       "h-full",
