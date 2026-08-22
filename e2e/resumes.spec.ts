@@ -119,6 +119,10 @@ test("lets unauthenticated visitors edit the demo resume and lazily materializes
   await expect(
     guestPage.getByRole("main", { name: "简历预览" }),
   ).toBeVisible();
+  // 访客看到的是「新建简历」时的模板简历（mock），绝不泄露任何真实简历
+  await expect(
+    guestPage.getByRole("heading", { name: "林悦辰" }),
+  ).toBeVisible();
   await expect(
     guestPage.getByRole("button", { name: "克隆简历" }),
   ).toHaveCount(0);

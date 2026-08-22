@@ -6,24 +6,26 @@ import { getAppReadContext } from "@/modules/app/read-context";
 import { listResumes } from "@/modules/resumes/repository";
 import { DEMO_RESUME_ID } from "@/db/seed/demo";
 import { createDefaultResumeDocument } from "@/modules/resumes/defaults";
+import type { ResumeRecord } from "@/modules/resumes/service";
 
 export default async function ResumesPage() {
   const { database, userId, isGuest } = await getAppReadContext();
   const resumes = await listResumes(database, userId);
 
-  // 访客：直接编辑 demo 简历，首次修改时才在数据库物化
+  // 访客：只看到「新建简历」时的模板简历（mock），绝不读取数据库里任何
+  // 真实简历（历史版本曾把真实简历存进 demo-resume 行，构成隐私泄露）。
+  // 访客的首次修改仍会物化为一条新记录（见 resume-editor 的访客保存流程）。
   if (isGuest) {
-    const demo =
-      resumes.find((record) => record.id === DEMO_RESUME_ID) ?? {
-        id: DEMO_RESUME_ID,
-        userId,
-        name: "我的简历",
-        document: createDefaultResumeDocument(),
-        isPublic: false,
-        version: 1,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+    const demo: ResumeRecord = {
+      id: DEMO_RESUME_ID,
+      userId,
+      name: "我的简历",
+      document: createDefaultResumeDocument(),
+      isPublic: false,
+      version: 1,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
     return <ResumeEditorLoader resume={demo} resumes={[demo]} isGuest />;
   }
 
