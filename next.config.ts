@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // 隔离 e2e 实例使用独立 dist 目录，避免与本地 dev（共用 .next）互锁
+  distDir: process.env.SAYLESS_E2E_DIST_DIR || ".next",
   turbopack: {
     root: process.cwd(),
   },

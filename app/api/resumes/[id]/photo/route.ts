@@ -5,6 +5,7 @@ import {
   getResumeWriteContext,
   resumeErrorResponse,
 } from "@/modules/resumes/actions";
+import { scopeOf } from "@/modules/resumes/repository";
 import { uploadResumePhoto } from "@/modules/resumes/service";
 
 const uploadPhotoInputSchema = z.object({
@@ -23,6 +24,8 @@ export async function POST(
       context.user.id,
       (await params).id,
       input.photoData,
+      undefined,
+      scopeOf(context.guestDeviceId),
     );
     return NextResponse.json({ ok: true });
   } catch (error) {

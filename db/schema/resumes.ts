@@ -11,6 +11,10 @@ export const resumes = sqliteTable(
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    // 访客设备的匿名 UUID（见 modules/auth/anon-id.ts）。非空即代表该行属于
+    // 某台访客设备：userId 仍挂在 DEMO_USER_ID 下以满足外键约束，设备隔离
+    // 由本列完成；登录用户的数据此列为 NULL。
+    guestDeviceId: text("guest_device_id"),
     name: text("name").notNull(),
     dataJson: text("data_json").notNull(),
     displayConfigJson: text("display_config_json").notNull(),
@@ -23,6 +27,11 @@ export const resumes = sqliteTable(
   (table) => [
     check("resumes_positive_version", sql`${table.version} > 0`),
     index("resumes_user_updated_idx").on(table.userId, table.updatedAt),
+    index("resumes_guest_device_idx").on(
+      table.userId,
+      table.guestDeviceId,
+      table.updatedAt,
+    ),
   ],
 );
 

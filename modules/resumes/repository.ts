@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNull } from "drizzle-orm";
 import type { DrizzleD1Database } from "drizzle-orm/d1";
 
 import * as schema from "@/db/schema";
@@ -13,6 +13,23 @@ import type {
 type Database = DrizzleD1Database<typeof schema>;
 
 type ResumeRow = typeof resumes.$inferSelect;
+
+// 设备作用域：guestDeviceId 为字符串时只命中该访客设备的行；
+// null 表示登录用户，只命中 guest_device_id IS NULL 的行（即用户自己创建的）。
+// 绝不提供「不过滤」的路径，防止访客访问到其他设备 / 账号的简历。
+export type ResumeDeviceScope = { guestDeviceId: string } | null;
+
+export function scopeOf(
+  guestDeviceId: string | null,
+): ResumeDeviceScope {
+  return guestDeviceId ? { guestDeviceId } : null;
+}
+
+function deviceScopeFilter(scope: ResumeDeviceScope) {
+  return scope
+    ? eq(resumes.guestDeviceId, scope.guestDeviceId)
+    : isNull(resumes.guestDeviceId);
+}
 
 // photoData 是读取时的回填值（来自 resume_photos），绝不落进 displayConfigJson
 function displayConfigJsonOf(document: ResumeRecord["document"]) {
@@ -43,6 +60,7 @@ function deserialize(
   return {
     id: row.id,
     userId: row.userId,
+    guestDeviceId: row.guestDeviceId,
     name: row.name,
     document,
     isPublic: row.isPublic,
@@ -63,12 +81,18 @@ export function createResumeRepository(
   database: Database,
 ): ResumeRepository {
   return {
-    async find(userId, id) {
+    async find(userId, id, scope = null) {
       const [row] = await database
         .select({ row: resumes, photoData: resumePhotos.photoData })
         .from(resumes)
         .leftJoin(resumePhotos, eq(resumePhotos.resumeId, resumes.id))
-        .where(and(eq(resumes.userId, userId), eq(resumes.id, id)))
+        .where(
+          and(
+            eq(resumes.userId, userId),
+            eq(resumes.id, id),
+            deviceScopeFilter(scope),
+          ),
+        )
         .limit(1);
       return row ? deserialize(row.row, row.photoData) : null;
     },
@@ -89,6 +113,7 @@ export function createResumeRepository(
         .values({
           id: record.id,
           userId: record.userId,
+          guestDeviceId: record.guestDeviceId,
           name: record.name,
           dataJson: dataJsonOf(record.document),
           displayConfigJson: displayConfigJsonOf(record.document),
@@ -116,7 +141,7 @@ export function createResumeRepository(
         .run();
     },
 
-    async updateIfVersion(userId, id, expectedVersion, changes) {
+    async updateIfVersion(userId, id, expectedVersion, changes, scope = null) {
       const result = await database
         .update(resumes)
         .set({
@@ -135,25 +160,38 @@ export function createResumeRepository(
             eq(resumes.userId, userId),
             eq(resumes.id, id),
             eq(resumes.version, expectedVersion),
+            deviceScopeFilter(scope),
           ),
         )
         .run();
       return result.meta.changes > 0;
     },
 
-    async setShareEnabled(userId, id, isPublic, now) {
+    async setShareEnabled(userId, id, isPublic, now, scope = null) {
       const result = await database
         .update(resumes)
         .set({ isPublic, updatedAt: now })
-        .where(and(eq(resumes.userId, userId), eq(resumes.id, id)))
+        .where(
+          and(
+            eq(resumes.userId, userId),
+            eq(resumes.id, id),
+            deviceScopeFilter(scope),
+          ),
+        )
         .run();
       return result.meta.changes > 0;
     },
 
-    async delete(userId, id) {
+    async delete(userId, id, scope = null) {
       await database
         .delete(resumes)
-        .where(and(eq(resumes.userId, userId), eq(resumes.id, id)))
+        .where(
+          and(
+            eq(resumes.userId, userId),
+            eq(resumes.id, id),
+            deviceScopeFilter(scope),
+          ),
+        )
         .run();
     },
   };
@@ -162,12 +200,15 @@ export function createResumeRepository(
 export async function listResumes(
   database: Database,
   userId: string,
+  scope: ResumeDeviceScope = null,
 ) {
   const rows = await database
     .select({ row: resumes, photoData: resumePhotos.photoData })
     .from(resumes)
     .leftJoin(resumePhotos, eq(resumePhotos.resumeId, resumes.id))
-    .where(eq(resumes.userId, userId))
+    .where(
+      and(eq(resumes.userId, userId), deviceScopeFilter(scope)),
+    )
     .orderBy(desc(resumes.updatedAt));
   return rows.map((item) => deserialize(item.row, item.photoData));
 }

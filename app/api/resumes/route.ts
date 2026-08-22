@@ -5,14 +5,21 @@ import {
   getResumeWriteContext,
   resumeErrorResponse,
 } from "@/modules/resumes/actions";
-import { listResumes } from "@/modules/resumes/repository";
+import {
+  listResumes,
+  scopeOf,
+} from "@/modules/resumes/repository";
 import { createResume } from "@/modules/resumes/service";
 
 export async function GET(request: Request) {
   try {
     const context = await getReadDatabaseContext(request);
     return NextResponse.json({
-      resumes: await listResumes(context.database, context.userId),
+      resumes: await listResumes(
+        context.database,
+        context.userId,
+        scopeOf(context.guestDeviceId),
+      ),
     });
   } catch (error) {
     return resumeErrorResponse(error);
@@ -26,6 +33,8 @@ export async function POST(request: Request) {
       context.repository,
       context.user.id,
       await request.json(),
+      undefined,
+      context.guestDeviceId,
     );
     return NextResponse.json({ resume }, { status: 201 });
   } catch (error) {

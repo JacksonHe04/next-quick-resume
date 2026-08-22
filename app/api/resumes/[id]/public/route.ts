@@ -5,6 +5,7 @@ import {
   getResumeWriteContext,
   resumeErrorResponse,
 } from "@/modules/resumes/actions";
+import { scopeOf } from "@/modules/resumes/repository";
 import { setResumePublic } from "@/modules/resumes/service";
 
 const toggleShareInputSchema = z.object({
@@ -23,6 +24,8 @@ export async function PATCH(
       context.user.id,
       (await params).id,
       input.isPublic,
+      undefined,
+      scopeOf(context.guestDeviceId),
     );
     return NextResponse.json({ resume });
   } catch (error) {

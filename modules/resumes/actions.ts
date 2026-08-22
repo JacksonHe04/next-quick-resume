@@ -7,6 +7,7 @@ import {
   getAuthenticatedDatabaseContext,
   unauthenticatedResponse,
 } from "@/modules/auth/action-context";
+import { readAnonRawIdFromRequest } from "@/modules/auth/anon-id";
 import { getInonProjectSession } from "@/modules/auth/inon-session";
 import { resolveInonProjectUser } from "@/modules/auth/inon-user";
 import { createResumeRepository } from "@/modules/resumes/repository";
@@ -22,8 +23,9 @@ export async function getResumeActionContext(request: Request) {
   };
 }
 
-// 未登录用户以 demo 沙箱账号身份写入：允许其在 demo 简历上修改，
-// 首次修改时物化为一条新记录（见 resume-editor 的访客保存流程）。
+// 未登录用户以 demo 沙箱账号身份写入，并按浏览器匿名设备 id（guestDeviceId）
+// 隔离数据：首次修改物化为该设备下的新记录，回访时凭同一 id 续编（见
+// resume-editor 的访客保存流程与 modules/auth/anon-id.ts）。
 export async function getResumeWriteContext(request: Request) {
   const database = await getDb();
   const session = await getInonProjectSession(request);
@@ -34,6 +36,9 @@ export async function getResumeWriteContext(request: Request) {
   return {
     database,
     user: authenticated ?? { id: DEMO_USER_ID, disabledAt: null },
+    guestDeviceId: authenticated
+      ? null
+      : readAnonRawIdFromRequest(request),
     repository: createResumeRepository(database),
   };
 }

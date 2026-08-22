@@ -23,6 +23,7 @@ _satellites/
 .worktrees/
 .wrangler/
 data_import/
+.dev.vars
 
 # ==========================================
 # 3. 依赖与环境 (Dependencies & Env)
@@ -38,6 +39,7 @@ node_modules/
 # 4. 构建输出与缓存 (Build Output & Cache)
 # ==========================================
 .next/
+.next-e2e/
 .open-next/
 out/
 dist/

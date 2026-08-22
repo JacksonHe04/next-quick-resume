@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getDb } from "@/db/client";
 import { DEMO_USER_ID } from "@/db/seed/demo";
+import { readAnonRawIdFromRequest } from "@/modules/auth/anon-id";
 import { getInonProjectSession } from "@/modules/auth/inon-session";
 import { resolveInonProjectUser } from "@/modules/auth/inon-user";
 
@@ -34,6 +35,10 @@ export async function getReadDatabaseContext(request: Request) {
     userId: authenticated?.id ?? DEMO_USER_ID,
     user: authenticated,
     isGuest: !authenticated,
+    // 未登录时以浏览器匿名设备 id 作为数据隔离键（null = 无有效 id）
+    guestDeviceId: authenticated
+      ? null
+      : readAnonRawIdFromRequest(request),
   };
 }
 

@@ -4,9 +4,14 @@ import {
 } from "@/modules/resumes/schema";
 import type { ResumeDocumentV1 } from "@/types";
 
+// 设备作用域（与 repository 的 ResumeDeviceScope 同构，避免循环依赖）：
+// 字符串 = 访客设备的匿名 UUID；null = 登录用户本人。
+export type ResumeGuestScope = { guestDeviceId: string } | null;
+
 export type ResumeRecord = {
   id: string;
   userId: string;
+  guestDeviceId: string | null;
   name: string;
   document: ResumeDocumentV1;
   isPublic: boolean;
@@ -32,7 +37,11 @@ export class ResumeError extends Error {
 }
 
 export interface ResumeRepository {
-  find(userId: string, id: string): Promise<ResumeRecord | null>;
+  find(
+    userId: string,
+    id: string,
+    scope?: ResumeGuestScope,
+  ): Promise<ResumeRecord | null>;
   findPublicById(id: string): Promise<ResumeRecord | null>;
   insert(record: ResumeRecord): Promise<void>;
   savePhoto(
@@ -45,22 +54,29 @@ export interface ResumeRepository {
     id: string,
     expectedVersion: number,
     changes: Partial<ResumeRecord>,
+    scope?: ResumeGuestScope,
   ): Promise<boolean>;
   setShareEnabled(
     userId: string,
     id: string,
     isPublic: boolean,
     now: Date,
+    scope?: ResumeGuestScope,
   ): Promise<boolean>;
-  delete(userId: string, id: string): Promise<void>;
+  delete(
+    userId: string,
+    id: string,
+    scope?: ResumeGuestScope,
+  ): Promise<void>;
 }
 
 async function requireResume(
   repository: ResumeRepository,
   userId: string,
   id: string,
+  scope?: ResumeGuestScope,
 ) {
-  const record = await repository.find(userId, id);
+  const record = await repository.find(userId, id, scope);
   if (!record) {
     throw new ResumeError("RESUME_NOT_FOUND", "简历不存在");
   }
@@ -90,11 +106,13 @@ export async function createResume(
   userId: string,
   input: unknown,
   now = new Date(),
+  guestDeviceId: string | null = null,
 ): Promise<ResumeRecord> {
   const parsed = createResumeInputSchema.parse(input);
   const record: ResumeRecord = {
     id: crypto.randomUUID(),
     userId,
+    guestDeviceId,
     name: parsed.name,
     document: parsed.document,
     isPublic: false,
@@ -116,9 +134,10 @@ export async function saveResume(
   userId: string,
   input: unknown,
   now = new Date(),
+  scope?: ResumeGuestScope,
 ): Promise<ResumeRecord> {
   const parsed = saveResumeInputSchema.parse(input);
-  await requireResume(repository, userId, parsed.id);
+  await requireResume(repository, userId, parsed.id, scope);
   const photoData = photoDataOf(parsed.document);
   const document = withoutPhotoData(parsed.document);
   if (photoData) {
@@ -135,6 +154,7 @@ export async function saveResume(
       version,
       updatedAt: now,
     },
+    scope,
   );
   if (!saved) {
     throw new ResumeError(
@@ -142,10 +162,11 @@ export async function saveResume(
       "这份简历已在其他位置更新，请刷新后重试",
     );
   }
-  const record = await requireResume(repository, userId, parsed.id);
+  const record = await requireResume(repository, userId, parsed.id, scope);
   return {
     id: parsed.id,
     userId,
+    guestDeviceId: record.guestDeviceId,
     name: parsed.name,
     document,
     isPublic: record.isPublic,
@@ -164,8 +185,9 @@ export async function uploadResumePhoto(
   id: string,
   photoData: string,
   now = new Date(),
+  scope?: ResumeGuestScope,
 ): Promise<void> {
-  await requireResume(repository, userId, id);
+  await requireResume(repository, userId, id, scope);
   if (
     typeof photoData !== "string" ||
     photoData.length === 0 ||
@@ -185,9 +207,10 @@ export async function setResumePublic(
   id: string,
   isPublic: boolean,
   now = new Date(),
+  scope?: ResumeGuestScope,
 ): Promise<ResumeRecord> {
-  const record = await requireResume(repository, userId, id);
-  await repository.setShareEnabled(userId, id, isPublic, now);
+  const record = await requireResume(repository, userId, id, scope);
+  await repository.setShareEnabled(userId, id, isPublic, now, scope);
   return { ...record, isPublic, updatedAt: now };
 }
 
@@ -206,7 +229,8 @@ export async function deleteResume(
   repository: ResumeRepository,
   userId: string,
   id: string,
+  scope?: ResumeGuestScope,
 ): Promise<void> {
-  await requireResume(repository, userId, id);
-  await repository.delete(userId, id);
+  await requireResume(repository, userId, id, scope);
+  await repository.delete(userId, id, scope);
 }

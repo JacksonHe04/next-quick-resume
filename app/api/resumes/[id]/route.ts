@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { getReadDatabaseContext } from "@/modules/auth/action-context";
-import { createResumeRepository } from "@/modules/resumes/repository";
+import { createResumeRepository, scopeOf } from "@/modules/resumes/repository";
 import {
   getResumeWriteContext,
   resumeErrorResponse,
@@ -21,6 +21,7 @@ export async function GET(
     const resume = await createResumeRepository(context.database).find(
       context.userId,
       (await params).id,
+      scopeOf(context.guestDeviceId),
     );
     if (!resume) {
       throw new ResumeError("RESUME_NOT_FOUND", "简历不存在");
@@ -45,6 +46,8 @@ export async function PATCH(
         ...(typeof body === "object" && body !== null ? body : {}),
         id: (await params).id,
       },
+      undefined,
+      scopeOf(context.guestDeviceId),
     );
     return NextResponse.json({ resume });
   } catch (error) {
@@ -62,6 +65,7 @@ export async function DELETE(
       context.repository,
       context.user.id,
       (await params).id,
+      scopeOf(context.guestDeviceId),
     );
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -146,12 +146,17 @@ export function ResumeEditor({
   initial,
   availableResumes = [initial],
   isGuest = false,
+  guestDraft = false,
   save = saveThroughApi,
   autosaveDelay = 650,
 }: {
   initial: ResumeRecord;
   availableResumes?: ResumeRecord[];
   isGuest?: boolean;
+  // 访客当前编辑的是「新建简历」模板 mock（guestDraft=true）：首次修改时
+  // 物化为数据库记录；回访访客（guestDraft=false）的 initial 就是自己设备
+  // 下已物化的记录，保存直接打回它，不再二次创建。
+  guestDraft?: boolean;
   save?: (input: SaveInput) => Promise<SaveResult>;
   autosaveDelay?: number;
 }) {
@@ -176,8 +181,11 @@ export function ResumeEditor({
   const [actionError, setActionError] = useState<string>();
   const containerRef = useRef<HTMLElement>(null);
   const targetIdRef = useRef(initial.id);
-  // 访客模式：首次修改时把 demo 简历物化为数据库记录，之后保存到该记录
-  const guestRecordId = useRef<string | undefined>(undefined);
+  // 访客模式：模板 mock（guestDraft）首次修改时把 demo 简历物化为数据库
+  // 记录；回访访客的 initial 已是该设备下物化的记录，直接以它为保存目标。
+  const guestRecordId = useRef<string | undefined>(
+    isGuest && !guestDraft ? initial.id : undefined,
+  );
   const saveQueue = useRef(Promise.resolve(true));
   const actionErrorTimer = useRef<number | undefined>(undefined);
   // 每个保存目标（简历 id）上次已持久化的草稿与版本号（惰性初始化一次）
