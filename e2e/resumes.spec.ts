@@ -80,14 +80,18 @@ test("switches, clones, shares, and persists resumes from the three-column works
   await expect(linkRow).toBeVisible();
   const shareUrl = await linkRow.getAttribute("title");
 
-  // 未登录访客可访问分享页：只有简历渲染本身
+  // 未登录访客可访问分享页：只展示「新建简历」时的模板简历（mock），
+  // 绝不泄露真实内容；只有简历渲染本身
   const anonymousContext = await browser.newContext();
   const anonymousPage = await anonymousContext.newPage();
   await anonymousPage.goto(shareUrl!);
   await expect(anonymousPage.locator("#resume-preview")).toBeVisible();
   await expect(
-    anonymousPage.getByRole("heading", { name: candidateName }),
+    anonymousPage.getByRole("heading", { name: "林悦辰" }),
   ).toBeVisible();
+  await expect(
+    anonymousPage.getByRole("heading", { name: candidateName }),
+  ).toHaveCount(0);
   await expect(anonymousPage.getByRole("banner")).toHaveCount(0);
   await expect(anonymousPage.getByRole("complementary")).toHaveCount(0);
 
