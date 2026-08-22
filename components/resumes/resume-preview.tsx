@@ -14,23 +14,32 @@ const mutedTextClass = "text-sm text-gray-600 sm:text-base";
 const orderedListClass =
   "ml-0 list-inside list-decimal space-y-1 text-sm sm:text-base";
 
+// Every user-editable text field in the resume is rendered through this
+// component so Markdown bold (and other inline markup) works everywhere
+// instead of being opt-in per section.
 function Markdown({
   value,
   className,
 }: {
-  value: string;
+  value: string | null | undefined;
   className?: string;
 }) {
   return (
     <span
       className={cn("[&_p]:inline", className)}
-      dangerouslySetInnerHTML={{ __html: renderSafeInlineMarkdown(value) }}
+      dangerouslySetInnerHTML={{
+        __html: renderSafeInlineMarkdown(value ?? ""),
+      }}
     />
   );
 }
 
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return <h2 className={sectionTitleClass}>{children}</h2>;
+function SectionTitle({ title }: { title: string }) {
+  return (
+    <h2 className={sectionTitleClass}>
+      <Markdown value={title} />
+    </h2>
+  );
 }
 
 function ResumeLink({
@@ -68,6 +77,7 @@ function HeaderSection({
   const { data, displayConfig } = document;
   const { contact, jobInfo, name } = data.header;
   const alignment = displayConfig.headerAlignment ?? "left";
+  const { photo } = displayConfig;
   const alignmentClasses =
     alignment === "center"
       ? "items-center text-center"
@@ -77,8 +87,7 @@ function HeaderSection({
     <header className={sectionClass}>
       <div
         className={cn(
-          "resume-header-layout flex flex-col-reverse justify-between gap-4 sm:flex-row sm:items-stretch sm:gap-8 print:flex-row print:items-stretch print:gap-8",
-          alignment === "center" && "sm:justify-center",
+          "resume-header-layout flex flex-col-reverse gap-4 sm:grid sm:grid-cols-[minmax(0,1fr)_auto] sm:items-stretch sm:gap-8 print:grid print:grid-cols-[minmax(0,1fr)_auto] print:items-stretch print:gap-8",
         )}
       >
         <div
@@ -89,10 +98,12 @@ function HeaderSection({
         >
           <div className="mb-3 sm:mb-4">
             <h1 className="m-0 font-serif text-2xl font-bold sm:text-3xl md:text-4xl">
-              {name}
+              <Markdown value={name} />
             </h1>
             <p className="mt-2 font-[Georgia] text-base text-gray-600 sm:mt-4 sm:text-lg md:text-xl">
-              <b>{jobInfo.position}</b>
+              <b>
+                <Markdown value={jobInfo.position} />
+              </b>
             </p>
           </div>
 
@@ -105,7 +116,7 @@ function HeaderSection({
             >
               <p className={bodyTextClass}>
                 <b>电话 / 微信：</b>
-                {contact.phone}
+                <Markdown value={contact.phone} />
               </p>
               <p className={bodyTextClass}>
                 <b>邮箱：</b>
@@ -113,14 +124,14 @@ function HeaderSection({
                   href={`mailto:${contact.email}`}
                   underline={false}
                 >
-                  {contact.email}
+                  <Markdown value={contact.email} />
                 </ResumeLink>
               </p>
               {contact.homepage ? (
                 <p className={bodyTextClass}>
                   <b>主页：</b>
                   <ResumeLink href={contact.homepage.url}>
-                    {contact.homepage.text}
+                    <Markdown value={contact.homepage.text} />
                   </ResumeLink>
                 </p>
               ) : (
@@ -130,7 +141,7 @@ function HeaderSection({
                 <p className={bodyTextClass}>
                   <b>GitHub：</b>
                   <ResumeLink href={contact.github.url}>
-                    {contact.github.text}
+                    <Markdown value={contact.github.text} />
                   </ResumeLink>
                 </p>
               ) : (
@@ -140,14 +151,14 @@ function HeaderSection({
           </div>
         </div>
 
-        {displayConfig.photo.showPhoto ? (
+        {photo.showPhoto ? (
           <div
             data-testid="resume-photo-frame"
-            className="resume-photo-frame relative flex h-32 shrink-0 self-center items-center justify-center overflow-hidden rounded-lg border border-gray-200 sm:h-auto sm:self-stretch print:h-auto print:self-stretch"
+            className="resume-photo-frame relative flex h-32 w-max max-w-full shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-0 sm:min-h-full sm:self-auto print:h-0 print:min-h-full print:self-auto"
           >
-            {displayConfig.photo.photoData ? (
+            {photo.photoData ? (
               <Image
-                src={displayConfig.photo.photoData}
+                src={photo.photoData}
                 alt="个人照片"
                 width={128}
                 height={160}
@@ -177,27 +188,29 @@ function EducationSection({
   if (items.length === 0) return null;
   return (
     <section className={sectionClass}>
-      <SectionTitle>{education.title}</SectionTitle>
+      <SectionTitle title={education.title} />
       {items.map((item, index) => (
         <div className={itemClass} key={`${item.school}-${index}`}>
-          <div className="mb-1.5 flex items-start justify-between gap-2">
+          <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
             <div className="flex flex-wrap items-center gap-2">
               {item.image ? (
                 <Image
                   src={item.image}
                   alt={`${item.school} logo`}
-                  width={36}
-                  height={36}
+                  width={32}
+                  height={32}
                   unoptimized
                   className="shrink-0 object-contain"
                 />
               ) : null}
               <h3 className="text-base font-bold leading-none sm:text-lg">
-                {item.school}
+                <Markdown value={item.school} />
               </h3>
             </div>
             {item.base ? (
-              <span className={mutedTextClass}>{item.base}</span>
+              <span className={mutedTextClass}>
+                <Markdown value={item.base} />
+              </span>
             ) : null}
           </div>
           {item.entries.map((entry, entryIndex) => (
@@ -205,8 +218,12 @@ function EducationSection({
               key={entryIndex}
               className="flex items-start justify-between gap-2"
             >
-              <p className={bodyTextClass}>{entry.details}</p>
-              <span className={mutedTextClass}>{entry.period}</span>
+              <p className={bodyTextClass}>
+                <Markdown value={entry.details} />
+              </p>
+              <span className={mutedTextClass}>
+                <Markdown value={entry.period} />
+              </span>
             </div>
           ))}
         </div>
@@ -220,7 +237,7 @@ function InternSection({ document }: { document: ResumeDocumentV1 }) {
   if (!intern) return null;
   return (
     <section className={sectionClass}>
-      <SectionTitle>{intern.title}</SectionTitle>
+      <SectionTitle title={intern.title} />
       {intern.items
         .filter((item) => item.show !== false)
         .map((item, index) => (
@@ -231,22 +248,26 @@ function InternSection({ document }: { document: ResumeDocumentV1 }) {
                   <Image
                     src={item.image}
                     alt={`${item.company} logo`}
-                    width={36}
-                    height={36}
+                    width={32}
+                    height={32}
                     unoptimized
                     className="shrink-0 object-contain"
                   />
                 ) : null}
                 <h3 className="text-base font-bold leading-none sm:text-lg">
-                  {item.company}
+                  <Markdown value={item.company} />
                 </h3>
                 <span className={cn(mutedTextClass, "leading-none")}>
-                  {item.position}
+                  <Markdown value={item.position} />
                 </span>
               </div>
               <div className="flex flex-wrap items-center gap-1">
-                <span className={mutedTextClass}>{item.base}</span>
-                <span className={mutedTextClass}>｜{item.period}</span>
+                <span className={mutedTextClass}>
+                  <Markdown value={item.base} />
+                </span>
+                <span className={mutedTextClass}>
+                  ｜<Markdown value={item.period} />
+                </span>
               </div>
             </div>
             {item.description ? (
@@ -276,19 +297,21 @@ function ProjectsSection({
   if (!projects) return null;
   return (
     <section className={sectionClass}>
-      <SectionTitle>{projects.title}</SectionTitle>
+      <SectionTitle title={projects.title} />
       {projects.items
         .filter((item) => item.show !== false)
         .map((item, index) => (
           <div className={itemClass} key={`${item.name}-${index}`}>
             <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
-              <h3 className="text-base font-bold sm:text-lg">{item.name}</h3>
+              <h3 className="text-base font-bold sm:text-lg">
+                <Markdown value={item.name} />
+              </h3>
               {item.github ? (
                 <ResumeLink
                   href={item.github}
                   className="break-all sm:break-normal"
                 >
-                  {item.github}
+                  <Markdown value={item.github} />
                 </ResumeLink>
               ) : null}
             </div>
@@ -315,7 +338,7 @@ function SkillsSection({ document }: { document: ResumeDocumentV1 }) {
   if (!skills) return null;
   return (
     <section className={sectionClass}>
-      <SectionTitle>{skills.title}</SectionTitle>
+      <SectionTitle title={skills.title} />
       <ol className={orderedListClass}>
         {skills.items.map((skill, index) => (
           <li key={index}>
@@ -336,7 +359,7 @@ function AboutSection({ document }: { document: ResumeDocumentV1 }) {
     .filter(Boolean);
   return (
     <section className={sectionClass}>
-      <SectionTitle>{about.title}</SectionTitle>
+      <SectionTitle title={about.title} />
       <ol className={orderedListClass}>
         {paragraphs.map((paragraph, index) => (
           <li
@@ -373,7 +396,7 @@ export function ResumePreview({
   return (
     <article
       id="resume-preview"
-      className="min-w-0 text-black print:bg-white"
+      className="min-w-0 text-black [&_strong]:font-semibold print:bg-white"
     >
       {document.displayConfig.sectionOrder.map((key) =>
         visible.has(key) ? <div key={key}>{sections[key]}</div> : null,

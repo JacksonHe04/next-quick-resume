@@ -321,6 +321,15 @@ export async function seedDemoUserData(
       createdAt: now,
       updatedAt: now,
     })
-    .onConflictDoNothing()
+    .onConflictDoUpdate({
+      target: resumes.id,
+      set: {
+        name: "AI 产品经理简历",
+        dataJson: JSON.stringify(document.data),
+        displayConfigJson: JSON.stringify(document.displayConfig),
+        version: 1,
+        updatedAt: now,
+      },
+    })
     .run();
 }
