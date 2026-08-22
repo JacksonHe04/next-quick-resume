@@ -6,7 +6,7 @@ export default async function ResumesPage() {
   const { database, userId } = await getAppReadContext();
   const resumes = await listResumes(database, userId);
   const editorHref = resumes[0]
-    ? `/app/resumes/${resumes[0].id}`
+    ? `/resumes/${resumes[0].id}`
     : undefined;
 
   return (

@@ -83,7 +83,7 @@ export default function LandingPage() {
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild>
-            <Link href="/app">先浏览产品</Link>
+            <Link href="/resumes">先浏览产品</Link>
           </Button>
         </div>
         <p className="mt-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground">
