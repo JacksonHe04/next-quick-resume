@@ -31,6 +31,10 @@ SAYLESS 围绕以下实体构建，所有实体都以 `userId`（文本主键）
 
 延续既有简历模块的功能，但页面样式**必须统一到 SAYLESS 整体设计风格**。
 
+- **访客（未登录）**：允许基于「新建简历」模板编辑并实时保存。首次访问时由根目录 `proxy.ts` 下发 `sayless_anon`（HttpOnly UUID，一年期）；访客简历落库时 `userId` 保持 `DEMO_USER_ID`（外键安全），同时记录 `guest_device_id` = 该 UUID 做**设备级隔离**。
+- 同一浏览器（同一 `sayless_anon`）再次访问 `/resumes` 会自动找回最近编辑的那一份继续编辑；不同设备 / 浏览器之间互不可见；登录用户只读取 `guest_device_id IS NULL` 的行，绝不接触任何访客数据。
+- 匿名 UUID 是 122 bit 的 bearer token，服务端只接受严格 UUID 格式（见 `modules/auth/anon-id.ts`）；设备 id 不属于鉴权凭据，仅用于访客数据的水平隔离。
+
 ### Submissions
 
 - `submissions` 是核心流转实体，承载一条"我已经把简历投给 X 公司 Y 职位"的完整痕迹。
