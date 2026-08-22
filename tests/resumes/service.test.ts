@@ -1,17 +1,18 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  cloneResume,
   createResume,
   getPublicResume,
   saveResume,
   setResumePublic,
+  uploadResumePhoto,
   type ResumeRecord,
   type ResumeRepository,
 } from "@/modules/resumes/service";
 
 class MemoryResumeRepository implements ResumeRepository {
   records = new Map<string, ResumeRecord>();
+  photos = new Map<string, string>();
 
   async find(userId: string, id: string) {
     const record = this.records.get(id);
@@ -25,6 +26,10 @@ class MemoryResumeRepository implements ResumeRepository {
 
   async insert(record: ResumeRecord) {
     this.records.set(record.id, record);
+  }
+
+  async savePhoto(resumeId: string, photoData: string, _now: Date) {
+    this.photos.set(resumeId, photoData);
   }
 
   async updateIfVersion(
@@ -111,28 +116,76 @@ describe("resume service", () => {
     expect(saved.version).toBe(2);
   });
 
-  it("clones a resume into an independent version-one record", async () => {
+  it("stores photo data separately and keeps it out of the persisted document", async () => {
     const repository = new MemoryResumeRepository();
-    const original = await createResume(
+    const created = await createResume(
       repository,
       "user-a",
       { name: "通用简历", document },
       now,
     );
 
-    const cloned = await cloneResume(
+    const withPhoto = {
+      ...document,
+      displayConfig: {
+        ...document.displayConfig,
+        photo: { showPhoto: true, photoData: "data:image/jpeg;base64,AAAA" },
+      },
+    };
+    const saved = await saveResume(
       repository,
       "user-a",
-      original.id,
+      {
+        id: created.id,
+        version: 1,
+        name: "通用简历",
+        document: withPhoto,
+      },
       now,
     );
 
-    expect(cloned).toMatchObject({
-      name: "通用简历（副本）",
-      version: 1,
-      isPublic: false,
+    expect(repository.photos.get(created.id)).toBe(
+      "data:image/jpeg;base64,AAAA",
+    );
+    expect(saved.document.displayConfig.photo).toEqual({
+      showPhoto: true,
+      photoData: undefined,
     });
-    expect(cloned.id).not.toBe(original.id);
+  });
+
+  it("uploads a photo only for an owned resume and caps its size", async () => {
+    const repository = new MemoryResumeRepository();
+    const created = await createResume(
+      repository,
+      "user-a",
+      { name: "通用简历", document },
+      now,
+    );
+
+    await uploadResumePhoto(
+      repository,
+      "user-a",
+      created.id,
+      "data:image/jpeg;base64,BBBB",
+      now,
+    );
+    expect(repository.photos.get(created.id)).toBe(
+      "data:image/jpeg;base64,BBBB",
+    );
+
+    await expect(
+      uploadResumePhoto(repository, "user-b", created.id, "data:x", now),
+    ).rejects.toMatchObject({ code: "RESUME_NOT_FOUND" });
+
+    await expect(
+      uploadResumePhoto(
+        repository,
+        "user-a",
+        created.id,
+        "x".repeat(900_000),
+        now,
+      ),
+    ).rejects.toMatchObject({ code: "INVALID_PHOTO" });
   });
 
   it("toggles public sharing and exposes the resume without a user", async () => {

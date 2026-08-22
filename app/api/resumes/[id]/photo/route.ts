@@ -5,26 +5,26 @@ import {
   getResumeWriteContext,
   resumeErrorResponse,
 } from "@/modules/resumes/actions";
-import { setResumePublic } from "@/modules/resumes/service";
+import { uploadResumePhoto } from "@/modules/resumes/service";
 
-const toggleShareInputSchema = z.object({
-  isPublic: z.boolean(),
+const uploadPhotoInputSchema = z.object({
+  photoData: z.string().min(1),
 });
 
-export async function PATCH(
+export async function POST(
   request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const context = await getResumeWriteContext(request);
-    const input = toggleShareInputSchema.parse(await request.json());
-    const resume = await setResumePublic(
+    const input = uploadPhotoInputSchema.parse(await request.json());
+    await uploadResumePhoto(
       context.repository,
       context.user.id,
       (await params).id,
-      input.isPublic,
+      input.photoData,
     );
-    return NextResponse.json({ resume });
+    return NextResponse.json({ ok: true });
   } catch (error) {
     return resumeErrorResponse(error);
   }

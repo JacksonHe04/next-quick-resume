@@ -1,175 +1,73 @@
 "use client";
 
-import {
-  Check,
-  Copy,
-  Link2,
-  MoreVertical,
-  Plus,
-  Trash2,
-} from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Check, Link2, MoreVertical, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
-import { IntentLink } from "@/components/app/intent-link";
 import { Button } from "@/components/ui/button";
-import { appFetch } from "@/lib/app-fetch";
 import { cn } from "@/lib/utils";
-import { createResume } from "@/modules/resumes/client-actions";
 import type { ResumeRecord } from "@/modules/resumes/service";
-
-function shareUrlFor(id: string) {
-  return `${window.location.origin}/resumes/share/${id}`;
-}
-
-function Toggle({
-  checked,
-  onChange,
-  label,
-}: {
-  checked: boolean;
-  onChange: (checked: boolean) => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      role="switch"
-      aria-label={label}
-      aria-checked={checked}
-      onClick={() => onChange(!checked)}
-      className={cn(
-        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors",
-        checked ? "bg-[#4d9669]" : "bg-muted-foreground/25",
-      )}
-    >
-      <span
-        className={cn(
-          "inline-block size-3.5 rounded-full bg-white transition-transform",
-          checked ? "translate-x-[18px]" : "translate-x-1",
-        )}
-      />
-    </button>
-  );
-}
 
 export function ResumeListSidebar({
   currentId,
   resumes,
+  onSelect,
+  onCreate,
+  onDelete,
+  canCreate = true,
 }: {
   currentId: string;
   resumes: ResumeRecord[];
+  onSelect: (id: string) => void;
+  onCreate: () => void;
+  onDelete: (resume: ResumeRecord) => void;
+  canCreate?: boolean;
 }) {
-  const router = useRouter();
   const [activeMenuId, setActiveMenuId] = useState<string>();
-  const [pendingId, setPendingId] = useState<string>();
-  const [deletingId, setDeletingId] = useState<string>();
-  const [copiedId, setCopiedId] = useState<string>();
-  const [error, setError] = useState<string>();
-  const [creating, setCreating] = useState(false);
   const sorted = [...resumes].sort(
     (left, right) =>
       new Date(right.updatedAt).getTime() -
       new Date(left.updatedAt).getTime(),
   );
 
-  async function createNew() {
-    setCreating(true);
-    setError(undefined);
-    try {
-      const resume = await createResume("我的简历");
-      router.push(`/resumes/${resume.id}`);
-    } catch (createError) {
-      setError((createError as Error).message);
-      setCreating(false);
-    }
-  }
-
-  async function cloneResumeRecord(resume: ResumeRecord) {
-    setPendingId(resume.id);
-    setError(undefined);
-    const response = await appFetch(`/api/resumes/${resume.id}/clone`, {
-      method: "POST",
-    });
-    setPendingId(undefined);
+  function requestDelete(resume: ResumeRecord) {
     setActiveMenuId(undefined);
-    if (!response.ok) {
-      setError("克隆失败，请稍后重试");
-      return;
-    }
-    router.refresh();
-  }
-
-  async function toggleShare(resume: ResumeRecord) {
-    setPendingId(resume.id);
-    setError(undefined);
-    const response = await appFetch(`/api/resumes/${resume.id}/public`, {
-      method: "PATCH",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ isPublic: !resume.isPublic }),
-    });
-    setPendingId(undefined);
-    if (!response.ok) {
-      setError("公开状态更新失败，请稍后重试");
-      return;
-    }
-    router.refresh();
-  }
-
-  async function copyShareLink(resume: ResumeRecord) {
-    try {
-      await navigator.clipboard.writeText(shareUrlFor(resume.id));
-      setCopiedId(resume.id);
-      window.setTimeout(() => setCopiedId(undefined), 1400);
-    } catch {
-      setError("复制链接失败");
-    }
-  }
-
-  async function removeResume(resume: ResumeRecord) {
-    if (!window.confirm(`确定要删除简历“${resume.name}”吗？此操作不可恢复。`)) {
-      return;
-    }
-    setDeletingId(resume.id);
-    const response = await appFetch(`/api/resumes/${resume.id}`, {
-      method: "DELETE",
-    });
-    setDeletingId(undefined);
-    setActiveMenuId(undefined);
-    if (!response.ok) return;
-    const fallback = sorted.find((item) => item.id !== resume.id);
-    if (resume.id === currentId) {
-      router.replace(
-        fallback ? `/resumes/${fallback.id}` : "/resumes",
-      );
-    } else {
-      router.refresh();
+    if (window.confirm(`确定要删除简历“${resume.name}”吗？此操作不可恢复。`)) {
+      onDelete(resume);
     }
   }
 
   return (
-    <div className="min-h-full bg-background p-3">
-      <Button
-        type="button"
-        className="mb-3 w-full"
-        onClick={() => void createNew()}
-        loading={creating}
-      >
-        <Plus aria-hidden="true" />
-        新建简历
-      </Button>
+    <div className="flex h-full min-h-0 flex-col bg-background">
+      <div className="border-b border-border px-3 py-3">
+        <Button
+          type="button"
+          className="w-full"
+          onClick={onCreate}
+          disabled={!canCreate}
+          title={canCreate ? undefined : "访客模式不支持新建简历"}
+        >
+          <Plus aria-hidden="true" />
+          新建简历
+        </Button>
+      </div>
 
-      <div className="space-y-2">
+      <div className="min-h-0 flex-1 space-y-2 overflow-y-auto overscroll-y-contain p-3">
+        {sorted.length === 0 ? (
+          <p className="px-1 text-sm text-muted-foreground">
+            还没有简历，先创建一份
+          </p>
+        ) : null}
         {sorted.map((resume) => {
           const active = resume.id === currentId;
           return (
             <div key={resume.id} className="group relative">
-              <IntentLink
-                href={`/resumes/${resume.id}`}
+              <button
+                type="button"
                 aria-label={`切换到${resume.name}`}
                 aria-current={active ? "page" : undefined}
+                onClick={() => onSelect(resume.id)}
                 className={cn(
-                  "block cursor-pointer rounded-lg border bg-background p-3 transition-colors",
+                  "block w-full cursor-pointer rounded-lg border bg-background p-3 text-left transition-colors",
                   active
                     ? "border-[#55a572]/45 bg-[#55a572]/8"
                     : "border-border hover:bg-muted/60",
@@ -197,7 +95,7 @@ export function ResumeListSidebar({
                     已公开
                   </p>
                 ) : null}
-              </IntentLink>
+              </button>
               <button
                 type="button"
                 onClick={() =>
@@ -218,70 +116,11 @@ export function ResumeListSidebar({
                     onClick={() => setActiveMenuId(undefined)}
                     className="fixed inset-0 z-40 cursor-default"
                   />
-                  <div className="absolute right-2 top-10 z-50 w-64 rounded-lg border border-border bg-popover p-1 shadow-md">
+                  <div className="absolute right-2 top-10 z-50 w-40 rounded-lg border border-border bg-popover p-1 shadow-md">
                     <button
                       type="button"
-                      disabled={pendingId === resume.id}
-                      onClick={() => void cloneResumeRecord(resume)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-foreground transition-colors hover:bg-muted disabled:opacity-50"
-                    >
-                      <Copy className="size-4" />
-                      克隆简历
-                    </button>
-
-                    <div className="my-1 h-px bg-border" />
-
-                    <div className="flex items-center justify-between gap-2 px-2 py-1.5">
-                      <span className="flex items-center gap-2 text-sm text-foreground">
-                        <Link2 className="size-4" />
-                        公开分享
-                      </span>
-                      <Toggle
-                        label={`${resume.isPublic ? "停止" : "开启"}公开分享`}
-                        checked={resume.isPublic}
-                        onChange={() => void toggleShare(resume)}
-                      />
-                    </div>
-                    {resume.isPublic ? (
-                      <div className="px-2 pb-1.5">
-                        <p className="text-[11px] text-muted-foreground">
-                          任何人可通过以下链接查看：
-                        </p>
-                        <div className="mt-1 flex items-center gap-1 rounded-md border border-border bg-muted/25 p-1 pl-2">
-                          <span
-                            title={shareUrlFor(resume.id)}
-                            className="min-w-0 flex-1 truncate font-[var(--font-data)] text-[11px] text-muted-foreground"
-                          >
-                            {shareUrlFor(resume.id)}
-                          </span>
-                          <button
-                            type="button"
-                            aria-label="复制分享链接"
-                            onClick={() => void copyShareLink(resume)}
-                            className={cn(
-                              "grid size-6 shrink-0 place-items-center rounded-md transition-colors",
-                              copiedId === resume.id
-                                ? "bg-emerald-100 text-emerald-700"
-                                : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                            )}
-                          >
-                            {copiedId === resume.id ? (
-                              <Check className="size-3.5" />
-                            ) : (
-                              <Copy className="size-3.5" />
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    ) : null}
-
-                    <div className="my-1 h-px bg-border" />
-
-                    <button
-                      type="button"
-                      disabled={deletingId === resume.id}
-                      onClick={() => void removeResume(resume)}
-                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-destructive transition-colors hover:bg-destructive/10 disabled:opacity-50"
+                      onClick={() => requestDelete(resume)}
+                      className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-destructive transition-colors hover:bg-destructive/10"
                     >
                       <Trash2 className="size-4" />
                       删除
@@ -293,12 +132,6 @@ export function ResumeListSidebar({
           );
         })}
       </div>
-
-      {error ? (
-        <p role="alert" className="mt-3 px-1 text-xs text-destructive">
-          {error}
-        </p>
-      ) : null}
     </div>
   );
 }

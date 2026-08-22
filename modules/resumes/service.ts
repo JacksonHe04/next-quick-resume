@@ -1,6 +1,5 @@
 import {
   createResumeInputSchema,
-  resumeDocumentV1Schema,
   saveResumeInputSchema,
 } from "@/modules/resumes/schema";
 import type { ResumeDocumentV1 } from "@/types";
@@ -19,7 +18,8 @@ export type ResumeRecord = {
 export type ResumeErrorCode =
   | "RESUME_NOT_FOUND"
   | "VERSION_CONFLICT"
-  | "RESUME_NOT_PUBLIC";
+  | "RESUME_NOT_PUBLIC"
+  | "INVALID_PHOTO";
 
 export class ResumeError extends Error {
   constructor(
@@ -35,6 +35,11 @@ export interface ResumeRepository {
   find(userId: string, id: string): Promise<ResumeRecord | null>;
   findPublicById(id: string): Promise<ResumeRecord | null>;
   insert(record: ResumeRecord): Promise<void>;
+  savePhoto(
+    resumeId: string,
+    photoData: string,
+    now: Date,
+  ): Promise<void>;
   updateIfVersion(
     userId: string,
     id: string,
@@ -62,6 +67,24 @@ async function requireResume(
   return record;
 }
 
+// photoData 只出现在内存/上传端点中；文档保存时由客户端剥离，
+// 若服务端仍收到（旧客户端或旧数据），则落库到 resume_photos 并剥离。
+function photoDataOf(document: ResumeDocumentV1): string | undefined {
+  const value = document.displayConfig.photo?.photoData;
+  return typeof value === "string" && value.length > 0 ? value : undefined;
+}
+
+function withoutPhotoData(document: ResumeDocumentV1): ResumeDocumentV1 {
+  const { photo, ...rest } = document.displayConfig;
+  return {
+    ...document,
+    displayConfig: {
+      ...rest,
+      photo: { ...photo, photoData: undefined },
+    },
+  };
+}
+
 export async function createResume(
   repository: ResumeRepository,
   userId: string,
@@ -79,7 +102,12 @@ export async function createResume(
     createdAt: now,
     updatedAt: now,
   };
+  const photoData = photoDataOf(parsed.document);
+  record.document = withoutPhotoData(record.document);
   await repository.insert(record);
+  if (photoData) {
+    await repository.savePhoto(record.id, photoData, now);
+  }
   return record;
 }
 
@@ -91,6 +119,11 @@ export async function saveResume(
 ): Promise<ResumeRecord> {
   const parsed = saveResumeInputSchema.parse(input);
   await requireResume(repository, userId, parsed.id);
+  const photoData = photoDataOf(parsed.document);
+  const document = withoutPhotoData(parsed.document);
+  if (photoData) {
+    await repository.savePhoto(parsed.id, photoData, now);
+  }
   const version = parsed.version + 1;
   const saved = await repository.updateIfVersion(
     userId,
@@ -98,7 +131,7 @@ export async function saveResume(
     parsed.version,
     {
       name: parsed.name,
-      document: parsed.document,
+      document,
       version,
       updatedAt: now,
     },
@@ -114,7 +147,7 @@ export async function saveResume(
     id: parsed.id,
     userId,
     name: parsed.name,
-    document: parsed.document,
+    document,
     isPublic: record.isPublic,
     version,
     createdAt: record.createdAt,
@@ -122,24 +155,28 @@ export async function saveResume(
   };
 }
 
-export async function cloneResume(
+// 云端照片最大 800KB（data URL 字符数），避免触发 D1 cell / 网关体积限制
+export const MAX_RESUME_PHOTO_DATA_URL_LENGTH = 800_000;
+
+export async function uploadResumePhoto(
   repository: ResumeRepository,
   userId: string,
   id: string,
+  photoData: string,
   now = new Date(),
-): Promise<ResumeRecord> {
-  const source = await requireResume(repository, userId, id);
-  return createResume(
-    repository,
-    userId,
-    {
-      name: `${source.name}（副本）`,
-      document: resumeDocumentV1Schema.parse(
-        structuredClone(source.document),
-      ),
-    },
-    now,
-  );
+): Promise<void> {
+  await requireResume(repository, userId, id);
+  if (
+    typeof photoData !== "string" ||
+    photoData.length === 0 ||
+    photoData.length > MAX_RESUME_PHOTO_DATA_URL_LENGTH
+  ) {
+    throw new ResumeError(
+      "INVALID_PHOTO",
+      "照片数据无效或超过大小限制，请换一张更小的图片",
+    );
+  }
+  await repository.savePhoto(id, photoData, now);
 }
 
 export async function setResumePublic(

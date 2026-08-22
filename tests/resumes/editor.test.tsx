@@ -50,8 +50,9 @@ afterEach(() => {
 });
 
 describe("resume editor", () => {
-  it("uses one sidebar for layout, content, and resume switching", async () => {
+  it("switches resumes instantly from the right-side list without a server round trip", async () => {
     const user = userEvent.setup();
+    const save = vi.fn().mockResolvedValue({ version: 2 });
     render(
       <ResumeEditor
         initial={initial}
@@ -61,8 +62,19 @@ describe("resume editor", () => {
             ...initial,
             id: "resume-b",
             name: "市场简历",
+            document: {
+              ...initial.document,
+              data: {
+                ...initial.document.data,
+                header: {
+                  ...initial.document.data.header,
+                  name: "市场候选人",
+                },
+              },
+            },
           },
         ]}
+        save={save}
       />,
     );
 
@@ -70,32 +82,151 @@ describe("resume editor", () => {
       screen.getByRole("complementary", { name: "简历配置" }),
     ).toBeVisible();
     expect(screen.getByRole("main", { name: "简历预览" })).toBeVisible();
-    expect(
-      screen.queryByRole("complementary", { name: "切换简历" }),
-    ).not.toBeInTheDocument();
+    const listSidebar = screen.getByRole("complementary", {
+      name: "简历列表",
+    });
+    expect(listSidebar).toBeVisible();
     expect(
       screen.queryByRole("navigation", { name: "简历视图" }),
     ).not.toBeInTheDocument();
-    expect(screen.queryByText("头部样式设置")).not.toBeInTheDocument();
-    expect(screen.queryByText("对齐方式")).not.toBeInTheDocument();
-    expect(screen.queryByText("模块管理")).not.toBeInTheDocument();
-    expect(screen.queryByText("保存简历")).not.toBeInTheDocument();
-    await user.click(screen.getByRole("switch", { name: "显示照片" }));
-    expect(screen.getByLabelText("上传头像")).toBeInTheDocument();
     expect(
-      screen.queryByRole("switch", { name: "显示头部按钮" }),
+      screen.queryByRole("button", { name: "简历列表" }),
     ).not.toBeInTheDocument();
-    await user.click(screen.getByRole("button", { name: "简历列表" }));
-    expect(screen.getByRole("link", { name: "切换到市场简历" })).toHaveAttribute(
-      "href",
-      "/resumes/resume-b",
+
+    // 切换到另一份简历：只换名称/内容/预览/列表 active，不发请求
+    await user.click(
+      within(listSidebar).getByRole("button", { name: "切换到市场简历" }),
     );
+    expect(
+      within(listSidebar).getByRole("button", { name: "切换到市场简历" }),
+    ).toHaveAttribute("aria-current", "page");
+    expect(
+      screen.getByRole("button", { name: "编辑简历名称：市场简历" }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole("heading", { name: "市场候选人" }),
+    ).toBeVisible();
+    expect(save).not.toHaveBeenCalled();
+
+    // 切换不改变左侧栏当前 tab（保持在版式）
+    expect(
+      screen.getByRole("button", { name: "版式" }),
+    ).toHaveAttribute("aria-current", "page");
+
     // 简历列表不展示简历第一行（头部姓名），只展示管理名称与更新时间
-    const sidebar = screen.getByRole("complementary", {
-      name: "简历配置",
+    expect(within(listSidebar).queryByText("Jackson")).not.toBeInTheDocument();
+    expect(within(listSidebar).getByText("产品简历")).toBeInTheDocument();
+  });
+
+  it("clones the current resume from the topbar and switches to the copy", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn().mockImplementation(async (_url: string) => {
+      const body = JSON.parse(
+        (fetchMock.mock.calls.at(-1)?.[1] as RequestInit | undefined)
+          ?.body as string,
+      );
+      return {
+        ok: true,
+        status: 201,
+        json: async () => ({
+          resume: {
+            id: "resume-clone",
+            userId: "user-a",
+            name: body.name,
+            document: body.document,
+            isPublic: false,
+            version: 1,
+            createdAt: "2026-07-25T00:00:00.000Z",
+            updatedAt: "2026-07-25T00:00:00.000Z",
+          },
+        }),
+      };
     });
-    expect(within(sidebar).queryByText("Jackson")).not.toBeInTheDocument();
-    expect(within(sidebar).getByText("产品简历")).toBeInTheDocument();
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ResumeEditor initial={initial} />);
+
+    await user.click(screen.getByRole("button", { name: "克隆简历" }));
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/resumes",
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(
+      screen.getByRole("button", { name: "编辑简历名称：产品简历（副本）" }),
+    ).toBeVisible();
+    const listSidebar = screen.getByRole("complementary", {
+      name: "简历列表",
+    });
+    await expect
+      .poll(() =>
+        within(listSidebar)
+          .getByRole("button", { name: "切换到产品简历（副本）" })
+          .getAttribute("aria-current"),
+      )
+      .toBe("page");
+  });
+
+  it("lets guests edit the demo resume and materializes it on first save only", async () => {
+    const user = userEvent.setup();
+    const requests: Array<{ url: string; method: string }> = [];
+    const fetchMock = vi.fn().mockImplementation(async (_url: string) => {
+      requests.push({ url: _url, method: "PATCH" });
+      const body = JSON.parse(
+        (fetchMock.mock.calls.at(-1)?.[1] as RequestInit | undefined)
+          ?.body as string,
+      );
+      return {
+        ok: true,
+        status: 201,
+        json: async () => ({
+          resume: {
+            id: "guest-materialized",
+            userId: "demo-user",
+            name: body.name,
+            document: body.document,
+            isPublic: false,
+            version: 1,
+            createdAt: "2026-07-25T00:00:00.000Z",
+            updatedAt: "2026-07-25T00:00:00.000Z",
+          },
+        }),
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(<ResumeEditor initial={initial} isGuest autosaveDelay={10} />);
+
+    // 访客没有克隆 / 分享 / 简历列表
+    expect(
+      screen.queryByRole("button", { name: "克隆简历" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("complementary", { name: "简历列表" }),
+    ).not.toBeInTheDocument();
+
+    // 首次修改触发物化（POST 创建），之后保存都打到该记录（PATCH）
+    await user.click(screen.getByRole("button", { name: "内容" }));
+    const nameInput = screen.getByLabelText("姓名");
+    await user.clear(nameInput);
+    await user.type(nameInput, "访客姓名");
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+
+    const calls = fetchMock.mock.calls.map(
+      (call) => (call[0] as string, call[1]?.method),
+    );
+    expect(calls[0]).toBe("POST");
+    expect(requests.every((request) => request.method === "PATCH")).toBe(true);
+
+    // 继续修改，不再创建新记录
+    await user.clear(nameInput);
+    await user.type(nameInput, "访客姓名二");
+    await vi.waitFor(() =>
+      expect(fetchMock.mock.calls.length).toBeGreaterThan(1),
+    );
+    const postCalls = fetchMock.mock.calls.filter(
+      (call) => call[1]?.method === "POST",
+    );
+    expect(postCalls).toHaveLength(1);
   });
 
   it("keeps the editor toolbar inside the application content area", () => {

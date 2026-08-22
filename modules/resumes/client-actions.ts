@@ -1,17 +1,16 @@
 import { appFetch } from "@/lib/app-fetch";
 import { createDefaultResumeDocument } from "@/modules/resumes/defaults";
 import type { ResumeRecord } from "@/modules/resumes/service";
+import type { ResumeDocumentV1 } from "@/types";
 
 export async function createResume(
   name: string,
+  document: ResumeDocumentV1 = createDefaultResumeDocument(),
 ): Promise<ResumeRecord> {
   const response = await appFetch("/api/resumes", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({
-      name,
-      document: createDefaultResumeDocument(),
-    }),
+    body: JSON.stringify({ name, document }),
   });
   const payload = (await response.json().catch(() => ({}))) as {
     resume?: ResumeRecord;

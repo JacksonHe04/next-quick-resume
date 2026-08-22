@@ -17,6 +17,7 @@ import { createDefaultResumeDocument } from "@/modules/resumes/defaults";
 type Database = DrizzleD1Database<typeof schema>;
 
 export const DEMO_USER_ID = "demo-user";
+export const DEMO_RESUME_ID = "demo-resume";
 
 export async function seedDemoUserData(
   database: Database,

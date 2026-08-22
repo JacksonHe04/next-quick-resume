@@ -2,9 +2,8 @@ import { NextResponse } from "next/server";
 
 import { getReadDatabaseContext } from "@/modules/auth/action-context";
 import {
-  getResumeActionContext,
+  getResumeWriteContext,
   resumeErrorResponse,
-  unauthenticatedResponse,
 } from "@/modules/resumes/actions";
 import { listResumes } from "@/modules/resumes/repository";
 import { createResume } from "@/modules/resumes/service";
@@ -22,8 +21,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const context = await getResumeActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getResumeWriteContext(request);
     const resume = await createResume(
       context.repository,
       context.user.id,

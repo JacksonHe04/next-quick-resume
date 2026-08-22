@@ -3,9 +3,8 @@ import { NextResponse } from "next/server";
 import { getReadDatabaseContext } from "@/modules/auth/action-context";
 import { createResumeRepository } from "@/modules/resumes/repository";
 import {
-  getResumeActionContext,
+  getResumeWriteContext,
   resumeErrorResponse,
-  unauthenticatedResponse,
 } from "@/modules/resumes/actions";
 import {
   deleteResume,
@@ -37,8 +36,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const context = await getResumeActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getResumeWriteContext(request);
     const body: unknown = await request.json();
     const resume = await saveResume(
       context.repository,
@@ -59,8 +57,7 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> },
 ) {
   try {
-    const context = await getResumeActionContext(request);
-    if (!context) return unauthenticatedResponse();
+    const context = await getResumeWriteContext(request);
     await deleteResume(
       context.repository,
       context.user.id,

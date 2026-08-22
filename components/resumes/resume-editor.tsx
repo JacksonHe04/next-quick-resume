@@ -12,12 +12,18 @@ import {
   ResumeConfigSidebar,
   type ResumeSidebarMode,
 } from "@/components/resumes/resume-config-sidebar";
+import { ResumeEmptyState } from "@/components/resumes/resume-empty-state";
+import { ResumeListSidebar } from "@/components/resumes/resume-list-sidebar";
 import { ResumePreview } from "@/components/resumes/resume-preview";
 import { ResumeTopbar } from "@/components/resumes/resume-topbar";
 import { appFetch } from "@/lib/app-fetch";
 import { cn } from "@/lib/utils";
+import { createResume } from "@/modules/resumes/client-actions";
 import { getEducationItems } from "@/modules/resumes/education";
-import { getResumePhotoValidationError } from "@/modules/resumes/photo";
+import {
+  compressResumePhoto,
+  getResumePhotoValidationError,
+} from "@/modules/resumes/photo";
 import { orderDataBySections } from "@/modules/resumes/section-order";
 import type { ResumeRecord } from "@/modules/resumes/service";
 import type {
@@ -54,6 +60,17 @@ async function saveThroughApi(input: SaveInput): Promise<SaveResult> {
     throw new Error(payload.error?.message ?? "保存失败");
   }
   return { version: payload.resume.version };
+}
+
+function orderedJson(document: ResumeDocumentV1) {
+  return JSON.stringify(
+    orderDataBySections(
+      document.data,
+      document.displayConfig.sectionOrder,
+    ),
+    null,
+    2,
+  );
 }
 
 function toMarkdown(data: ResumeData, sectionOrder: ResumeSectionKey[]) {
@@ -119,73 +136,151 @@ function toMarkdown(data: ResumeData, sectionOrder: ResumeSectionKey[]) {
   return lines.join("\n");
 }
 
+type SaveState = {
+  // 每个保存目标（简历 id）上次已持久化的草稿与版本号
+  drafts: Map<string, string>;
+  versions: Map<string, number>;
+};
+
 export function ResumeEditor({
   initial,
   availableResumes = [initial],
+  isGuest = false,
   save = saveThroughApi,
   autosaveDelay = 650,
 }: {
   initial: ResumeRecord;
   availableResumes?: ResumeRecord[];
+  isGuest?: boolean;
   save?: (input: SaveInput) => Promise<SaveResult>;
   autosaveDelay?: number;
 }) {
+  const [resumes, setResumes] = useState<ResumeRecord[]>(availableResumes);
+  const [currentId, setCurrentId] = useState(initial.id);
   const [name, setName] = useState(initial.name);
   const [document, setDocument] = useState<ResumeDocumentV1>(() =>
     structuredClone(initial.document),
   );
   const [sidebarMode, setSidebarMode] =
     useState<ResumeSidebarMode>("layout");
-  const [jsonText, setJsonText] = useState(() =>
-    JSON.stringify(
-      orderDataBySections(
-        initial.document.data,
-        initial.document.displayConfig.sectionOrder,
-      ),
-      null,
-      2,
-    ),
-  );
+  const [jsonText, setJsonText] = useState(() => orderedJson(initial.document));
   const [jsonError, setJsonError] = useState<string>();
   const [photoError, setPhotoError] = useState<string>();
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [shareBusy, setShareBusy] = useState(false);
+  const [cloneBusy, setCloneBusy] = useState(false);
   const [leftSidebarWidth, setLeftSidebarWidth] = useState(320);
   const [resizing, setResizing] = useState(false);
   const [showLeftSidebar, setShowLeftSidebar] = useState(false);
+  const [showRightSidebar, setShowRightSidebar] = useState(false);
+  const [actionError, setActionError] = useState<string>();
   const containerRef = useRef<HTMLElement>(null);
-  const latestVersion = useRef(initial.version);
+  const targetIdRef = useRef(initial.id);
+  // 访客模式：首次修改时把 demo 简历物化为数据库记录，之后保存到该记录
+  const guestRecordId = useRef<string | undefined>(undefined);
   const saveQueue = useRef(Promise.resolve(true));
-  const persistedDraft = useRef(
-    serializeDraft(initial.name, initial.document),
+  const actionErrorTimer = useRef<number | undefined>(undefined);
+  // 每个保存目标（简历 id）上次已持久化的草稿与版本号（惰性初始化一次）
+  const [saveState] = useState<SaveState>(() => {
+    const drafts = new Map<string, string>();
+    const versions = new Map<string, number>();
+    for (const record of [initial, ...availableResumes]) {
+      drafts.set(record.id, serializeDraft(record.name, record.document));
+      versions.set(record.id, record.version);
+    }
+    return { drafts, versions };
+  });
+
+  const currentRecord =
+    resumes.find((record) => record.id === currentId) ?? initial;
+  const shareUrl =
+    typeof window === "undefined"
+      ? ""
+      : `${window.location.origin}/resumes/share/${currentId}`;
+
+  function showActionError(message: string) {
+    setActionError(message);
+    window.clearTimeout(actionErrorTimer.current);
+    actionErrorTimer.current = window.setTimeout(
+      () => setActionError(undefined),
+      3000,
+    );
+  }
+
+  // 访客：把 demo 简历物化为数据库记录（并发安全：多条保存路径共享同一队列）
+  const materializeQueue = useRef(Promise.resolve<string | undefined>(undefined));
+
+  function materializeGuestResume(
+    draftName: string,
+    draftDocument: ResumeDocumentV1,
+  ): Promise<string> {
+    if (guestRecordId.current) return Promise.resolve(guestRecordId.current);
+    const task = materializeQueue.current.then(async () => {
+      if (guestRecordId.current) return guestRecordId.current!;
+      const record = await createResume(draftName, draftDocument);
+      guestRecordId.current = record.id;
+      const state = saveState;
+      state.drafts.set(record.id, serializeDraft(draftName, draftDocument));
+      state.versions.set(record.id, record.version);
+      setResumes((prev) =>
+        prev.some((item) => item.id === record.id)
+          ? prev
+          : [record, ...prev],
+      );
+      return record.id;
+    });
+    materializeQueue.current = task;
+    return task;
+  }
+
+  const guestSave = useCallback(
+    async (input: SaveInput): Promise<SaveResult> => {
+      if (guestRecordId.current) {
+        return saveThroughApi({ ...input, id: guestRecordId.current });
+      }
+      const recordId = await materializeGuestResume(input.name, input.document);
+      return saveThroughApi({ ...input, id: recordId });
+    },
+    // materializeGuestResume 每次渲染重建，但其内部只依赖 ref/稳定 state，无需入依赖
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [saveState],
   );
 
   const persist = useCallback(async () => {
     const draftName = name;
     const draftDocument = structuredClone(document);
     const serialized = serializeDraft(draftName, draftDocument);
-    saveQueue.current = saveQueue.current.then(async () => {
-      if (serialized === persistedDraft.current) return true;
+    const state = saveState;
+    const targetId = guestRecordId.current ?? targetIdRef.current;
+    if (state.drafts.get(targetId) === serialized) return saveQueue.current;
+    const effectiveSave = isGuest ? guestSave : save;
+    const task = saveQueue.current.then(async () => {
+      if (state.drafts.get(targetId) === serialized) return true;
       try {
-        const result = await save({
-          id: initial.id,
-          version: latestVersion.current,
+        const result = await effectiveSave({
+          id: targetId,
+          version: state.versions.get(targetId) ?? 1,
           name: draftName,
           document: draftDocument,
         });
-        latestVersion.current = result.version;
-        persistedDraft.current = serialized;
+        state.versions.set(targetId, result.version);
+        state.drafts.set(targetId, serialized);
         return true;
       } catch {
         return false;
       }
     });
-    return saveQueue.current;
-  }, [document, initial.id, name, save]);
+    saveQueue.current = task;
+    return task;
+  }, [document, guestSave, isGuest, name, save, saveState]);
 
   useEffect(() => {
-    if (serializeDraft(name, document) === persistedDraft.current) return;
+    const state = saveState;
+    const targetId = guestRecordId.current ?? targetIdRef.current;
+    if (state.drafts.get(targetId) === serializeDraft(name, document)) return;
     const timer = window.setTimeout(() => void persist(), autosaveDelay);
     return () => window.clearTimeout(timer);
-  }, [autosaveDelay, document, name, persist]);
+  }, [autosaveDelay, document, name, persist, saveState]);
 
   useEffect(() => {
     function move(event: MouseEvent) {
@@ -212,6 +307,125 @@ export function ResumeEditor({
     };
   }, [resizing]);
 
+  // 把编辑状态切换到另一份简历：只换名称/文档/JSON，其余（tab、宽度、列表）保持不变
+  function applyRecord(record: ResumeRecord) {
+    if (record.id === currentId) return;
+    void persist(); // 先排队保存当前简历的未落盘修改（闭包捕获的是旧文档）
+    targetIdRef.current = record.id;
+    setCurrentId(record.id);
+    setName(record.name);
+    setDocument(structuredClone(record.document));
+    setJsonText(orderedJson(record.document));
+    setJsonError(undefined);
+    setPhotoError(undefined);
+    if (!isGuest) {
+      window.history.replaceState(null, "", `/resumes/${record.id}`);
+    }
+  }
+
+  function switchTo(id: string) {
+    const record = resumes.find((item) => item.id === id);
+    if (record) applyRecord(record);
+  }
+
+  function adoptRecord(record: ResumeRecord) {
+    setResumes((prev) =>
+      prev.some((item) => item.id === record.id)
+        ? prev
+        : [record, ...prev],
+    );
+    const state = saveState;
+    state.drafts.set(record.id, serializeDraft(record.name, record.document));
+    state.versions.set(record.id, record.version);
+    applyRecord(record);
+  }
+
+  async function createNew() {
+    if (isGuest) return;
+    try {
+      adoptRecord(await createResume("我的简历"));
+    } catch {
+      showActionError("新建失败，请稍后重试");
+    }
+  }
+
+  async function cloneCurrent() {
+    if (isGuest) return;
+    setCloneBusy(true);
+    try {
+      const record = await createResume(`${name}（副本）`, document);
+      // 克隆记录的照片 blob 已由服务端落库；这里把展示用的 data URL 一起带过来
+      if (
+        !record.document.displayConfig.photo.photoData &&
+        document.displayConfig.photo.photoData
+      ) {
+        record.document.displayConfig.photo.photoData =
+          document.displayConfig.photo.photoData;
+      }
+      adoptRecord(record);
+    } catch {
+      showActionError("克隆失败，请稍后重试");
+    } finally {
+      setCloneBusy(false);
+    }
+  }
+
+  async function toggleShare() {
+    if (isGuest) return;
+    setShareBusy(true);
+    try {
+      const response = await appFetch(
+        `/api/resumes/${currentId}/public`,
+        {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ isPublic: !currentRecord.isPublic }),
+        },
+      );
+      const payload = (await response.json().catch(() => ({}))) as {
+        resume?: ResumeRecord;
+        error?: { message?: string };
+      };
+      if (!response.ok || !payload.resume) {
+        throw new Error(payload.error?.message ?? "公开状态更新失败");
+      }
+      setResumes((prev) =>
+        prev.map((record) =>
+          record.id === currentId
+            ? { ...record, isPublic: payload.resume!.isPublic }
+            : record,
+        ),
+      );
+    } catch {
+      showActionError("公开状态更新失败，请稍后重试");
+    } finally {
+      setShareBusy(false);
+    }
+  }
+
+  async function removeResume(record: ResumeRecord) {
+    try {
+      const response = await appFetch(`/api/resumes/${record.id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) throw new Error();
+      const remaining = resumes.filter((item) => item.id !== record.id);
+      setResumes(remaining);
+      saveState.drafts.delete(record.id);
+      saveState.versions.delete(record.id);
+      if (record.id === currentId) {
+        if (remaining.length === 0) {
+          if (!isGuest) window.history.replaceState(null, "", "/resumes");
+          setCurrentId("");
+        } else {
+          applyRecord(remaining[0]);
+        }
+      }
+    } catch {
+      showActionError("删除失败，请稍后重试");
+    }
+  }
+
   function updateConfig(config: ResumeDisplayConfig) {
     setDocument((current) => ({ ...current, displayConfig: config }));
   }
@@ -237,35 +451,57 @@ export function ResumeEditor({
     }
   }
 
-  function changePhoto(event: ChangeEvent<HTMLInputElement>) {
+  // 照片先压缩并上传云端，成功后才更新预览；失败不落任何本地状态
+  async function changePhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
+    event.target.value = "";
     if (!file) return;
     const validationError = getResumePhotoValidationError(file);
     if (validationError) {
       setPhotoError(validationError);
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      setDocument((current) => ({
-        ...current,
-        displayConfig: {
-          ...current.displayConfig,
-          photo: {
-            showPhoto: true,
-            photoData: String(reader.result),
+    const targetId = targetIdRef.current;
+    setPhotoUploading(true);
+    setPhotoError(undefined);
+    try {
+      const photoData = await compressResumePhoto(file);
+      const saveTarget = isGuest
+        ? await materializeGuestResume(name, document)
+        : targetId;
+      const response = await appFetch(`/api/resumes/${saveTarget}/photo`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ photoData }),
+      });
+      if (!response.ok) {
+        throw new Error("照片上传失败");
+      }
+      // 上传成功才算成功；若期间已切换到别的简历，则不覆盖当前预览
+      if (targetIdRef.current === targetId) {
+        setDocument((current) => ({
+          ...current,
+          displayConfig: {
+            ...current.displayConfig,
+            photo: { showPhoto: true, photoData },
           },
-        },
-      }));
-      setPhotoError(undefined);
-    };
-    reader.readAsDataURL(file);
+        }));
+      }
+    } catch {
+      setPhotoError("照片上传失败，请重试或换一张更小的图片");
+    } finally {
+      setPhotoUploading(false);
+    }
   }
 
   async function copyMarkdown() {
     await navigator.clipboard.writeText(
       toMarkdown(document.data, document.displayConfig.sectionOrder),
     );
+  }
+
+  if (resumes.length === 0 && currentId === "") {
+    return <ResumeEmptyState />;
   }
 
   return (
@@ -275,9 +511,18 @@ export function ResumeEditor({
         onNameChange={setName}
         onExportPdf={() => window.print()}
         onCopyMarkdown={copyMarkdown}
-        onToggleLeftSidebar={() =>
-          setShowLeftSidebar((current) => !current)
+        onToggleLeftSidebar={() => setShowLeftSidebar((current) => !current)}
+        onToggleRightSidebar={() =>
+          setShowRightSidebar((current) => !current)
         }
+        canClone={!isGuest}
+        cloneBusy={cloneBusy}
+        onClone={() => void cloneCurrent()}
+        canShare={!isGuest}
+        isPublic={isGuest ? false : currentRecord.isPublic}
+        shareBusy={shareBusy}
+        onToggleShare={() => void toggleShare()}
+        shareUrl={isGuest ? "" : shareUrl}
       />
 
       <main
@@ -288,9 +533,15 @@ export function ResumeEditor({
           <button
             type="button"
             aria-label="关闭侧边栏"
-            onClick={() => {
-              setShowLeftSidebar(false);
-            }}
+            onClick={() => setShowLeftSidebar(false)}
+            className="absolute inset-0 z-30 bg-black/20 backdrop-blur-[1px] lg:hidden"
+          />
+        ) : null}
+        {showRightSidebar ? (
+          <button
+            type="button"
+            aria-label="关闭简历列表"
+            onClick={() => setShowRightSidebar(false)}
             className="absolute inset-0 z-30 bg-black/20 backdrop-blur-[1px] lg:hidden"
           />
         ) : null}
@@ -304,19 +555,18 @@ export function ResumeEditor({
           style={{ width: leftSidebarWidth }}
         >
           <ResumeConfigSidebar
-            currentResumeId={initial.id}
-            resumes={availableResumes}
             data={document.data}
             config={document.displayConfig}
             mode={sidebarMode}
             jsonText={jsonText}
             jsonError={jsonError}
             photoError={photoError}
+            photoUploading={photoUploading}
             onModeChange={setSidebarMode}
             onDataChange={updateData}
             onConfigChange={updateConfig}
             onJsonChange={changeJson}
-            onPhotoChange={changePhoto}
+            onPhotoChange={(event) => void changePhoto(event)}
           />
         </aside>
 
@@ -336,7 +586,34 @@ export function ResumeEditor({
             <ResumePreview document={document} />
           </div>
         </section>
+
+        {!isGuest ? (
+          <aside
+            aria-label="简历列表"
+            className={cn(
+              "absolute inset-y-0 right-0 z-40 flex h-full w-72 shrink-0 flex-col border-l border-border bg-background shadow-xl transition-transform duration-200 ease-out lg:relative lg:translate-x-0 lg:shadow-none print:hidden",
+              showRightSidebar ? "translate-x-0" : "translate-x-full",
+            )}
+          >
+            <ResumeListSidebar
+              currentId={currentId}
+              resumes={resumes}
+              onSelect={switchTo}
+              onCreate={() => void createNew()}
+              onDelete={(record) => void removeResume(record)}
+            />
+          </aside>
+        ) : null}
       </main>
+
+      {actionError ? (
+        <div
+          role="alert"
+          className="absolute bottom-6 left-1/2 z-50 -translate-x-1/2 rounded-lg border border-destructive/25 bg-background px-4 py-2 text-sm text-destructive shadow-lg"
+        >
+          {actionError}
+        </div>
+      ) : null}
     </div>
   );
 }

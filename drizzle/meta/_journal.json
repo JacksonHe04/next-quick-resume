@@ -36,6 +36,13 @@
       "when": 1787427150128,
       "tag": "0004_slow_imperial_guard",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1787429666708,
+      "tag": "0005_third_joystick",
+      "breakpoints": true
     }
   ]
 }

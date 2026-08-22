@@ -84,6 +84,7 @@ describe("D1 schema constraints", () => {
       "private_companies",
       "private_positions",
       "questions",
+      "resume_photos",
       "resumes",
       "sessions",
       "stages",

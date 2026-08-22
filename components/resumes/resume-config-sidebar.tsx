@@ -11,15 +11,12 @@ import {
   GripVertical,
   ImagePlus,
   LayoutTemplate,
-  List,
 } from "lucide-react";
 import Image from "next/image";
 import { type ChangeEvent, useState } from "react";
 
 import { ResumeContentForm } from "@/components/resumes/resume-content-form";
-import { ResumeListSidebar } from "@/components/resumes/resume-list-sidebar";
 import { cn } from "@/lib/utils";
-import type { ResumeRecord } from "@/modules/resumes/service";
 import type {
   HeaderAlignment,
   ResumeData,
@@ -27,12 +24,11 @@ import type {
   ResumeSectionKey,
 } from "@/types";
 
-export type ResumeSidebarMode = "layout" | "content" | "resumes";
+export type ResumeSidebarMode = "layout" | "content";
 
 const sidebarModes = [
   ["layout", "版式", LayoutTemplate],
   ["content", "内容", FilePenLine],
-  ["resumes", "简历列表", List],
 ] as const;
 
 function Switch({
@@ -67,28 +63,26 @@ function Switch({
 }
 
 export function ResumeConfigSidebar({
-  currentResumeId,
-  resumes,
   data,
   config,
   mode,
   jsonText,
   jsonError,
   photoError,
+  photoUploading,
   onModeChange,
   onDataChange,
   onConfigChange,
   onJsonChange,
   onPhotoChange,
 }: {
-  currentResumeId: string;
-  resumes: ResumeRecord[];
   data: ResumeData;
   config: ResumeDisplayConfig;
   mode: ResumeSidebarMode;
   jsonText: string;
   jsonError?: string;
   photoError?: string;
+  photoUploading?: boolean;
   onModeChange: (mode: ResumeSidebarMode) => void;
   onDataChange: (data: ResumeData) => void;
   onConfigChange: (config: ResumeDisplayConfig) => void;
@@ -225,13 +219,14 @@ export function ResumeConfigSidebar({
                     )}
                   </span>
                   <span className="text-sm text-muted-foreground">
-                    上传照片
+                    {photoUploading ? "上传中…" : "上传照片"}
                   </span>
                   <input
                     aria-label="上传头像"
                     type="file"
                     accept="image/jpeg,image/png,image/webp"
                     onChange={onPhotoChange}
+                    disabled={photoUploading}
                     className="sr-only"
                   />
                 </label>
@@ -344,13 +339,6 @@ export function ResumeConfigSidebar({
               </div>
             </details>
           </>
-        ) : null}
-
-        {mode === "resumes" ? (
-          <ResumeListSidebar
-            currentId={currentResumeId}
-            resumes={resumes}
-          />
         ) : null}
       </div>
     </div>
