@@ -74,7 +74,7 @@ function HeaderSection({
       : "items-start text-left";
 
   return (
-    <header className="mb-0">
+    <header className={sectionClass}>
       <div
         className={cn(
           "resume-header-layout flex flex-col-reverse justify-between gap-4 sm:flex-row sm:items-stretch sm:gap-8 print:flex-row print:items-stretch print:gap-8",
@@ -99,7 +99,7 @@ function HeaderSection({
           <div className="space-y-2 sm:space-y-3">
             <div
               className={cn(
-                "flex flex-col gap-2 sm:flex-row sm:gap-8",
+                "grid grid-cols-1 gap-2 sm:grid-cols-2 sm:gap-8",
                 alignment === "center" && "sm:justify-center",
               )}
             >
@@ -116,14 +116,6 @@ function HeaderSection({
                   {contact.email}
                 </ResumeLink>
               </p>
-            </div>
-
-            <div
-              className={cn(
-                "flex flex-col gap-2 sm:flex-row sm:gap-8",
-                alignment === "center" && "sm:justify-center",
-              )}
-            >
               {contact.homepage ? (
                 <p className={bodyTextClass}>
                   <b>主页：</b>
@@ -131,15 +123,19 @@ function HeaderSection({
                     {contact.homepage.text}
                   </ResumeLink>
                 </p>
-              ) : null}
+              ) : (
+                <span aria-hidden="true" />
+              )}
               {contact.github ? (
                 <p className={bodyTextClass}>
-                  <b>GitHub:</b>&nbsp;
+                  <b>GitHub：</b>
                   <ResumeLink href={contact.github.url}>
                     {contact.github.text}
                   </ResumeLink>
                 </p>
-              ) : null}
+              ) : (
+                <span aria-hidden="true" />
+              )}
             </div>
           </div>
         </div>
@@ -147,7 +143,7 @@ function HeaderSection({
         {displayConfig.photo.showPhoto ? (
           <div
             data-testid="resume-photo-frame"
-            className="resume-photo-frame relative h-32 w-24 shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-auto sm:w-32 sm:self-stretch print:h-auto print:w-32 print:self-stretch"
+            className="resume-photo-frame relative flex h-32 shrink-0 self-center items-center justify-center overflow-hidden rounded-lg border border-gray-200 sm:h-auto sm:self-stretch print:h-auto print:self-stretch"
           >
             {displayConfig.photo.photoData ? (
               <Image
@@ -156,10 +152,10 @@ function HeaderSection({
                 width={128}
                 height={160}
                 unoptimized
-                className="resume-photo-image absolute inset-0 h-full w-full object-cover"
+                className="resume-photo-image h-full w-auto object-contain"
               />
             ) : (
-              <div className="absolute inset-0 grid place-items-center bg-gray-50 text-xs text-gray-400">
+              <div className="grid h-full w-24 place-items-center bg-gray-50 text-xs text-gray-400 sm:w-32 print:w-32">
                 个人照片
               </div>
             )}
@@ -184,7 +180,7 @@ function EducationSection({
       <SectionTitle>{education.title}</SectionTitle>
       {items.map((item, index) => (
         <div className={itemClass} key={`${item.school}-${index}`}>
-          <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
+          <div className="mb-1.5 flex items-start justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
               {item.image ? (
                 <Image
@@ -200,12 +196,19 @@ function EducationSection({
                 {item.school}
               </h3>
             </div>
-            <div className="flex flex-wrap items-center gap-1">
+            {item.base ? (
               <span className={mutedTextClass}>{item.base}</span>
-              <span className={mutedTextClass}>｜{item.period}</span>
-            </div>
+            ) : null}
           </div>
-          <p className={bodyTextClass}>{item.details}</p>
+          {item.entries.map((entry, entryIndex) => (
+            <div
+              key={entryIndex}
+              className="flex items-start justify-between gap-2"
+            >
+              <p className={bodyTextClass}>{entry.details}</p>
+              <span className={mutedTextClass}>{entry.period}</span>
+            </div>
+          ))}
         </div>
       ))}
     </section>
@@ -280,16 +283,18 @@ function ProjectsSection({
           <div className={itemClass} key={`${item.name}-${index}`}>
             <div className="mb-1.5 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center sm:gap-0">
               <h3 className="text-base font-bold sm:text-lg">{item.name}</h3>
-              <ResumeLink
-                href={item.github}
-                className="break-all sm:break-normal"
-              >
-                {item.github}
-              </ResumeLink>
+              {item.github ? (
+                <ResumeLink
+                  href={item.github}
+                  className="break-all sm:break-normal"
+                >
+                  {item.github}
+                </ResumeLink>
+              ) : null}
             </div>
             {item.description ? (
               <p className="mb-1.5 text-sm text-gray-700 sm:text-base">
-                {item.description}
+                <Markdown value={item.description} />
               </p>
             ) : null}
             <ol className={orderedListClass}>
