@@ -62,7 +62,9 @@ export function BrandMark({
         width={PX[size]}
         height={PX[size]}
         // Logo has a transparent background; preserveTransparency keeps it crisp.
-        priority={false}
+        // Brand mark is consistently the first paint in the sidebar/header, so
+        // mark it as the LCP candidate to avoid lazy-loading delay warnings.
+        priority
       />
     </span>
   );
