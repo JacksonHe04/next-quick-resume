@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { DEMO_EMAIL, DEMO_PASSWORD, login } from "@/e2e/helpers";
+import { login } from "@/e2e/helpers";
 
 async function shareUrlOf(page: import("@playwright/test").Page, id: string) {
   return `${new URL(page.url()).origin}/resumes/share/${id}`;
@@ -106,14 +106,14 @@ test("switches, clones, shares, and persists resumes from the three-column works
   await anonymousContext.close();
 });
 
-test("lets unauthenticated visitors edit the demo resume and lazily materializes it", async ({
+test("lets unauthenticated visitors edit the template and continue on the same resume from the same browser", async ({
   browser,
 }) => {
   const context = await browser.newContext();
   const guestPage = await context.newPage();
   await guestPage.goto("/resumes");
 
-  // 访客直接看到 demo 简历编辑器，且没有克隆 / 分享 / 简历列表
+  // 首次访问（新设备）：访客直接看到 demo 简历编辑器，且没有克隆 / 分享 / 简历列表
   await expect(
     guestPage.getByRole("main", { name: "简历预览" }),
   ).toBeVisible();
@@ -131,21 +131,46 @@ test("lets unauthenticated visitors edit the demo resume and lazily materializes
     guestPage.getByRole("button", { name: "公开分享" }),
   ).toHaveCount(0);
 
-  // 修改 demo 简历内容
+  // 修改模板简历内容
   await guestPage.getByRole("button", { name: "内容" }).click();
   const nameInput = guestPage.getByLabel("姓名");
-  await nameInput.fill(`访客 ${Date.now().toString().slice(-6)}`);
-  await guestPage.waitForTimeout(1500);
+  const editedName = `访客 ${Date.now().toString().slice(-6)}`;
+  await nameInput.fill(editedName);
 
-  // demo 账号登录后能看到被物化的访客简历
+  // 先等自动保存完成（防抖 650ms + POST 物化落库），再刷新验证续编
+  await guestPage.waitForResponse(
+    (response) =>
+      response.request().method() === "POST" &&
+      response.url().includes("/api/resumes"),
+    { timeout: 10_000 },
+  );
+
+  // 同一浏览器（同一匿名设备）刷新后：回到同一份简历继续编辑，改动已落库
+  await expect
+    .poll(async () => {
+      await guestPage.reload();
+      await guestPage.getByRole("button", { name: "内容" }).click();
+      return await guestPage.getByLabel("姓名").inputValue();
+    })
+    .toBe(editedName);
+
+  // 回访依旧是访客视角：没有克隆 / 分享 / 简历列表
+  await expect(
+    guestPage.getByRole("button", { name: "克隆简历" }),
+  ).toHaveCount(0);
+  await expect(
+    guestPage.getByRole("complementary", { name: "简历列表" }),
+  ).toHaveCount(0);
+
+  // 换一个全新浏览器上下文（另一台设备）：回到模板，看不到上一台设备保存的简历
   await context.close();
-  const demoContext = await browser.newContext();
-  const demoPage = await demoContext.newPage();
-  await login(demoPage, DEMO_EMAIL, DEMO_PASSWORD);
-  await demoPage.goto("/resumes");
-  await demoPage.getByRole("button", { name: "JSON" }).click();
-  const jsonEditor = demoPage.getByLabel("简历内容 JSON");
-  const data = JSON.parse(await jsonEditor.inputValue());
-  expect(data.header.name).toMatch(/^访客 \d{6}$/);
-  await demoContext.close();
+  const otherContext = await browser.newContext();
+  const otherPage = await otherContext.newPage();
+  await otherPage.goto("/resumes");
+  await expect(
+    otherPage.getByRole("heading", { name: "小咕嘎" }),
+  ).toBeVisible();
+  await otherPage.getByRole("button", { name: "内容" }).click();
+  expect(await otherPage.getByLabel("姓名").inputValue()).not.toBe(editedName);
+  await otherContext.close();
 });

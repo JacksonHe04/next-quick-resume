@@ -18,6 +18,7 @@ vi.mock("next/navigation", () => ({
 const initial: ResumeRecord = {
   id: "resume-a",
   userId: "user-a",
+  guestDeviceId: null,
   name: "产品简历",
   isPublic: false,
   version: 1,
@@ -132,6 +133,7 @@ describe("resume editor", () => {
           resume: {
             id: "resume-clone",
             userId: "user-a",
+            guestDeviceId: null,
             name: body.name,
             document: body.document,
             isPublic: false,
@@ -182,6 +184,7 @@ describe("resume editor", () => {
           resume: {
             id: "guest-materialized",
             userId: "demo-user",
+            guestDeviceId: "11111111-2222-4333-8444-555555555555",
             name: body.name,
             document: body.document,
             isPublic: false,
@@ -194,7 +197,14 @@ describe("resume editor", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    render(<ResumeEditor initial={initial} isGuest autosaveDelay={10} />);
+    render(
+      <ResumeEditor
+        initial={initial}
+        isGuest
+        guestDraft
+        autosaveDelay={10}
+      />,
+    );
 
     // 访客没有克隆 / 分享 / 简历列表
     expect(
@@ -227,6 +237,70 @@ describe("resume editor", () => {
       (call) => call[1]?.method === "POST",
     );
     expect(postCalls).toHaveLength(1);
+  });
+
+  it("lets a returning guest keep editing their materialized resume without creating another record", async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn().mockImplementation(async (_url: string) => {
+      const body = JSON.parse(
+        (fetchMock.mock.calls.at(-1)?.[1] as RequestInit | undefined)
+          ?.body as string,
+      );
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          resume: {
+            id: "guest-materialized",
+            userId: "demo-user",
+            guestDeviceId: "11111111-2222-4333-8444-555555555555",
+            name: body.name,
+            document: body.document,
+            isPublic: false,
+            version: 2,
+            createdAt: "2026-07-25T00:00:00.000Z",
+            updatedAt: "2026-07-25T00:00:00.000Z",
+          },
+        }),
+      };
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    // 回访访客：initial 就是自己设备下已物化的记录（guestDraft=false）
+    const materialized: ResumeRecord = {
+      ...initial,
+      id: "guest-materialized",
+      userId: "demo-user",
+      guestDeviceId: "11111111-2222-4333-8444-555555555555",
+      name: "我的简历",
+    };
+    render(
+      <ResumeEditor initial={materialized} isGuest autosaveDelay={10} />,
+    );
+
+    // 访客依旧没有克隆 / 分享 / 简历列表
+    expect(
+      screen.queryByRole("button", { name: "克隆简历" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("complementary", { name: "简历列表" }),
+    ).not.toBeInTheDocument();
+
+    // 修改后保存直接打到已有记录（PATCH），绝不重新 POST 物化
+    await user.click(screen.getByRole("button", { name: "内容" }));
+    const nameInput = screen.getByLabelText("姓名");
+    await user.clear(nameInput);
+    await user.type(nameInput, "回访访客姓名");
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "/api/resumes/guest-materialized",
+      expect.objectContaining({ method: "PATCH" }),
+    );
+    const postCalls = fetchMock.mock.calls.filter(
+      (call) => call[1]?.method === "POST",
+    );
+    expect(postCalls).toHaveLength(0);
   });
 
   it("keeps the editor toolbar inside the application content area", () => {
