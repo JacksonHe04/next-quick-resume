@@ -160,7 +160,7 @@ export function ResumeConfigSidebar({
 
       <div
         data-testid="resume-sidebar-scroll"
-        className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain"
+        className="min-h-0 min-w-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-y-contain"
       >
         {mode === "layout" ? (
           <>

@@ -76,12 +76,10 @@ function toMarkdown(data: ResumeData) {
   if (data.education) {
     lines.push("", `## ${data.education.title}`);
     getEducationItems(data.education).forEach((item) => {
-      lines.push(
-        "",
-        `${item.school} · ${item.period}`,
-        "",
-        item.details,
-      );
+      lines.push("", item.school);
+      item.entries.forEach((entry) => {
+        lines.push("", `· ${entry.details} · ${entry.period}`);
+      });
     });
   }
   if (data.skills) {
@@ -262,7 +260,7 @@ export function ResumeEditor({
   return (
     <div className="relative flex h-[calc(100dvh-4rem)] flex-col overflow-hidden overscroll-none bg-background print:h-auto print:overflow-visible">
       <ResumeTopbar
-        editorHref={`/app/resumes/${initial.id}`}
+        editorHref={`/resumes/${initial.id}`}
         name={name}
         onNameChange={setName}
         onExportPdf={() => window.print()}

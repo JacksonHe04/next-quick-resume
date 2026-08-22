@@ -77,12 +77,12 @@ describe("resume editor", () => {
     });
     expect(
       within(workspaceSwitch).getByRole("link", { name: "管理简历" }),
-    ).toHaveAttribute("href", "/app/resumes");
+    ).toHaveAttribute("href", "/resumes");
     expect(
       within(workspaceSwitch).getByRole("link", { name: "编辑简历" }),
     ).toHaveAttribute(
       "href",
-      "/app/resumes/resume-a",
+      "/resumes/resume-a",
     );
     expect(
       within(workspaceSwitch).getByRole("link", { name: "编辑简历" }),
@@ -99,7 +99,7 @@ describe("resume editor", () => {
     await user.click(screen.getByRole("button", { name: "简历列表" }));
     expect(screen.getByRole("link", { name: "切换到市场简历" })).toHaveAttribute(
       "href",
-      "/app/resumes/resume-b",
+      "/resumes/resume-b",
     );
   });
 
@@ -298,13 +298,15 @@ describe("resume editor", () => {
       items: [
         {
           school: "东南大学",
-          period: "2022–2026",
-          details: "本科",
+          entries: [
+            { period: "2022–2026", details: "本科" },
+          ],
         },
         {
           school: "清华大学",
-          period: "2026–2029",
-          details: "硕士",
+          entries: [
+            { period: "2026–2029", details: "硕士" },
+          ],
         },
       ],
     };
@@ -339,7 +341,6 @@ describe("resume editor", () => {
 
     expect(frame).toHaveClass(
       "resume-photo-frame",
-      "relative",
       "overflow-hidden",
       "sm:h-auto",
       "sm:self-stretch",
@@ -349,11 +350,9 @@ describe("resume editor", () => {
     expect(frame).not.toHaveClass("sm:h-40");
     expect(image).toHaveClass(
       "resume-photo-image",
-      "absolute",
-      "inset-0",
       "h-full",
-      "w-full",
-      "object-cover",
+      "w-auto",
+      "object-contain",
     );
   });
 });

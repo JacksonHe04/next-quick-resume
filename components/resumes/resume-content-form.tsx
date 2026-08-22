@@ -9,6 +9,7 @@ import {
   withEducationItems,
 } from "@/modules/resumes/education";
 import type {
+  EducationEntry,
   EducationItem,
   InternItem,
   ProjectItem,
@@ -16,7 +17,7 @@ import type {
 } from "@/types";
 
 const inputClass =
-  "w-full rounded-md border border-input bg-background px-2.5 text-sm text-foreground outline-none transition-shadow placeholder:text-muted-foreground/60 focus:border-ring focus:ring-2 focus:ring-ring/15";
+  "w-full min-w-0 rounded-md border border-input bg-background px-2.5 text-sm text-foreground outline-none transition-shadow placeholder:text-muted-foreground/60 focus:border-ring focus:ring-2 focus:ring-ring/15";
 
 function Field({
   label,
@@ -175,10 +176,58 @@ export function ResumeContentForm({
     });
   }
 
+  function updateEducationEntry(
+    eduIndex: number,
+    entryIndex: number,
+    patch: Partial<EducationEntry>,
+  ) {
+    const items = educationItems.map((item, itemIndex) => {
+      if (itemIndex !== eduIndex) return item;
+      return {
+        ...item,
+        entries: item.entries.map((entry, eIdx) =>
+          eIdx === entryIndex ? { ...entry, ...patch } : entry,
+        ),
+      };
+    });
+    onChange({
+      ...data,
+      education: withEducationItems(educationTitle, items),
+    });
+  }
+
+  function addEducationEntry(eduIndex: number) {
+    const items = educationItems.map((item, itemIndex) => {
+      if (itemIndex !== eduIndex) return item;
+      return {
+        ...item,
+        entries: [...item.entries, { period: "", details: "" }],
+      };
+    });
+    onChange({
+      ...data,
+      education: withEducationItems(educationTitle, items),
+    });
+  }
+
+  function removeEducationEntry(eduIndex: number, entryIndex: number) {
+    const items = educationItems.map((item, itemIndex) => {
+      if (itemIndex !== eduIndex) return item;
+      return {
+        ...item,
+        entries: item.entries.filter((_, eIdx) => eIdx !== entryIndex),
+      };
+    });
+    onChange({
+      ...data,
+      education: withEducationItems(educationTitle, items),
+    });
+  }
+
   function addEducation() {
     const items = [
       ...educationItems,
-      { school: "", base: "", period: "", details: "" },
+      { school: "", base: "", entries: [{ period: "", details: "" }] },
     ];
     onChange({
       ...data,
@@ -331,32 +380,6 @@ export function ResumeContentForm({
               })
             }
           />
-          <Field
-            label="意向时长"
-            value={data.header.jobInfo.duration ?? ""}
-            onChange={(duration) =>
-              onChange({
-                ...data,
-                header: {
-                  ...data.header,
-                  jobInfo: { ...data.header.jobInfo, duration },
-                },
-              })
-            }
-          />
-          <Field
-            label="到岗时间"
-            value={data.header.jobInfo.availability ?? ""}
-            onChange={(availability) =>
-              onChange({
-                ...data,
-                header: {
-                  ...data.header,
-                  jobInfo: { ...data.header.jobInfo, availability },
-                },
-              })
-            }
-          />
         </div>
         <Field
           label="GitHub 链接"
@@ -437,17 +460,53 @@ export function ResumeContentForm({
                 onChange={(base) => updateEducation(index, { base })}
               />
             </div>
-            <Field
-              label="时间"
-              value={item.period}
-              onChange={(period) => updateEducation(index, { period })}
-            />
-            <TextAreaField
-              label="专业与学历"
-              rows={3}
-              value={item.details}
-              onChange={(details) => updateEducation(index, { details })}
-            />
+            {item.entries.map((entry, entryIndex) => (
+              <div
+                key={entryIndex}
+                className="grid gap-3 rounded-md border border-border/60 bg-background/50 p-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    学历段 {entryIndex + 1}
+                  </span>
+                  {item.entries.length > 1 ? (
+                    <button
+                      type="button"
+                      aria-label={`删除学历段 ${entryIndex + 1}`}
+                      onClick={() =>
+                        removeEducationEntry(index, entryIndex)
+                      }
+                      className="grid size-6 place-items-center rounded text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="size-3" aria-hidden="true" />
+                    </button>
+                  ) : null}
+                </div>
+                <Field
+                  label="时间"
+                  value={entry.period}
+                  onChange={(period) =>
+                    updateEducationEntry(index, entryIndex, { period })
+                  }
+                />
+                <TextAreaField
+                  label="专业与学历"
+                  rows={3}
+                  value={entry.details}
+                  onChange={(details) =>
+                    updateEducationEntry(index, entryIndex, { details })
+                  }
+                />
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => addEducationEntry(index)}
+              className="flex h-8 items-center justify-center gap-1.5 rounded-md border border-dashed border-border text-xs text-muted-foreground transition-colors hover:border-foreground/25 hover:bg-muted/30 hover:text-foreground"
+            >
+              <Plus className="size-3" aria-hidden="true" />
+              添加学历段
+            </button>
           </CollectionItem>
         ))}
         <AddItemButton label="新增教育经历" onClick={addEducation} />
