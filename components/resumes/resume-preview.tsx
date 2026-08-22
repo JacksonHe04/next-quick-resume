@@ -372,23 +372,6 @@ function ProjectsSection({
   );
 }
 
-function SkillsSection({ document }: { document: ResumeDocumentV1 }) {
-  const skills = document.data.skills;
-  if (!skills) return null;
-  return (
-    <section className={SECTION_GAP_CLASS}>
-      <SectionTitle title={skills.title} />
-      <ol className={orderedListClass}>
-        {skills.items.map((skill, index) => (
-          <li key={index}>
-            <Markdown value={skill} />
-          </li>
-        ))}
-      </ol>
-    </section>
-  );
-}
-
 function AboutSection({ document }: { document: ResumeDocumentV1 }) {
   const about = document.data.about;
   if (!about?.content) return null;
@@ -413,6 +396,10 @@ function AboutSection({ document }: { document: ResumeDocumentV1 }) {
   );
 }
 
+// 专业技能（skills）已下线：与“关于我”概念重合，不再渲染。
+// 旧数据中残留的 skills 键仍能通过 schema 解析，但不会出现在预览里。
+const SKILLS_SECTION_KEY: ResumeSectionKey = "skills";
+
 export function ResumePreview({
   document,
 }: {
@@ -423,12 +410,12 @@ export function ResumePreview({
       .filter((section) => section.visible)
       .map((section) => section.key),
   );
-  const sections: Record<ResumeSectionKey, React.ReactNode> = {
+  visible.delete(SKILLS_SECTION_KEY);
+  const sections: Partial<Record<ResumeSectionKey, React.ReactNode>> = {
     header: <HeaderSection document={document} />,
     education: <EducationSection document={document} />,
     intern: <InternSection document={document} />,
     projects: <ProjectsSection document={document} />,
-    skills: <SkillsSection document={document} />,
     about: <AboutSection document={document} />,
   };
 
@@ -438,7 +425,9 @@ export function ResumePreview({
       className="min-w-0 text-black [&_strong]:font-semibold"
     >
       {document.displayConfig.sectionOrder.map((key) =>
-        visible.has(key) ? <div key={key}>{sections[key]}</div> : null,
+        visible.has(key) && sections[key] ? (
+          <div key={key}>{sections[key]}</div>
+        ) : null,
       )}
     </article>
   );

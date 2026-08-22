@@ -14,6 +14,9 @@ export const resumes = sqliteTable(
     name: text("name").notNull(),
     dataJson: text("data_json").notNull(),
     displayConfigJson: text("display_config_json").notNull(),
+    isPublic: integer("is_public", { mode: "boolean" })
+      .notNull()
+      .default(false),
     version: integer("version").notNull().default(1),
     ...timestampColumns(),
   },

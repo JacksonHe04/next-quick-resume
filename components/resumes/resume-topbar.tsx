@@ -4,7 +4,6 @@ import { Check, Copy, Download, Menu, Pencil } from "lucide-react";
 import { type KeyboardEvent, useEffect, useState } from "react";
 
 import { AppTopbarPortal } from "@/components/app/app-topbar";
-import { ResumeWorkspaceSwitch } from "@/components/resumes/resume-workspace-switch";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -15,14 +14,12 @@ import {
 import { cn } from "@/lib/utils";
 
 export function ResumeTopbar({
-  editorHref,
   name,
   onNameChange,
   onExportPdf,
   onCopyMarkdown,
   onToggleLeftSidebar,
 }: {
-  editorHref: string;
   name: string;
   onNameChange: (name: string) => void;
   onExportPdf: () => void;
@@ -81,11 +78,6 @@ export function ResumeTopbar({
         >
           <Menu className="size-4" />
         </button>
-
-        <ResumeWorkspaceSwitch
-          mode="edit"
-          editorHref={editorHref}
-        />
 
         <div className="hidden h-7 w-px shrink-0 bg-border lg:block" />
 

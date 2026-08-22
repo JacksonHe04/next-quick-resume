@@ -163,7 +163,6 @@ export function ResumeContentForm({
   const educationItems = getEducationItems(data.education);
   const intern = data.intern ?? { title: "实习经历", items: [] };
   const projects = data.projects ?? { title: "项目经历", items: [] };
-  const skills = data.skills ?? { title: "专业技能", items: [] };
   const about = data.about ?? { title: "关于我", content: "" };
 
   function updateEducation(index: number, patch: Partial<EducationItem>) {
@@ -621,27 +620,6 @@ export function ResumeContentForm({
           </CollectionItem>
         ))}
         <AddItemButton label="新增项目经历" onClick={addProject} />
-      </FormSection>
-
-      <FormSection title="专业技能">
-        <Field
-          label="模块标题"
-          value={skills.title}
-          onChange={(title) =>
-            onChange({ ...data, skills: { ...skills, title } })
-          }
-        />
-        <TextAreaField
-          label="每行一项"
-          value={skills.items.join("\n")}
-          onChange={(value) =>
-            onChange({
-              ...data,
-              skills: { ...skills, items: lines(value) },
-            })
-          }
-          rows={8}
-        />
       </FormSection>
 
       <FormSection title="关于我">

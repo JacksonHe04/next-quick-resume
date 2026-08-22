@@ -10,6 +10,7 @@ export type ResumeRecord = {
   userId: string;
   name: string;
   document: ResumeDocumentV1;
+  isPublic: boolean;
   version: number;
   createdAt: Date;
   updatedAt: Date;
@@ -17,7 +18,8 @@ export type ResumeRecord = {
 
 export type ResumeErrorCode =
   | "RESUME_NOT_FOUND"
-  | "VERSION_CONFLICT";
+  | "VERSION_CONFLICT"
+  | "RESUME_NOT_PUBLIC";
 
 export class ResumeError extends Error {
   constructor(
@@ -31,12 +33,19 @@ export class ResumeError extends Error {
 
 export interface ResumeRepository {
   find(userId: string, id: string): Promise<ResumeRecord | null>;
+  findPublicById(id: string): Promise<ResumeRecord | null>;
   insert(record: ResumeRecord): Promise<void>;
   updateIfVersion(
     userId: string,
     id: string,
     expectedVersion: number,
     changes: Partial<ResumeRecord>,
+  ): Promise<boolean>;
+  setShareEnabled(
+    userId: string,
+    id: string,
+    isPublic: boolean,
+    now: Date,
   ): Promise<boolean>;
   delete(userId: string, id: string): Promise<void>;
 }
@@ -65,6 +74,7 @@ export async function createResume(
     userId,
     name: parsed.name,
     document: parsed.document,
+    isPublic: false,
     version: 1,
     createdAt: now,
     updatedAt: now,
@@ -99,14 +109,15 @@ export async function saveResume(
       "这份简历已在其他位置更新，请刷新后重试",
     );
   }
+  const record = await requireResume(repository, userId, parsed.id);
   return {
     id: parsed.id,
     userId,
     name: parsed.name,
     document: parsed.document,
+    isPublic: record.isPublic,
     version,
-    createdAt: (await requireResume(repository, userId, parsed.id))
-      .createdAt,
+    createdAt: record.createdAt,
     updatedAt: now,
   };
 }
@@ -129,6 +140,29 @@ export async function cloneResume(
     },
     now,
   );
+}
+
+export async function setResumePublic(
+  repository: ResumeRepository,
+  userId: string,
+  id: string,
+  isPublic: boolean,
+  now = new Date(),
+): Promise<ResumeRecord> {
+  const record = await requireResume(repository, userId, id);
+  await repository.setShareEnabled(userId, id, isPublic, now);
+  return { ...record, isPublic, updatedAt: now };
+}
+
+export async function getPublicResume(
+  repository: ResumeRepository,
+  id: string,
+): Promise<ResumeRecord | null> {
+  const record = await repository.findPublicById(id);
+  if (!record) {
+    throw new ResumeError("RESUME_NOT_PUBLIC", "该简历未公开或不存在");
+  }
+  return record;
 }
 
 export async function deleteResume(

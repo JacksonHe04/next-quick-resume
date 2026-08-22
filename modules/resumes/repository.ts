@@ -3,6 +3,7 @@ import type { DrizzleD1Database } from "drizzle-orm/d1";
 
 import * as schema from "@/db/schema";
 import { resumes } from "@/db/schema";
+import { orderDataBySections } from "@/modules/resumes/section-order";
 import { resumeDocumentV1Schema } from "@/modules/resumes/schema";
 import type {
   ResumeRecord,
@@ -21,10 +22,18 @@ function deserialize(row: typeof resumes.$inferSelect): ResumeRecord {
       data: JSON.parse(row.dataJson),
       displayConfig: JSON.parse(row.displayConfigJson),
     }),
+    isPublic: row.isPublic,
     version: row.version,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
+}
+
+function dataJsonOf(document: ResumeRecord["document"]) {
+  // 持久化时按 sectionOrder 重排 data 字段，保证 JSON 输出顺序与简历一致
+  return JSON.stringify(
+    orderDataBySections(document.data, document.displayConfig.sectionOrder),
+  );
 }
 
 export function createResumeRepository(
@@ -40,6 +49,15 @@ export function createResumeRepository(
       return row ? deserialize(row) : null;
     },
 
+    async findPublicById(id) {
+      const [row] = await database
+        .select()
+        .from(resumes)
+        .where(and(eq(resumes.id, id), eq(resumes.isPublic, true)))
+        .limit(1);
+      return row ? deserialize(row) : null;
+    },
+
     async insert(record) {
       await database
         .insert(resumes)
@@ -47,10 +65,11 @@ export function createResumeRepository(
           id: record.id,
           userId: record.userId,
           name: record.name,
-          dataJson: JSON.stringify(record.document.data),
+          dataJson: dataJsonOf(record.document),
           displayConfigJson: JSON.stringify(
             record.document.displayConfig,
           ),
+          isPublic: record.isPublic,
           version: record.version,
           createdAt: record.createdAt,
           updatedAt: record.updatedAt,
@@ -64,7 +83,7 @@ export function createResumeRepository(
         .set({
           name: changes.name,
           dataJson: changes.document
-            ? JSON.stringify(changes.document.data)
+            ? dataJsonOf(changes.document)
             : undefined,
           displayConfigJson: changes.document
             ? JSON.stringify(changes.document.displayConfig)
@@ -79,6 +98,15 @@ export function createResumeRepository(
             eq(resumes.version, expectedVersion),
           ),
         )
+        .run();
+      return result.meta.changes > 0;
+    },
+
+    async setShareEnabled(userId, id, isPublic, now) {
+      const result = await database
+        .update(resumes)
+        .set({ isPublic, updatedAt: now })
+        .where(and(eq(resumes.userId, userId), eq(resumes.id, id)))
         .run();
       return result.meta.changes > 0;
     },

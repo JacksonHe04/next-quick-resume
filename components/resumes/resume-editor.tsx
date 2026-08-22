@@ -18,11 +18,13 @@ import { appFetch } from "@/lib/app-fetch";
 import { cn } from "@/lib/utils";
 import { getEducationItems } from "@/modules/resumes/education";
 import { getResumePhotoValidationError } from "@/modules/resumes/photo";
+import { orderDataBySections } from "@/modules/resumes/section-order";
 import type { ResumeRecord } from "@/modules/resumes/service";
 import type {
   ResumeData,
   ResumeDisplayConfig,
   ResumeDocumentV1,
+  ResumeSectionKey,
 } from "@/types";
 
 type SaveInput = {
@@ -54,7 +56,7 @@ async function saveThroughApi(input: SaveInput): Promise<SaveResult> {
   return { version: payload.resume.version };
 }
 
-function toMarkdown(data: ResumeData) {
+function toMarkdown(data: ResumeData, sectionOrder: ResumeSectionKey[]) {
   const lines = [
     `# ${data.header.name}`,
     "",
@@ -73,50 +75,46 @@ function toMarkdown(data: ResumeData) {
       `- 主页：[${data.header.contact.homepage.text}](${data.header.contact.homepage.url})`,
     );
   }
-  if (data.education) {
-    lines.push("", `## ${data.education.title}`);
-    getEducationItems(data.education).forEach((item) => {
-      lines.push("", item.school);
-      item.entries.forEach((entry) => {
-        lines.push("", `· ${entry.details} · ${entry.period}`);
+  // 与 JSON 保持一致：markdown 的 section 顺序跟随 sectionOrder
+  for (const key of sectionOrder) {
+    if (key === "education" && data.education) {
+      lines.push("", `## ${data.education.title}`);
+      getEducationItems(data.education).forEach((item) => {
+        lines.push("", item.school);
+        item.entries.forEach((entry) => {
+          lines.push("", `· ${entry.details} · ${entry.period}`);
+        });
       });
-    });
-  }
-  if (data.skills) {
-    lines.push(
-      "",
-      `## ${data.skills.title}`,
-      ...data.skills.items.map((item) => `- ${item}`),
-    );
-  }
-  if (data.intern) {
-    lines.push("", `## ${data.intern.title}`);
-    data.intern.items.forEach((item) => {
-      lines.push(
-        "",
-        `### ${item.company} · ${item.position}`,
-        `${item.period} · ${item.base}`,
-        "",
-        item.description,
-        ...item.responsibilities.map(
-          (responsibility) => `- ${responsibility}`,
-        ),
-      );
-    });
-  }
-  if (data.projects) {
-    lines.push("", `## ${data.projects.title}`);
-    data.projects.items.forEach((item) => {
-      lines.push(
-        "",
-        `### ${item.name}`,
-        item.description,
-        ...item.features.map((feature) => `- ${feature}`),
-      );
-    });
-  }
-  if (data.about) {
-    lines.push("", `## ${data.about.title}`, data.about.content);
+    }
+    if (key === "intern" && data.intern) {
+      lines.push("", `## ${data.intern.title}`);
+      data.intern.items.forEach((item) => {
+        lines.push(
+          "",
+          `### ${item.company} · ${item.position}`,
+          `${item.period} · ${item.base}`,
+          "",
+          item.description,
+          ...item.responsibilities.map(
+            (responsibility) => `- ${responsibility}`,
+          ),
+        );
+      });
+    }
+    if (key === "projects" && data.projects) {
+      lines.push("", `## ${data.projects.title}`);
+      data.projects.items.forEach((item) => {
+        lines.push(
+          "",
+          `### ${item.name}`,
+          item.description,
+          ...item.features.map((feature) => `- ${feature}`),
+        );
+      });
+    }
+    if (key === "about" && data.about) {
+      lines.push("", `## ${data.about.title}`, data.about.content);
+    }
   }
   return lines.join("\n");
 }
@@ -139,7 +137,14 @@ export function ResumeEditor({
   const [sidebarMode, setSidebarMode] =
     useState<ResumeSidebarMode>("layout");
   const [jsonText, setJsonText] = useState(() =>
-    JSON.stringify(initial.document.data, null, 2),
+    JSON.stringify(
+      orderDataBySections(
+        initial.document.data,
+        initial.document.displayConfig.sectionOrder,
+      ),
+      null,
+      2,
+    ),
   );
   const [jsonError, setJsonError] = useState<string>();
   const [photoError, setPhotoError] = useState<string>();
@@ -212,8 +217,12 @@ export function ResumeEditor({
   }
 
   function updateData(data: ResumeData) {
-    setDocument((current) => ({ ...current, data }));
-    setJsonText(JSON.stringify(data, null, 2));
+    const ordered = orderDataBySections(
+      data,
+      document.displayConfig.sectionOrder,
+    );
+    setDocument((current) => ({ ...current, data: ordered }));
+    setJsonText(JSON.stringify(ordered, null, 2));
     setJsonError(undefined);
   }
 
@@ -254,13 +263,14 @@ export function ResumeEditor({
   }
 
   async function copyMarkdown() {
-    await navigator.clipboard.writeText(toMarkdown(document.data));
+    await navigator.clipboard.writeText(
+      toMarkdown(document.data, document.displayConfig.sectionOrder),
+    );
   }
 
   return (
     <div className="relative flex h-[calc(100dvh-4rem)] flex-col overflow-hidden overscroll-none bg-background print:h-auto print:overflow-visible">
       <ResumeTopbar
-        editorHref={`/resumes/${initial.id}`}
         name={name}
         onNameChange={setName}
         onExportPdf={() => window.print()}

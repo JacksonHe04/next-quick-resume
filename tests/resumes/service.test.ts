@@ -3,7 +3,9 @@ import { describe, expect, it } from "vitest";
 import {
   cloneResume,
   createResume,
+  getPublicResume,
   saveResume,
+  setResumePublic,
   type ResumeRecord,
   type ResumeRepository,
 } from "@/modules/resumes/service";
@@ -14,6 +16,11 @@ class MemoryResumeRepository implements ResumeRepository {
   async find(userId: string, id: string) {
     const record = this.records.get(id);
     return record?.userId === userId ? record : null;
+  }
+
+  async findPublicById(id: string) {
+    const record = this.records.get(id);
+    return record?.isPublic ? record : null;
   }
 
   async insert(record: ResumeRecord) {
@@ -29,6 +36,14 @@ class MemoryResumeRepository implements ResumeRepository {
     const record = await this.find(userId, id);
     if (!record || record.version !== expectedVersion) return false;
     Object.assign(record, changes);
+    return true;
+  }
+
+  async setShareEnabled(userId: string, id: string, isPublic: boolean, now: Date) {
+    const record = await this.find(userId, id);
+    if (!record) return false;
+    record.isPublic = isPublic;
+    record.updatedAt = now;
     return true;
   }
 
@@ -115,7 +130,56 @@ describe("resume service", () => {
     expect(cloned).toMatchObject({
       name: "通用简历（副本）",
       version: 1,
+      isPublic: false,
     });
     expect(cloned.id).not.toBe(original.id);
+  });
+
+  it("toggles public sharing and exposes the resume without a user", async () => {
+    const repository = new MemoryResumeRepository();
+    const created = await createResume(
+      repository,
+      "user-a",
+      { name: "通用简历", document },
+      now,
+    );
+
+    await expect(
+      getPublicResume(repository, created.id),
+    ).rejects.toMatchObject({ code: "RESUME_NOT_PUBLIC" });
+
+    const shared = await setResumePublic(
+      repository,
+      "user-a",
+      created.id,
+      true,
+      now,
+    );
+    expect(shared).toMatchObject({ isPublic: true });
+
+    const publicResume = await getPublicResume(repository, created.id);
+    expect(publicResume).toMatchObject({
+      id: created.id,
+      isPublic: true,
+    });
+
+    await setResumePublic(repository, "user-a", created.id, false, now);
+    await expect(
+      getPublicResume(repository, created.id),
+    ).rejects.toMatchObject({ code: "RESUME_NOT_PUBLIC" });
+  });
+
+  it("cannot share another user's resume", async () => {
+    const repository = new MemoryResumeRepository();
+    const created = await createResume(
+      repository,
+      "user-a",
+      { name: "通用简历", document },
+      now,
+    );
+
+    await expect(
+      setResumePublic(repository, "user-b", created.id, true, now),
+    ).rejects.toMatchObject({ code: "RESUME_NOT_FOUND" });
   });
 });

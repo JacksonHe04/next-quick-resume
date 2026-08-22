@@ -1,20 +1,19 @@
-import { ResumeManager } from "@/components/resumes/resume-manager";
+import { redirect } from "next/navigation";
+
+import { ResumeEmptyState } from "@/components/resumes/resume-empty-state";
 import { getAppReadContext } from "@/modules/app/read-context";
 import { listResumes } from "@/modules/resumes/repository";
 
 export default async function ResumesPage() {
   const { database, userId } = await getAppReadContext();
   const resumes = await listResumes(database, userId);
-  const editorHref = resumes[0]
-    ? `/resumes/${resumes[0].id}`
-    : undefined;
+  const current = resumes[0];
 
-  return (
-    <div className="mx-auto max-w-7xl px-5 py-7 lg:py-9">
-      <ResumeManager
-        initialResumes={resumes}
-        editorHref={editorHref}
-      />
-    </div>
-  );
+  if (!current) {
+    return <ResumeEmptyState />;
+  }
+
+  // /resumes 直接进入最近更新的简历编辑器；
+  // 跳转到带 id 的地址，保证刷新 / 克隆等操作后当前简历不漂移。
+  redirect(`/resumes/${current.id}`);
 }

@@ -244,70 +244,72 @@ export function ResumeConfigSidebar({
             </div>
 
             <div className="space-y-2 p-4">
-              {config.sectionOrder.map((key, index) => {
-                const section = config.sections.find(
-                  (item) => item.key === key,
-                );
-                if (!section) return null;
-                return (
-                  <div
-                    key={key}
-                    draggable
-                    onDragStart={() => setDraggedIndex(index)}
-                    onDragEnd={() => setDraggedIndex(null)}
-                    onDragOver={(event) => {
-                      event.preventDefault();
-                      moveDraggedSection(index);
-                    }}
-                    className={cn(
-                      "flex cursor-move items-center gap-2 rounded-lg border border-border bg-muted/25 p-3 transition-opacity",
-                      draggedIndex === index && "opacity-50",
-                      !section.visible && "opacity-60",
-                    )}
-                  >
-                    <GripVertical className="size-4 shrink-0 text-muted-foreground" />
-                    <span className="flex-1 text-sm font-medium text-foreground">
-                      {section.label}
-                    </span>
-                    <div className="flex flex-col gap-0.5">
-                      <button
-                        type="button"
-                        aria-label={`上移${section.label}`}
-                        disabled={index === 0}
-                        onClick={() => moveSection(index, -1)}
-                        className="p-0.5 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
-                      >
-                        <ChevronUp className="size-3" />
-                      </button>
-                      <button
-                        type="button"
-                        aria-label={`下移${section.label}`}
-                        disabled={index === config.sectionOrder.length - 1}
-                        onClick={() => moveSection(index, 1)}
-                        className="p-0.5 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
-                      >
-                        <ChevronDown className="size-3" />
-                      </button>
-                    </div>
-                    <button
-                      type="button"
-                      aria-label={`${section.visible ? "隐藏" : "显示"}${section.label}`}
-                      onClick={() => toggleSection(key)}
+              {config.sectionOrder
+                .filter((key) => key !== "skills")
+                .map((key, index) => {
+                    const section = config.sections.find(
+                      (item) => item.key === key,
+                    );
+                    if (!section) return null;
+                    return (
+                    <div
+                      key={key}
+                      draggable
+                      onDragStart={() => setDraggedIndex(index)}
+                      onDragEnd={() => setDraggedIndex(null)}
+                      onDragOver={(event) => {
+                        event.preventDefault();
+                        moveDraggedSection(index);
+                      }}
                       className={cn(
-                        "rounded-md p-1.5 transition-colors",
-                        section.visible
-                          ? "text-[#3d8c5a] hover:bg-[#55a572]/10"
-                          : "text-muted-foreground hover:bg-muted",
+                        "flex cursor-move items-center gap-2 rounded-lg border border-border bg-muted/25 p-3 transition-opacity",
+                        draggedIndex === index && "opacity-50",
+                        !section.visible && "opacity-60",
                       )}
                     >
-                      {section.visible ? (
-                        <Eye className="size-4" />
-                      ) : (
-                        <EyeOff className="size-4" />
-                      )}
-                    </button>
-                  </div>
-                );
+                      <GripVertical className="size-4 shrink-0 text-muted-foreground" />
+                      <span className="flex-1 text-sm font-medium text-foreground">
+                        {section.label}
+                      </span>
+                      <div className="flex flex-col gap-0.5">
+                        <button
+                          type="button"
+                          aria-label={`上移${section.label}`}
+                          disabled={index === 0}
+                          onClick={() => moveSection(index, -1)}
+                          className="p-0.5 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                        >
+                          <ChevronUp className="size-3" />
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`下移${section.label}`}
+                          disabled={index === config.sectionOrder.length - 1}
+                          onClick={() => moveSection(index, 1)}
+                          className="p-0.5 text-muted-foreground hover:text-foreground disabled:cursor-not-allowed disabled:opacity-30"
+                        >
+                          <ChevronDown className="size-3" />
+                        </button>
+                      </div>
+                      <button
+                        type="button"
+                        aria-label={`${section.visible ? "隐藏" : "显示"}${section.label}`}
+                        onClick={() => toggleSection(key)}
+                        className={cn(
+                          "rounded-md p-1.5 transition-colors",
+                          section.visible
+                            ? "text-[#3d8c5a] hover:bg-[#55a572]/10"
+                            : "text-muted-foreground hover:bg-muted",
+                        )}
+                      >
+                        {section.visible ? (
+                          <Eye className="size-4" />
+                        ) : (
+                          <EyeOff className="size-4" />
+                        )}
+                      </button>
+                    </div>
+                  );
               })}
             </div>
           </>

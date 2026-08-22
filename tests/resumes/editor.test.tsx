@@ -19,6 +19,7 @@ const initial: ResumeRecord = {
   id: "resume-a",
   userId: "user-a",
   name: "产品简历",
+  isPublic: false,
   version: 1,
   createdAt: new Date("2026-07-25T00:00:00.000Z"),
   updatedAt: new Date("2026-07-25T00:00:00.000Z"),
@@ -72,21 +73,9 @@ describe("resume editor", () => {
     expect(
       screen.queryByRole("complementary", { name: "切换简历" }),
     ).not.toBeInTheDocument();
-    const workspaceSwitch = screen.getByRole("navigation", {
-      name: "简历视图",
-    });
     expect(
-      within(workspaceSwitch).getByRole("link", { name: "管理简历" }),
-    ).toHaveAttribute("href", "/resumes");
-    expect(
-      within(workspaceSwitch).getByRole("link", { name: "编辑简历" }),
-    ).toHaveAttribute(
-      "href",
-      "/resumes/resume-a",
-    );
-    expect(
-      within(workspaceSwitch).getByRole("link", { name: "编辑简历" }),
-    ).toHaveAttribute("aria-current", "page");
+      screen.queryByRole("navigation", { name: "简历视图" }),
+    ).not.toBeInTheDocument();
     expect(screen.queryByText("头部样式设置")).not.toBeInTheDocument();
     expect(screen.queryByText("对齐方式")).not.toBeInTheDocument();
     expect(screen.queryByText("模块管理")).not.toBeInTheDocument();
@@ -101,6 +90,12 @@ describe("resume editor", () => {
       "href",
       "/resumes/resume-b",
     );
+    // 简历列表不展示简历第一行（头部姓名），只展示管理名称与更新时间
+    const sidebar = screen.getByRole("complementary", {
+      name: "简历配置",
+    });
+    expect(within(sidebar).queryByText("Jackson")).not.toBeInTheDocument();
+    expect(within(sidebar).getByText("产品简历")).toBeInTheDocument();
   });
 
   it("keeps the editor toolbar inside the application content area", () => {
@@ -195,6 +190,33 @@ describe("resume editor", () => {
     );
   });
 
+  it("orders the provided JSON by the resume section order", async () => {
+    const user = userEvent.setup();
+    const document = structuredClone(initial.document);
+    document.data.education = {
+      title: "教育经历",
+      school: "东南大学",
+      entries: [{ period: "2022–2026", details: "本科" }],
+    };
+    document.data.about = { title: "关于我", content: "介绍" };
+    document.displayConfig.sections.push(
+      { key: "education", label: "教育经历", visible: true },
+      { key: "about", label: "关于我", visible: true },
+    );
+    document.displayConfig.sectionOrder = ["header", "about", "education"];
+
+    render(<ResumeEditor initial={{ ...initial, document }} />);
+
+    await user.click(screen.getByRole("button", { name: "内容" }));
+    await user.click(screen.getByLabelText("JSON 编辑区域"));
+    const jsonTextarea = screen.getByLabelText(
+      "简历内容 JSON",
+    ) as HTMLTextAreaElement;
+    const keys = Object.keys(JSON.parse(jsonTextarea.value));
+    // about 在类型声明里排在 education 前，但 JSON 必须跟随 sectionOrder
+    expect(keys).toEqual(["header", "about", "education"]);
+  });
+
   it("adds and removes education, internship, and project entries", async () => {
     const user = userEvent.setup();
     const save = vi.fn().mockResolvedValue({ version: 2 });
@@ -258,22 +280,33 @@ describe("resume editor", () => {
     expect(save).not.toHaveBeenCalled();
   });
 
-  it("uses the resume-only preview typography instead of the later A4 card", () => {
+  it("uses the resume-only preview typography and hides legacy skills sections", () => {
     const document = structuredClone(initial.document);
+    document.data.about = {
+      title: "关于我",
+      content: "熟悉 **React**",
+    };
     document.data.skills = {
       title: "专业技能",
       items: ["熟悉 **React**"],
     };
-    document.displayConfig.sections.push({
-      key: "skills",
-      label: "专业技能",
-      visible: true,
-    });
-    document.displayConfig.sectionOrder.push("skills");
+    document.displayConfig.sections.push(
+      {
+        key: "about",
+        label: "关于我",
+        visible: true,
+      },
+      {
+        key: "skills",
+        label: "专业技能",
+        visible: true,
+      },
+    );
+    document.displayConfig.sectionOrder.push("about", "skills");
 
     const { container } = render(<ResumePreview document={document} />);
     const preview = container.querySelector("#resume-preview");
-    const title = screen.getByRole("heading", { name: "专业技能" });
+    const title = screen.getByRole("heading", { name: "关于我" });
     const list = title.nextElementSibling;
 
     expect(preview).not.toHaveClass("max-w-[794px]");
@@ -286,6 +319,10 @@ describe("resume editor", () => {
     expect(title).toHaveClass("border-black");
     expect(list).toHaveClass("list-decimal");
     expect(screen.getByText("React").tagName).toBe("STRONG");
+    // 专业技能已下线：即使旧数据里仍声明该 section，也不再渲染
+    expect(
+      screen.queryByRole("heading", { name: "专业技能" }),
+    ).not.toBeInTheDocument();
   });
 
   it("renders multiple education entries in the preview", () => {

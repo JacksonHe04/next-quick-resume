@@ -11,7 +11,6 @@ export const defaultResumeDisplayConfig: ResumeDisplayConfig = {
     { key: "education", label: "教育经历", visible: true },
     { key: "intern", label: "实习经历", visible: true },
     { key: "projects", label: "项目经历", visible: true },
-    { key: "skills", label: "专业技能", visible: true },
     { key: "about", label: "关于我", visible: true },
   ],
   sectionOrder: [
@@ -19,7 +18,6 @@ export const defaultResumeDisplayConfig: ResumeDisplayConfig = {
     "education",
     "intern",
     "projects",
-    "skills",
     "about",
   ],
   headerAlignment: "left",
