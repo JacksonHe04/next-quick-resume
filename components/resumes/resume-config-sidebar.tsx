@@ -3,6 +3,7 @@
 import {
   AlignCenter,
   AlignLeft,
+  Braces,
   ChevronDown,
   ChevronUp,
   Eye,
@@ -24,11 +25,12 @@ import type {
   ResumeSectionKey,
 } from "@/types";
 
-export type ResumeSidebarMode = "layout" | "content";
+export type ResumeSidebarMode = "layout" | "content" | "json";
 
 const sidebarModes = [
   ["layout", "版式", LayoutTemplate],
   ["content", "内容", FilePenLine],
+  ["json", "JSON", Braces],
 ] as const;
 
 function Switch({
@@ -311,34 +313,27 @@ export function ResumeConfigSidebar({
         ) : null}
 
         {mode === "content" ? (
-          <>
-            <ResumeContentForm data={data} onChange={onDataChange} />
-            <details className="border-t border-border">
-              <summary
-                aria-label="JSON 编辑区域"
-                className="cursor-pointer list-none px-4 py-3 text-sm font-medium text-foreground marker:hidden"
+          <ResumeContentForm data={data} onChange={onDataChange} />
+        ) : null}
+
+        {mode === "json" ? (
+          <div className="flex min-h-full flex-col gap-3 p-4">
+            {jsonError ? (
+              <div
+                role="alert"
+                className="rounded-md border border-destructive/20 bg-destructive/5 p-2 text-xs text-destructive"
               >
-                JSON
-              </summary>
-              <div className="px-4 pb-4">
-                {jsonError ? (
-                  <div
-                    role="alert"
-                    className="mb-3 rounded-md border border-destructive/20 bg-destructive/5 p-2 text-xs text-destructive"
-                  >
-                    {jsonError}
-                  </div>
-                ) : null}
-                <textarea
-                  aria-label="简历内容 JSON"
-                  value={jsonText}
-                  onChange={(event) => onJsonChange(event.target.value)}
-                  spellCheck={false}
-                  className="min-h-96 w-full resize-y rounded-lg border border-input bg-muted/25 p-3 font-[var(--font-data)] text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
-                />
+                {jsonError}
               </div>
-            </details>
-          </>
+            ) : null}
+            <textarea
+              aria-label="简历内容 JSON"
+              value={jsonText}
+              onChange={(event) => onJsonChange(event.target.value)}
+              spellCheck={false}
+              className="min-h-64 w-full flex-1 resize-none rounded-lg border border-input bg-muted/25 p-3 font-[var(--font-data)] text-xs outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+            />
+          </div>
         ) : null}
       </div>
     </div>

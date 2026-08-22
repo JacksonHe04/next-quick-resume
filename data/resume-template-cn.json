@@ -101,7 +101,6 @@
       {
         "name": "灵枢机器人（NexBody Robotics）",
         "github": "https://github.com/guga/nexbody",
-        "techStack": "PyTorch · CUDA · Isaac Lab · ROS 2 · VLA",
         "description": "面向家庭与工业场景的通用具身智能（Embodied Intelligence）公司：自研端到端 VLA（Vision-Language-Action）基础模型与一体化机器人硬件，让机器人看一眼、听一句就能学会新任务。创立 6 个月即完成天使轮与 A 轮融资，累计融资 2 亿美元，估值超 12 亿美元。",
         "features": [
           "**VLA 基础模型**：自研 7B 参数视觉-语言-动作模型，统一「感知 → 推理 → 操作」全链路，200+ 种通用技能的零样本执行成功率 92%，多项开源基准排名第一。",

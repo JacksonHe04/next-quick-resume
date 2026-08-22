@@ -54,17 +54,15 @@ test("switches, clones, shares, and persists resumes from the three-column works
   await page.getByLabel("简历名称").fill(editedName);
   await page.getByRole("button", { name: "确认" }).click();
 
-  // 内容 tab：JSON 修改头部姓名，自动保存后刷新验证已持久化
-  await page.getByRole("button", { name: "内容" }).click();
-  await page.getByLabel("JSON 编辑区域").click();
+  // JSON tab：修改头部姓名，自动保存后刷新验证已持久化
+  await page.getByRole("button", { name: "JSON" }).click();
   const jsonEditor = page.getByLabel("简历内容 JSON");
   const resumeData = JSON.parse(await jsonEditor.inputValue());
   resumeData.header.name = candidateName;
   await jsonEditor.fill(JSON.stringify(resumeData, null, 2));
   await page.waitForTimeout(1200);
   await page.reload();
-  await page.getByRole("button", { name: "内容" }).click();
-  await page.getByLabel("JSON 编辑区域").click();
+  await page.getByRole("button", { name: "JSON" }).click();
   const reloadedData = JSON.parse(
     await page.getByLabel("简历内容 JSON").inputValue(),
   );
@@ -145,7 +143,7 @@ test("lets unauthenticated visitors edit the demo resume and lazily materializes
   const demoPage = await demoContext.newPage();
   await login(demoPage, DEMO_EMAIL, DEMO_PASSWORD);
   await demoPage.goto("/resumes");
-  await demoPage.getByRole("button", { name: "内容" }).click();
+  await demoPage.getByRole("button", { name: "JSON" }).click();
   const jsonEditor = demoPage.getByLabel("简历内容 JSON");
   const data = JSON.parse(await jsonEditor.inputValue());
   expect(data.header.name).toMatch(/^访客 \d{6}$/);

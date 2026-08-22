@@ -70,7 +70,6 @@ export interface ProjectItem {
   name: string
   github: string
   demo?: string
-  techStack?: string
   description: string
   features: string[]
   show?: boolean

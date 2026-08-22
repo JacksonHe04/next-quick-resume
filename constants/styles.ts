@@ -32,8 +32,6 @@ export const TEXT_STYLES = {
   base: 'text-sm sm:text-base',
   // 描述文本 - 响应式字体大小
   description: 'text-gray-700 text-sm sm:text-base mb-1.5',
-  // 技术栈文本 - 响应式字体大小
-  techStack: 'text-black text-sm sm:text-base',
   // 时间文本 - 响应式字体大小
   period: 'text-gray-600 text-sm sm:text-base',
 } as const

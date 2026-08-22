@@ -587,20 +587,11 @@ export function ResumeContentForm({
               value={item.name}
               onChange={(name) => updateProject(index, { name })}
             />
-            <div className="grid grid-cols-2 gap-3">
-              <Field
-                label="GitHub"
-                value={item.github}
-                onChange={(github) => updateProject(index, { github })}
-              />
-              <Field
-                label="技术栈"
-                value={item.techStack ?? ""}
-                onChange={(techStack) =>
-                  updateProject(index, { techStack })
-                }
-              />
-            </div>
+            <Field
+              label="GitHub"
+              value={item.github}
+              onChange={(github) => updateProject(index, { github })}
+            />
             <TextAreaField
               label="项目概述"
               value={item.description}

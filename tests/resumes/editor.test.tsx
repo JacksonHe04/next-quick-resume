@@ -338,8 +338,7 @@ describe("resume editor", () => {
 
     render(<ResumeEditor initial={{ ...initial, document }} />);
 
-    await user.click(screen.getByRole("button", { name: "内容" }));
-    await user.click(screen.getByLabelText("JSON 编辑区域"));
+    await user.click(screen.getByRole("button", { name: "JSON" }));
     const jsonTextarea = screen.getByLabelText(
       "简历内容 JSON",
     ) as HTMLTextAreaElement;

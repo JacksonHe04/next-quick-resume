@@ -107,7 +107,6 @@ const resumeDataSchema = z.object({
           name: z.string(),
           github: z.string(),
           demo: optionalText,
-          techStack: optionalText,
           description: z.string(),
           features: z.array(z.string()),
           show: z.boolean().optional(),
