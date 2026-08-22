@@ -87,7 +87,7 @@ test("switches, clones, shares, and persists resumes from the three-column works
   await anonymousPage.goto(shareUrl!);
   await expect(anonymousPage.locator("#resume-preview")).toBeVisible();
   await expect(
-    anonymousPage.getByRole("heading", { name: "林悦辰" }),
+    anonymousPage.getByRole("heading", { name: "小咕嘎" }),
   ).toBeVisible();
   await expect(
     anonymousPage.getByRole("heading", { name: candidateName }),
@@ -121,7 +121,7 @@ test("lets unauthenticated visitors edit the demo resume and lazily materializes
   ).toBeVisible();
   // 访客看到的是「新建简历」时的模板简历（mock），绝不泄露任何真实简历
   await expect(
-    guestPage.getByRole("heading", { name: "林悦辰" }),
+    guestPage.getByRole("heading", { name: "小咕嘎" }),
   ).toBeVisible();
   await expect(
     guestPage.getByRole("button", { name: "克隆简历" }),
