@@ -12,7 +12,7 @@ export function SidebarAccountClient({
 
   return (
     <Link
-      href={user ? "/app/settings" : "/login"}
+      href={user ? "/settings" : "/login"}
       aria-label={
         user ? `打开 ${user.name} 的个人设置` : "登录后开始记录"
       }
