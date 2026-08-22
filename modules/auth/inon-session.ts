@@ -1,6 +1,7 @@
 import type { InonProjectSession } from "@inon-ai/inon-sso";
 import { headers } from "next/headers";
 
+import { getDevelopmentSession } from "@/modules/auth/development";
 import { getInonProjectSso } from "@/modules/auth/inon-sso";
 
 function publicOrigin(): string {
@@ -21,6 +22,17 @@ export async function currentInonRequest(): Promise<Request> {
   );
 }
 
-export async function getInonProjectSession(): Promise<InonProjectSession | null> {
-  return getInonProjectSso().getSession(await currentInonRequest());
+/**
+ * Resolve the iNon project session. In development this is short-circuited by
+ * the local identity override (modules/auth/development.ts), otherwise it reads
+ * the encrypted session cookie issued by the OAuth callback. Pass the incoming
+ * Request from route handlers so its cookie is used; React Server Components
+ * call without arguments and the request is reconstructed from headers().
+ */
+export async function getInonProjectSession(
+  request?: Request,
+): Promise<InonProjectSession | null> {
+  const development = getDevelopmentSession();
+  if (development) return development;
+  return getInonProjectSso().getSession(request ?? (await currentInonRequest()));
 }

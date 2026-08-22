@@ -2,14 +2,14 @@ import { NextResponse } from "next/server";
 
 import { getDb } from "@/db/client";
 import { DEMO_USER_ID } from "@/db/seed/demo";
-import { getInonProjectSso } from "@/modules/auth/inon-sso";
+import { getInonProjectSession } from "@/modules/auth/inon-session";
 import { resolveInonProjectUser } from "@/modules/auth/inon-user";
 
 export async function getAuthenticatedDatabaseContext(
   request: Request,
 ) {
   const database = await getDb();
-  const session = await getInonProjectSso().getSession(request);
+  const session = await getInonProjectSession(request);
   if (!session) return null;
   const user = await resolveInonProjectUser(database, session);
   if (user.disabledAt) return null;
@@ -23,7 +23,7 @@ export async function getAuthenticatedDatabaseContext(
 
 export async function getReadDatabaseContext(request: Request) {
   const database = await getDb();
-  const session = await getInonProjectSso().getSession(request);
+  const session = await getInonProjectSession(request);
   const user = session
     ? await resolveInonProjectUser(database, session)
     : null;
