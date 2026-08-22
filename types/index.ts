@@ -22,8 +22,6 @@ export interface ContactInfo {
 // 工作信息接口
 export interface JobInfo {
   position?: string
-  duration?: string
-  availability?: string
 }
 
 // 头部组件数据接口
@@ -33,19 +31,31 @@ export interface HeaderData {
   jobInfo: JobInfo
 }
 
-// 单条教育经历数据接口
+// 单条教育经历中的学历条目（时间 + 专业与学历）
+export interface EducationEntry {
+  period: string
+  details: string
+}
+
+// 单条教育经历数据接口（一所学校，可包含多段学历）
 export interface EducationItem {
   school: string
   base?: string
-  period: string
-  details: string
   image?: string
+  entries: EducationEntry[]
 }
 
 // 教育经历数据接口
-export interface EducationData extends EducationItem {
+// 新版使用 items 数组承载多所学校；每所学校用 entries 承载多段学历。
+// 为兼容旧数据，顶层保留 school/base/period/details/image（单条旧格式）。
+export interface EducationData {
   title: string
-  /** 新版编辑器使用的完整经历列表；缺省时兼容上方的单条旧数据。 */
+  school: string
+  base?: string
+  period?: string
+  details?: string
+  image?: string
+  entries?: EducationEntry[]
   items?: EducationItem[]
 }
 

@@ -17,7 +17,21 @@ const contactSchema = z.object({
     .optional(),
 });
 
+const educationEntrySchema = z.object({
+  period: z.string(),
+  details: z.string(),
+});
+
+// 新版教育经历：学校信息 + 多段学历条目
 const educationItemSchema = z.object({
+  school: z.string(),
+  base: optionalText,
+  image: optionalText,
+  entries: z.array(educationEntrySchema),
+});
+
+// 兼容旧版：period 和 details 在顶层
+const legacyEducationItemSchema = z.object({
   school: z.string(),
   base: optionalText,
   period: z.string(),
@@ -25,14 +39,23 @@ const educationItemSchema = z.object({
   image: optionalText,
 });
 
+// 接受两种格式，统一转换为新版格式
+const normalizedEducationItemSchema = z.union([
+  educationItemSchema,
+  legacyEducationItemSchema.transform((item) => ({
+    school: item.school,
+    base: item.base,
+    image: item.image,
+    entries: [{ period: item.period, details: item.details }],
+  })),
+]);
+
 const resumeDataSchema = z.object({
   header: z.object({
     name: z.string(),
     contact: contactSchema,
     jobInfo: z.object({
       position: optionalText,
-      duration: optionalText,
-      availability: optionalText,
     }),
   }),
   about: z
@@ -44,8 +67,13 @@ const resumeDataSchema = z.object({
   education: z
     .object({
       title: z.string(),
-      ...educationItemSchema.shape,
-      items: z.array(educationItemSchema).optional(),
+      school: z.string(),
+      base: optionalText,
+      period: z.string().optional(),
+      details: z.string().optional(),
+      image: optionalText,
+      entries: z.array(educationEntrySchema).optional(),
+      items: z.array(normalizedEducationItemSchema).optional(),
     })
     .optional(),
   skills: z
@@ -114,12 +142,11 @@ const displayConfigSchema = z.object({
   }),
 });
 
-export const resumeDocumentV1Schema: z.ZodType<ResumeDocumentV1> =
-  z.object({
-    schemaVersion: z.literal(1),
-    data: resumeDataSchema,
-    displayConfig: displayConfigSchema,
-  });
+export const resumeDocumentV1Schema = z.object({
+  schemaVersion: z.literal(1),
+  data: resumeDataSchema,
+  displayConfig: displayConfigSchema,
+}) as unknown as z.ZodType<ResumeDocumentV1>;
 
 export const createResumeInputSchema = z.object({
   name: z.string().trim().min(1, "请输入简历名称").max(120),
