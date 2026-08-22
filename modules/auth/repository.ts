@@ -28,6 +28,13 @@ import type { SessionRecord } from "@/modules/auth/session";
 
 type Database = DrizzleD1Database<typeof schema>;
 
+// users 表新增的 inon_user_id 列属于 iNon 单点登录内部实现，
+// 不属于 UserRecord 公开类型，映射时剥离，避免泄露到业务层。
+function toUserRecord(row: typeof users.$inferSelect): UserRecord {
+  const { inonUserId: _inonUserId, ...rest } = row;
+  return rest;
+}
+
 export function createAuthRepository(database: Database): AuthRepository {
   return {
     async findUserByEmail(email) {
@@ -37,7 +44,7 @@ export function createAuthRepository(database: Database): AuthRepository {
         .where(eq(users.email, email))
         .limit(1);
 
-      return (user as UserRecord | undefined) ?? null;
+      return user ? toUserRecord(user) : null;
     },
 
     async findUserById(id) {
@@ -47,7 +54,7 @@ export function createAuthRepository(database: Database): AuthRepository {
         .where(eq(users.id, id))
         .limit(1);
 
-      return (user as UserRecord | undefined) ?? null;
+      return user ? toUserRecord(user) : null;
     },
 
     async countVerificationCodesSince(email, since) {
