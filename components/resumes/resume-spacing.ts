@@ -46,7 +46,7 @@ export const HEADER_NAME_TO_POSITION_CLASS = "mt-3";
 
 // 联系方式两列网格：行间距 / 列间距
 export const HEADER_CONTACTS_ROW_GAP_CLASS = "gap-y-1";
-export const HEADER_CONTACTS_COLUMN_GAP_CLASS = "gap-x-0";
+export const HEADER_CONTACTS_COLUMN_GAP_CLASS = "gap-x-6";
 
 // 左文 与 右照片 两栏之间
 export const HEADER_PHOTO_GAP_CLASS = "gap-0";

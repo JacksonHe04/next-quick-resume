@@ -125,13 +125,13 @@ function HeaderSection({
           )}
         >
           <div className={HEADER_IDENTITY_BOTTOM_CLASS}>
-            <h1 className="m-0 font-serif text-2xl font-bold sm:text-3xl md:text-4xl">
+            <h1 className="m-0 text-2xl font-bold sm:text-3xl md:text-4xl" style={{ fontFamily: '"Geist", "Geist Fallback", "Songti SC", "SimSun", serif, "PingFang SC", "Microsoft YaHei"' }}>
               <Markdown value={name} />
             </h1>
             <p
               className={cn(
                 HEADER_NAME_TO_POSITION_CLASS,
-                "font-[Georgia] text-base text-gray-600 sm:text-lg md:text-xl",
+                "text-base text-gray-600 sm:text-lg md:text-xl",
               )}
             >
               <b>
@@ -142,14 +142,14 @@ function HeaderSection({
 
           <div
             className={cn(
-              "grid grid-cols-1 sm:grid-cols-2",
+              "grid grid-cols-1 sm:grid-cols-[max-content_max-content]",
               HEADER_CONTACTS_ROW_GAP_CLASS,
               HEADER_CONTACTS_COLUMN_GAP_CLASS,
               alignment === "center" && "sm:justify-center",
             )}
           >
             <p className={bodyTextClass}>
-              <b>电话 / 微信：</b>
+              <b>电话/微信：</b>
               <Markdown value={contact.phone} />
             </p>
             <p className={bodyTextClass}>
@@ -187,7 +187,7 @@ function HeaderSection({
         {photo.showPhoto ? (
           <div
             data-testid="resume-photo-frame"
-            className="resume-photo-frame relative flex h-32 w-max max-w-full shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-0 sm:min-h-full sm:self-auto print:!h-32 print:!min-h-0 print:!self-start print:!overflow-hidden"
+            className="resume-photo-frame relative flex h-32 w-max max-w-28 shrink-0 self-center overflow-hidden rounded-lg border border-gray-200 sm:h-0 sm:min-h-full sm:self-auto print:h-0 print:min-h-full print:max-w-24 print:self-start print:!overflow-hidden"
           >
             {photo.photoData ? (
               <Image
@@ -196,10 +196,10 @@ function HeaderSection({
                 width={128}
                 height={160}
                 unoptimized
-                className="resume-photo-image h-full w-auto object-contain"
+                className="resume-photo-image h-full w-auto object-contain mx-auto"
               />
             ) : (
-              <div className="grid h-full w-24 place-items-center bg-gray-50 text-xs text-gray-400 sm:w-32">
+              <div className="grid h-full w-full place-items-center bg-gray-50 text-xs text-gray-400">
                 个人照片
               </div>
             )}
@@ -420,7 +420,7 @@ export function ResumePreview({
   return (
     <article
       id="resume-preview"
-      className="min-w-0 text-black [&_strong]:font-semibold"
+      className="min-w-0 text-black [&_strong]:font-semibold print:p-1"
     >
       {document.displayConfig.sectionOrder.map((key) =>
         visible.has(key) && sections[key] ? (

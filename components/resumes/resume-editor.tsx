@@ -91,9 +91,9 @@ function toMarkdown(data: ResumeData, sectionOrder: ResumeSectionKey[]) {
     if (key === "education" && data.education) {
       lines.push("", `## ${data.education.title}`);
       getEducationItems(data.education).forEach((item) => {
-        lines.push("", item.school);
+        lines.push("", `### ${item.school}`);
         item.entries.forEach((entry) => {
-          lines.push("", `· ${entry.details} · ${entry.period}`);
+          lines.push(`- ${entry.details} · ${entry.period}`);
         });
       });
     }
@@ -118,6 +118,9 @@ function toMarkdown(data: ResumeData, sectionOrder: ResumeSectionKey[]) {
         lines.push(
           "",
           `### ${item.name}`,
+          item.github
+            ? `- GitHub：[${item.github}](${item.github})`
+            : "",
           item.description,
           ...item.features.map((feature) => `- ${feature}`),
         );
