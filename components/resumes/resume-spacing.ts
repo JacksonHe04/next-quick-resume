@@ -19,16 +19,16 @@
  */
 
 // 每个 section 底部留白（教育 / 实习 / 项目 / 技能 / 关于 之间）
-export const SECTION_GAP_CLASS = "mb-2";
+export const SECTION_GAP_CLASS = "mb-3";
 
 // 同一 section 内，相邻条目之间的距离
-export const ITEM_GAP_CLASS = "mb-2";
+export const ITEM_GAP_CLASS = "mb-3";
 
 // Section 标题（h2 + 下边框）与下方内容之间的距离
 export const TITLE_BOTTOM_CLASS = "mb-3";
 
 // 条目头部（学校/公司名 + 时间那一行）与下方描述/列表之间
-export const ITEM_HEADER_BOTTOM_CLASS = "mb-1";
+export const ITEM_HEADER_BOTTOM_CLASS = "mb-2";
 
 // 条目内描述段与下方职责/特性列表之间
 export const DESCRIPTION_BOTTOM_CLASS = "mb-1";
