@@ -163,7 +163,7 @@ export function ResumeContentForm({
   const educationItems = getEducationItems(data.education);
   const intern = data.intern ?? { title: "实习经历", items: [] };
   const projects = data.projects ?? { title: "项目经历", items: [] };
-  const about = data.about ?? { title: "关于我", content: "" };
+  const about = data.about ?? { title: "关于我", content: [] };
 
   function updateEducation(index: number, patch: Partial<EducationItem>) {
     const items = educationItems.map((item, itemIndex) =>
@@ -622,10 +622,13 @@ export function ResumeContentForm({
           }
         />
         <TextAreaField
-          label="自我介绍"
-          value={about.content}
-          onChange={(content) =>
-            onChange({ ...data, about: { ...about, content } })
+          label="自我介绍要点（每行一项）"
+          value={about.content.join("\n")}
+          onChange={(value) =>
+            onChange({
+              ...data,
+              about: { ...about, content: lines(value) },
+            })
           }
           rows={12}
         />

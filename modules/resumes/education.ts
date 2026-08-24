@@ -21,7 +21,7 @@ export function getEducationItems(
 
   return [
     {
-      school: education.school,
+      school: education.school ?? "",
       base: education.base,
       image: education.image,
       entries,
@@ -29,21 +29,15 @@ export function getEducationItems(
   ];
 }
 
+/**
+ * 写入教育经历：持久化形态只保留 title + items[]。
+ * 旧版的顶层 school/base/period/details/entries 仅由 getEducationItems 在读
+ * 取侧兼容，任何写入路径都不再产出它们。
+ */
 export function withEducationItems(
   title: string,
   items: EducationItem[],
 ): EducationData | undefined {
-  const first = items[0];
-  if (!first) return undefined;
-  const firstEntry = first.entries[0];
-  return {
-    title,
-    school: first.school,
-    base: first.base,
-    image: first.image,
-    period: firstEntry?.period,
-    details: firstEntry?.details,
-    entries: firstEntry ? first.entries : undefined,
-    items,
-  };
+  if (!items.length) return undefined;
+  return { title, items };
 }

@@ -10,11 +10,15 @@ const data: ResumeData = {
     contact: { phone: "", email: "" },
     jobInfo: {},
   },
-  about: { title: "关于我", content: "" },
+  about: { title: "关于我", content: [] },
   education: {
     title: "教育经历",
-    school: "东南大学",
-    entries: [{ period: "", details: "" }],
+    items: [
+      {
+        school: "东南大学",
+        entries: [{ period: "", details: "" }],
+      },
+    ],
   },
 };
 

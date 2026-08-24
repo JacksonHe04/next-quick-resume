@@ -22,32 +22,60 @@ const educationEntrySchema = z.object({
   details: z.string(),
 });
 
-// 新版教育经历：学校信息 + 多段学历条目
 const educationItemSchema = z.object({
   school: z.string(),
   base: optionalText,
   image: optionalText,
-  entries: z.array(educationEntrySchema),
+  entries: z.array(educationEntrySchema).default([]),
 });
 
-// 兼容旧版：period 和 details 在顶层
-const legacyEducationItemSchema = z.object({
-  school: z.string(),
-  base: optionalText,
-  period: z.string(),
-  details: z.string(),
-  image: optionalText,
-});
+// 旧版教育经历：period/details 散落在 section 顶层
+const legacyEducationSectionSchema = z
+  .object({
+    title: z.string(),
+    school: z.string(),
+    base: optionalText,
+    period: optionalText,
+    details: optionalText,
+    image: optionalText,
+    entries: z.array(educationEntrySchema).optional(),
+  })
+  .transform((section) => ({
+    title: section.title,
+    items: [
+      {
+        school: section.school,
+        base: section.base,
+        image: section.image,
+        entries:
+          section.entries && section.entries.length > 0
+            ? section.entries
+            : section.period || section.details
+              ? [{ period: section.period ?? "", details: section.details ?? "" }]
+              : [],
+      },
+    ],
+  }));
 
-// 接受两种格式，统一转换为新版格式
-const normalizedEducationItemSchema = z.union([
-  educationItemSchema,
-  legacyEducationItemSchema.transform((item) => ({
-    school: item.school,
-    base: item.base,
-    image: item.image,
-    entries: [{ period: item.period, details: item.details }],
-  })),
+const educationSectionSchema = z.union([
+  z
+    .object({
+      title: z.string(),
+      items: z.array(educationItemSchema),
+    })
+    .passthrough(),
+  legacyEducationSectionSchema,
+]);
+
+// 关于我：新数据为要点数组，旧数据为换行字符串
+const aboutPointsSchema = z.union([
+  z.array(z.string()),
+  z.string().transform((value) =>
+    value
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean),
+  ),
 ]);
 
 const resumeDataSchema = z.object({
@@ -61,21 +89,10 @@ const resumeDataSchema = z.object({
   about: z
     .object({
       title: z.string(),
-      content: z.string(),
+      content: aboutPointsSchema,
     })
     .optional(),
-  education: z
-    .object({
-      title: z.string(),
-      school: z.string(),
-      base: optionalText,
-      period: z.string().optional(),
-      details: z.string().optional(),
-      image: optionalText,
-      entries: z.array(educationEntrySchema).optional(),
-      items: z.array(normalizedEducationItemSchema).optional(),
-    })
-    .optional(),
+  education: educationSectionSchema.optional(),
   skills: z
     .object({
       title: z.string(),
@@ -92,7 +109,7 @@ const resumeDataSchema = z.object({
           period: z.string(),
           base: z.string(),
           description: z.string(),
-          responsibilities: z.array(z.string()),
+          responsibilities: z.array(z.string()).default([]),
           show: z.boolean().optional(),
           image: optionalText,
         }),
@@ -105,10 +122,10 @@ const resumeDataSchema = z.object({
       items: z.array(
         z.object({
           name: z.string(),
-          github: z.string(),
+          github: z.string().default(""),
           demo: optionalText,
           description: z.string(),
-          features: z.array(z.string()),
+          features: z.array(z.string()).default([]),
           show: z.boolean().optional(),
         }),
       ),

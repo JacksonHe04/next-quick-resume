@@ -3,6 +3,7 @@ import Image from "next/image";
 import { renderSafeInlineMarkdown } from "@/lib/markdown";
 import { cn } from "@/lib/utils";
 import { getEducationItems } from "@/modules/resumes/education";
+import { getAboutPoints } from "@/modules/resumes/normalize";
 import type { ResumeDocumentV1, ResumeSectionKey } from "@/types";
 import {
   DESCRIPTION_BOTTOM_CLASS,
@@ -374,21 +375,18 @@ function ProjectsSection({
 
 function AboutSection({ document }: { document: ResumeDocumentV1 }) {
   const about = document.data.about;
-  if (!about?.content) return null;
-  const paragraphs = about.content
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
+  const points = getAboutPoints(about);
+  if (!about || points.length === 0) return null;
   return (
     <section className={SECTION_GAP_CLASS}>
       <SectionTitle title={about.title} />
       <ol className={orderedListClass}>
-        {paragraphs.map((paragraph, index) => (
+        {points.map((point, index) => (
           <li
             key={index}
             className="text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-900"
           >
-            <Markdown value={paragraph} />
+            <Markdown value={point} />
           </li>
         ))}
       </ol>

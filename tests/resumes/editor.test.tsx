@@ -1,4 +1,4 @@
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { StrictMode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -400,10 +400,14 @@ describe("resume editor", () => {
     const document = structuredClone(initial.document);
     document.data.education = {
       title: "教育经历",
-      school: "东南大学",
-      entries: [{ period: "2022–2026", details: "本科" }],
+      items: [
+        {
+          school: "东南大学",
+          entries: [{ period: "2022–2026", details: "本科" }],
+        },
+      ],
     };
-    document.data.about = { title: "关于我", content: "介绍" };
+    document.data.about = { title: "关于我", content: ["介绍"] };
     document.displayConfig.sections.push(
       { key: "education", label: "教育经历", visible: true },
       { key: "about", label: "关于我", visible: true },
@@ -419,6 +423,86 @@ describe("resume editor", () => {
     const keys = Object.keys(JSON.parse(jsonTextarea.value));
     // about 在类型声明里排在 education 前，但 JSON 必须跟随 sectionOrder
     expect(keys).toEqual(["header", "about", "education"]);
+  });
+
+  it("accepts pasted JSON that omits optional array fields without crashing", async () => {
+    const user = userEvent.setup();
+    const document = structuredClone(initial.document);
+    document.displayConfig.sections.push(
+      { key: "projects", label: "项目经历", visible: true },
+    );
+    document.displayConfig.sectionOrder = ["header", "projects"];
+
+    render(<ResumeEditor initial={{ ...initial, document }} />);
+
+    await user.click(screen.getByRole("button", { name: "JSON" }));
+    const textarea = screen.getByLabelText("简历内容 JSON");
+    // 模拟整段粘贴：项目缺少 features 字段，旧实现会让预览对 undefined 调 .map 而崩溃
+    fireEvent.change(textarea, {
+      target: {
+        value: JSON.stringify({
+          header: {
+            name: "Jackson",
+            contact: { phone: "", email: "jackson@example.com" },
+            jobInfo: {},
+          },
+          projects: {
+            title: "项目经历",
+            items: [
+              {
+                name: "PALM 招生系统",
+                github: "",
+                description: "B 端招生产品",
+              },
+            ],
+          },
+        }),
+      },
+    });
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByText("PALM 招生系统")).toBeInTheDocument();
+  });
+
+  it("migrates legacy top-level education fields into items[] on load", async () => {
+    const user = userEvent.setup();
+    const document = structuredClone(initial.document);
+    document.displayConfig.sections.push(
+      { key: "education", label: "教育经历", visible: true },
+    );
+    document.displayConfig.sectionOrder = ["header", "education"];
+    (document.data as unknown as Record<string, unknown>).education = {
+      title: "教育经历",
+      school: "东南大学（985）",
+      base: "全日制统招｜本科",
+      period: "2023-07 ~ 2027-06",
+      details: "人工智能专业",
+      entries: [{ period: "2023-07 ~ 2027-06", details: "人工智能专业" }],
+    };
+
+    render(<ResumeEditor initial={{ ...initial, document }} />);
+
+    await user.click(screen.getByRole("button", { name: "JSON" }));
+    const textarea = screen.getByLabelText(
+      "简历内容 JSON",
+    ) as HTMLTextAreaElement;
+    const education = JSON.parse(textarea.value).education as Record<
+      string,
+      unknown
+    >;
+
+    expect(education.school).toBeUndefined();
+    expect(education.period).toBeUndefined();
+    expect(education.entries).toBeUndefined();
+    expect(education.items).toEqual([
+      {
+        school: "东南大学（985）",
+        base: "全日制统招｜本科",
+        entries: [
+          { period: "2023-07 ~ 2027-06", details: "人工智能专业" },
+        ],
+      },
+    ]);
   });
 
   it("adds and removes education, internship, and project entries", async () => {
@@ -488,7 +572,7 @@ describe("resume editor", () => {
     const document = structuredClone(initial.document);
     document.data.about = {
       title: "关于我",
-      content: "熟悉 **React**",
+      content: ["熟悉 **React**"],
     };
     document.data.skills = {
       title: "专业技能",

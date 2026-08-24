@@ -46,17 +46,18 @@ export interface EducationItem {
 }
 
 // 教育经历数据接口
-// 新版使用 items 数组承载多所学校；每所学校用 entries 承载多段学历。
-// 为兼容旧数据，顶层保留 school/base/period/details/image（单条旧格式）。
+// 当前持久化形态：title + items[]（每所学校一个 item，每段学历一个 entry）。
+// 顶层 school/base/period/details/image/entries 仅用于兼容旧数据的读取，
+// 任何写入路径（表单、JSON 粘贴、模板）都不应再产出它们。
 export interface EducationData {
   title: string
-  school: string
+  items: EducationItem[]
+  school?: string
   base?: string
   period?: string
   details?: string
   image?: string
   entries?: EducationEntry[]
-  items?: EducationItem[]
 }
 
 // 技能数据接口
@@ -100,9 +101,10 @@ export interface ProjectsData {
 }
 
 // 关于我数据接口
+// content 为要点数组，每个元素渲染成一个列表项；旧数据可能是换行分隔的字符串。
 export interface AboutData {
   title: string
-  content: string
+  content: string[]
 }
 
 // 统一简历数据接口

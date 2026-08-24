@@ -24,6 +24,11 @@ import {
   compressResumePhoto,
   getResumePhotoValidationError,
 } from "@/modules/resumes/photo";
+import {
+  getAboutPoints,
+  migrateEducation,
+  normalizeResumeData,
+} from "@/modules/resumes/normalize";
 import { orderDataBySections } from "@/modules/resumes/section-order";
 import type { ResumeRecord } from "@/modules/resumes/service";
 import type {
@@ -60,17 +65,6 @@ async function saveThroughApi(input: SaveInput): Promise<SaveResult> {
     throw new Error(payload.error?.message ?? "保存失败");
   }
   return { version: payload.resume.version };
-}
-
-function orderedJson(document: ResumeDocumentV1) {
-  return JSON.stringify(
-    orderDataBySections(
-      document.data,
-      document.displayConfig.sectionOrder,
-    ),
-    null,
-    2,
-  );
 }
 
 function toMarkdown(data: ResumeData, sectionOrder: ResumeSectionKey[]) {
@@ -130,7 +124,10 @@ function toMarkdown(data: ResumeData, sectionOrder: ResumeSectionKey[]) {
       });
     }
     if (key === "about" && data.about) {
-      lines.push("", `## ${data.about.title}`, data.about.content);
+      lines.push("", `## ${data.about.title}`);
+      getAboutPoints(data.about).forEach((point) => {
+        lines.push(`- ${point}`);
+      });
     }
   }
   return lines.join("\n");
@@ -141,6 +138,16 @@ type SaveState = {
   drafts: Map<string, string>;
   versions: Map<string, number>;
 };
+
+function prepareDocument(document: ResumeDocumentV1): ResumeDocumentV1 {
+  return {
+    ...document,
+    data: orderDataBySections(
+      migrateEducation(normalizeResumeData(document.data)),
+      document.displayConfig.sectionOrder,
+    ),
+  };
+}
 
 export function ResumeEditor({
   initial,
@@ -160,15 +167,18 @@ export function ResumeEditor({
   save?: (input: SaveInput) => Promise<SaveResult>;
   autosaveDelay?: number;
 }) {
+  const preparedInitial = useState(() => prepareDocument(initial.document))[0];
   const [resumes, setResumes] = useState<ResumeRecord[]>(availableResumes);
   const [currentId, setCurrentId] = useState(initial.id);
   const [name, setName] = useState(initial.name);
-  const [document, setDocument] = useState<ResumeDocumentV1>(() =>
-    structuredClone(initial.document),
+  const [document, setDocument] = useState<ResumeDocumentV1>(
+    preparedInitial,
   );
   const [sidebarMode, setSidebarMode] =
     useState<ResumeSidebarMode>("layout");
-  const [jsonText, setJsonText] = useState(() => orderedJson(initial.document));
+  const [jsonText, setJsonText] = useState(() =>
+    JSON.stringify(preparedInitial.data, null, 2),
+  );
   const [jsonError, setJsonError] = useState<string>();
   const [photoError, setPhotoError] = useState<string>();
   const [photoUploading, setPhotoUploading] = useState(false);
@@ -320,10 +330,11 @@ export function ResumeEditor({
     if (record.id === currentId) return;
     void persist(); // 先排队保存当前简历的未落盘修改（闭包捕获的是旧文档）
     targetIdRef.current = record.id;
+    const prepared = prepareDocument(record.document);
     setCurrentId(record.id);
     setName(record.name);
-    setDocument(structuredClone(record.document));
-    setJsonText(orderedJson(record.document));
+    setDocument(prepared);
+    setJsonText(JSON.stringify(prepared.data, null, 2));
     setJsonError(undefined);
     setPhotoError(undefined);
     if (!isGuest) {
@@ -451,8 +462,17 @@ export function ResumeEditor({
   function changeJson(value: string) {
     setJsonText(value);
     try {
-      const data = JSON.parse(value) as ResumeData;
-      setDocument((current) => ({ ...current, data }));
+      const parsed = JSON.parse(value) as unknown;
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("根节点必须是 JSON 对象");
+      }
+      // 归一化：补齐缺失字段、收敛教育经历结构，避免预览对 undefined 调 .map
+      const data = normalizeResumeData(parsed);
+      const ordered = orderDataBySections(
+        data,
+        document.displayConfig.sectionOrder,
+      );
+      setDocument((current) => ({ ...current, data: ordered }));
       setJsonError(undefined);
     } catch (error) {
       setJsonError(`JSON格式错误：${(error as Error).message}`);
