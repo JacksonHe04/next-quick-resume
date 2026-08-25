@@ -299,15 +299,11 @@ function InternSection({ document }: { document: ResumeDocumentV1 }) {
               <div
                 className={cn(
                   mutedTextClass,
-                  "flex flex-wrap items-baseline gap-x-1 gap-y-1",
+                  "flex flex-wrap items-baseline gap-y-1",
                 )}
               >
-                <span>
-                  <Markdown value={item.base} />
-                </span>
-                <span>
-                  ｜<Markdown value={item.period} />
-                </span>
+                <span><Markdown value={item.base} /></span>
+                <span>｜<Markdown value={item.period} /></span>
               </div>
             </div>
             {item.description ? (
