@@ -34,11 +34,11 @@ const bodyTextClass = "text-sm sm:text-base";
 const mutedTextClass = "text-sm text-gray-600 sm:text-base";
 const descriptionClass = cn(
   DESCRIPTION_BOTTOM_CLASS,
-  "text-sm text-gray-700 sm:text-base",
+  "text-justify text-sm text-gray-700 sm:text-base print:text-justify",
 );
 const orderedListClass = cn(
   LIST_GAP_CLASS,
-  "ml-0 list-inside list-decimal text-sm sm:text-base",
+  "ml-0 list-inside list-decimal text-justify text-sm sm:text-base print:text-justify",
 );
 
 // Every user-editable text field in the resume is rendered through this
@@ -380,7 +380,7 @@ function AboutSection({ document }: { document: ResumeDocumentV1 }) {
         {points.map((point, index) => (
           <li
             key={index}
-            className="text-gray-700 [&_strong]:font-semibold [&_strong]:text-gray-900"
+            className="text-justify text-gray-700 print:text-justify [&_strong]:font-semibold [&_strong]:text-gray-900"
           >
             <Markdown value={point} />
           </li>
